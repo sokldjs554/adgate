@@ -184,7 +184,8 @@ def test_sensitivity_flags_components_the_eval_data_cannot_see():
     base = {n: gate.snapshot(metrics.compute(e, [pipeline_system()(x.creative) for x in e])) for n, e in datasets.items()}
     sens = gate.sensitivity(datasets, base)
     assert set(sens) == {"normalize", "exceptions", "challenge", "landing"}
-    assert sens["exceptions"]["caught"] and sens["landing"]["caught"]
+    # 구성요소를 끄면 게이트가 실패해야 한다 — 네 개 모두. 하나라도 못 잡으면 평가 데이터가 그 구성요소를 덮지 못하는 것이다(FAILURES F-5).
+    assert all(info["caught"] for info in sens.values()), {k: v["caught"] for k, v in sens.items()}
 
 
 # --------------------------------------------------------------------------- CLI 프로토콜

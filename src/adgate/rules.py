@@ -19,8 +19,9 @@ from .policy import Policy
 
 # 광고-랜딩 수치 대조는 '제안(offer)' 문구에만 한다. 고지 문구의 일반 수치는 제외한다.
 LND_FIELDS = ("headline", "body", "cta", "image_text")
-# 랜딩 페이지에서는 하드 반려 계열만 검사한다.
-LANDING_SCANNED = ("AD-GUA-01", "AD-HLT-01", "AD-FRD-01", "AD-BRD-01")
+# 랜딩 페이지에서는 보장·질병 효능·제한 업종 표현만 검사하고, 찾아도 *사람 검토*(REVIEW)까지만 낸다. 랜딩은 광고 문구가 아니라 페이지 스냅샷이라
+# 로그인 폼('비밀번호를 입력')·인증번호 입력·금연 안내 같은 정상 문구가 섞여 있다. 그래서 사기 유도(FRD)는 보지 않는다(독립 리뷰 M4).
+LANDING_SCANNED = ("AD-GUA-01", "AD-HLT-01", "AD-BRD-01")
 
 
 @dataclass
@@ -368,7 +369,10 @@ def run_rules(scan: Scan) -> list[Finding]:
     if landing is not None and scan.cfg.landing:
         for rule_id, fn in TEXT_DETECTORS:
             if rule_id in LANDING_SCANNED and scan.policy.applies(rule_id, scan.category):
-                findings.extend(fn(scan, "landing_text", landing))
+                for f in fn(scan, "landing_text", landing):
+                    if f.severity == "reject":
+                        f = f.model_copy(update={"severity": "review", "note": f"{f.note}; landing" if f.note else "landing"})
+                    findings.append(f)
     findings.extend(detect_hidden(scan))
     findings.extend(detect_category_mismatch(scan))
     findings.extend(detect_meta(scan))

@@ -4,7 +4,7 @@
     "unsafe_approve": 0.0,
     "false_reject": 0.0,
     "over_review": 0.0,
-    "auto_rate": 0.7167,
+    "auto_rate": 0.7,
     "rule_f1": 1.0
   },
   "test": {

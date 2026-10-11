@@ -60,6 +60,7 @@ class Verification(BaseModel):
     lost_claims: list[str]
     new_claims: list[str]
     thin_headline: bool
+    problems: list[str] = []  # 문장이 깨졌는지 보는 검사: mid_token_cut, unbalanced_brackets, unbalanced_quotes, lost_digits, too_little_left, headline_replaced
 
 
 class RewriteResult(BaseModel):
@@ -175,6 +176,58 @@ def _claims(creative: Creative) -> set[str]:
 
 
 _TOKEN = re.compile(r"[0-9a-z가-힣]{2,}")
+_DIGITS = re.compile(r"\d+")
+_OPEN, _CLOSE = "([{「『【〈《", ")]}」』】〉》"
+MIN_TOKENS_LEFT = 2  # 위반 표현을 빼고 원문 낱말이 이보다 적게 남으면 메시지가 사라진 것이다
+
+
+def _balanced(text: str) -> bool:
+    stack: list[str] = []
+    for ch in text:
+        if ch in _OPEN:
+            stack.append(_CLOSE[_OPEN.index(ch)])
+        elif ch in _CLOSE:
+            if not stack or stack.pop() != ch:
+                return False
+    return not stack
+
+
+def _syntax_problems(creative: Creative, candidate: Creative, edits: list[_Edit], orig_tokens: set[str]) -> list[str]:
+    """'재심사 통과 + 수치 보존' 만으로는 깨진 문장이 검증됨이 된다(독립 리뷰 M8). 생성기가 낸 흔한 파손을 따로 본다."""
+    problems: list[str] = []
+    for e in edits:
+        text = creative.text(e.field)
+        before = text[e.start - 1] if e.start > 0 else " "
+        after = text[e.end] if e.end < len(text) else " "
+        # 수정 구간이 낱말 한가운데서 시작하거나 끝나면 조사·어미 꼬리가 남는다("유일하게" → "하게", "5가지" → "지").
+        if (before.isalnum() and text[e.start].isalnum()) or (after.isalnum() and text[e.end - 1].isalnum() and not e.replacement):
+            problems.append("mid_token_cut")
+            break
+    changed = [f for f in AD_FIELDS if creative.text(f) != candidate.text(f)]
+    if any(not _balanced(candidate.text(f)) for f in changed):
+        problems.append("unbalanced_brackets")
+    if any(candidate.text(f).count('"') % 2 or (candidate.text(f).count("“") != candidate.text(f).count("”")) for f in changed):
+        problems.append("unbalanced_quotes")
+    removed = [(e.field, e.start, e.end) for e in edits]
+    kept_digits: set[str] = set()
+    for f in AD_FIELDS:
+        text = creative.text(f)
+        for fld, s, en in sorted(removed, key=lambda x: -x[1]):
+            if fld == f:
+                text = text[:s] + " " + text[en:]
+        kept_digits.update(_DIGITS.findall(text))
+    cand_digits = {d for f in AD_FIELDS for d in _DIGITS.findall(candidate.text(f))}
+    if kept_digits - cand_digits:
+        problems.append("lost_digits")
+    if len(orig_tokens) < MIN_TOKENS_LEFT:
+        problems.append("too_little_left")
+    head = creative.headline
+    for fld, s, en in sorted(removed, key=lambda x: -x[1]):
+        if fld == "headline":
+            head = head[:s] + " " + head[en:]
+    if _TOKEN.findall(creative.headline.lower()) and not _TOKEN.findall(head.lower()):
+        problems.append("headline_replaced")  # 제목의 원문 낱말이 하나도 남지 않았다 — 템플릿 문구만 남은 제목은 수정안이 아니다
+    return problems
 
 
 def _tokens(creative: Creative, exclude: list[tuple[str, int, int]] | None = None) -> set[str]:
@@ -212,6 +265,10 @@ def rewrite(
         return RewriteResult(status="unavailable", candidate=None, applied=applied, unresolved=["headline_empty_after_fix"], verification=None)
 
     candidate = creative.model_copy(update={**updates, "disclosure": updates.get("disclosure", creative.disclosure) or None})
+    try:  # model_copy 는 검증하지 않는다: 덧붙인 고지가 길이 제한(2000자)을 넘을 수 있다
+        Creative.model_validate(candidate.model_dump())
+    except ValueError:
+        return RewriteResult(status="unavailable", candidate=None, applied=applied, unresolved=["candidate_invalid"], verification=None)
     after = review(candidate, cfg, policy)
 
     removed = [(e.field, e.start, e.end) for e in edits]
@@ -228,7 +285,8 @@ def rewrite(
     new = sorted(cand_claims - orig_claims)
     passes = after.outcome == "APPROVE"
     thin = len(candidate.headline.replace(" ", "")) < MIN_HEADLINE_CHARS
-    verified = passes and retention >= RETENTION_MIN and not lost and not new and not thin
+    problems = _syntax_problems(creative, candidate, edits, orig_tokens)
+    verified = passes and retention >= RETENTION_MIN and not lost and not new and not thin and not problems
     return RewriteResult(
         status="verified" if verified else "partial",
         candidate=candidate,
@@ -236,6 +294,6 @@ def rewrite(
         unresolved=[f"{f.rule_id}:{f.code}" for f in after.findings if f.severity in ("reject", "review")],
         verification=Verification(
             outcome_after=after.outcome, passes=passes, retention=retention, lost_claims=lost, new_claims=new,
-            thin_headline=thin,
+            thin_headline=thin, problems=problems,
         ),
     )

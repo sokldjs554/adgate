@@ -97,3 +97,40 @@ def test_a_headline_reduced_to_a_word_is_not_verified():
     r = rw(c)
     assert r.candidate is not None and r.candidate.headline == "보습력"
     assert r.status == "partial" and r.verification is not None and r.verification.thin_headline
+
+
+# --------------------------------------------------------------------------- 독립 리뷰 M8: '검증됨' 이 깨진 문장을 통과시키지 않는다
+def _fix(headline, category="cosmetic", body="설명 문장입니다."):
+    c = mk(headline, body, category=category, disclosure=INV_OK if category == "invest" else None)
+    return rw(c)
+
+
+def test_a_cut_through_the_middle_of_a_word_is_not_verified():
+    r = _fix("유일하게 순한 성분 보습 크림")
+    assert r.status == "partial" and r.verification and "mid_token_cut" in r.verification.problems
+    r = _fix("의사 추천 5가지 성분 보습 크림 신제품")
+    assert r.status == "partial" and r.verification and "mid_token_cut" in r.verification.problems
+
+
+def test_unbalanced_brackets_and_quotes_are_not_verified():
+    r = _fix("투자 안내 (수익보장) 서비스", "invest")
+    assert r.status == "partial" and r.verification and "unbalanced_brackets" in r.verification.problems
+    r = _fix('"무조건 승인" 대출 안내', "loan")
+    assert r.status == "partial" and r.verification and "unbalanced_quotes" in r.verification.problems
+
+
+def test_a_headline_with_no_original_word_left_is_not_verified():
+    r = _fix("수익 보장", "invest")
+    assert r.status == "partial" and r.verification and "headline_replaced" in r.verification.problems
+
+
+def test_clean_fixes_still_pass_the_new_checks():
+    r = _fix("국내 1위 보습 크림")
+    assert r.status == "verified" and r.verification and r.verification.problems == []
+
+
+def test_a_candidate_that_breaks_the_length_limit_is_unavailable_not_verified():
+    long_disclosure = "가" * 1990  # 덧붙이는 금융 고지가 2000자를 넘긴다
+    c = mk("무조건 승인 대출", "설명", category="loan", disclosure=long_disclosure)
+    r = rw(c)
+    assert r.status == "unavailable" and "candidate_invalid" in r.unresolved

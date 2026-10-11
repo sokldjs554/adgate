@@ -251,9 +251,23 @@ def test_violation_in_each_ad_field_is_found_with_exact_quote():
         assert hits and hits[0].field == field and hits[0].quote == "무조건 승인"
 
 
-def test_hard_reject_rules_scan_the_landing_but_others_do_not():
-    assert ("AD-HLT-01", "disease_claim") in codes(mk("영양제", category="supplement", landing="이 제품은 당뇨를 치료합니다"))
+def test_the_landing_is_scanned_for_guarantees_health_claims_and_restricted_topics_but_only_a_person_decides():
+    from adgate.config import ReviewConfig
+    from adgate.pipeline import review
+
+    c = mk("영양제", category="supplement", landing="이 제품은 당뇨를 치료합니다")
+    assert ("AD-HLT-01", "disease_claim") in codes(c)
+    r = review(c, ReviewConfig(challenge=False))
+    assert r.outcome == "REVIEW" and all(f.severity == "review" for f in r.findings if f.field == "landing_text")
     assert not any(r == "AD-ABS-01" for r, _ in codes(mk("영양제", landing="국내 1위 제품")))
+
+
+@pytest.mark.parametrize(
+    "landing",
+    ["로그인\n아이디와 비밀번호를 입력하세요.\n회원가입", "가입 시 받은 인증번호를 입력해 주세요", "선입금 없이 바로 시작하세요"],
+)
+def test_ordinary_landing_page_forms_are_not_fraud(landing):
+    assert not any(r == "AD-FRD-01" for r, _ in codes(mk("가계부 앱", landing=landing)))
 
 
 def test_overlap_keeps_the_most_specific_rule():

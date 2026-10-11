@@ -54,6 +54,10 @@ _ORDER = {"APPROVE": 0, "REVIEW": 1, "REJECT": 2}
 _SEV_TO_OUTCOME = {"info": 0, "review": 1, "reject": 2}
 
 
+# 랜딩 페이지(`landing_text`)에서 찾아도 사람 검토까지만 가는 규칙(POLICY.md 2절).
+LANDING_REVIEW_RULES = frozenset({"AD-GUA-01", "AD-HLT-01", "AD-BRD-01"})
+
+
 def validate(examples: list[Example], policy: Policy | None = None) -> list[str]:
     """라벨 일관성 오류 목록. 비어 있어야 한다."""
     policy = policy or load_policy()
@@ -70,6 +74,8 @@ def validate(examples: list[Example], policy: Policy | None = None) -> list[str]
                 errors.append(f"{ex.id}: 알 수 없는 규칙 {v.rule_id}")
                 continue
             sevs = [_SEV_TO_OUTCOME[c.severity] for c in rule.codes.values() if c.severity != "info"]
+            if v.field == "landing_text" and v.rule_id in LANDING_REVIEW_RULES:
+                sevs = [_ORDER["REVIEW"]]  # POLICY 2절: 랜딩에서 찾은 보장·질병 효능·제한 주제 표현은 REVIEW
             lo, hi = max(lo, min(sevs)), max(hi, max(sevs))
             if v.field is not None:
                 text = ex.creative.text(v.field)

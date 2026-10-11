@@ -138,16 +138,26 @@ def test_idempotency_replay_and_conflict(client):
 
 
 def test_concurrent_submits_with_one_key_create_one_run(client):
+    """같은 키로 동시에 6건: 정확히 하나만 새로 만들어지고(201) 나머지는 같은 실행의 재생(200)이어야 한다. 스레드 예외도 없어야 한다."""
     h = {**ALICE, "Idempotency-Key": "race-1"}
-    ids: list[str] = []
+    results: list[tuple[int, str, str | None]] = []
+    errors: list[BaseException] = []
 
     def go() -> None:
-        ids.append(client.post("/v1/reviews", json=BAD, headers=h).json()["run_id"])
+        try:
+            r = client.post("/v1/reviews", json=BAD, headers=h)
+            results.append((r.status_code, r.json()["run_id"], r.headers.get("Idempotent-Replayed")))
+        except BaseException as exc:  # noqa: BLE001
+            errors.append(exc)
 
     threads = [threading.Thread(target=go) for _ in range(6)]
     [t.start() for t in threads]
     [t.join() for t in threads]
-    assert len(set(ids)) == 1
+    assert errors == [] and len(results) == 6
+    assert sorted(code for code, _, _ in results) == [200] * 5 + [201]
+    assert len({rid for _, rid, _ in results}) == 1
+    assert all(replayed == "true" for code, _, replayed in results if code == 200)
+    assert len(client.get("/v1/reviews", headers=ALICE).json()["items"]) == 1
 
 
 def test_rewrite_endpoint_returns_a_verified_candidate_and_logs_it(client):
