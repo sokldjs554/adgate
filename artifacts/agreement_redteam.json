@@ -1,0 +1,92 @@
+{
+  "n": 72,
+  "decision_agreement": {
+    "k": 72,
+    "n": 72,
+    "value": 1.0
+  },
+  "kappa": 1.0,
+  "confusion": {
+    "APPROVE": {
+      "APPROVE": 21,
+      "REVIEW": 0,
+      "REJECT": 0
+    },
+    "REVIEW": {
+      "APPROVE": 0,
+      "REVIEW": 17,
+      "REJECT": 0
+    },
+    "REJECT": {
+      "APPROVE": 0,
+      "REVIEW": 0,
+      "REJECT": 34
+    }
+  },
+  "rule": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "tp": 71,
+    "fp": 0,
+    "fn": 0,
+    "per_rule": {
+      "AD-ABS-01": {
+        "agree": 10,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-ADV-01": {
+        "agree": 1,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-BRD-01": {
+        "agree": 5,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-CMP-01": {
+        "agree": 7,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-ENDO-01": {
+        "agree": 6,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-FIN-01": {
+        "agree": 7,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-FRD-01": {
+        "agree": 5,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-GUA-01": {
+        "agree": 13,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-HLT-01": {
+        "agree": 6,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-LND-01": {
+        "agree": 4,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-URG-01": {
+        "agree": 7,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      }
+    }
+  },
+  "disagreements": []
+}

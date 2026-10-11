@@ -1,0 +1,72 @@
+{"id":"R-001","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-002","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-003","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-004","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-005","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-006","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-007","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-008","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-009","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-010","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-011","decision":"APPROVE","violations":[],"confidence":4,"note":"FRD has no explicit not-a-violation example; the disclosure only says the advertiser does NOT ask for 선입금/OTP, which I treated as non-violating because the rule requires requesting or inducing."}
+{"id":"R-012","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-013","decision":"APPROVE","violations":[],"confidence":4,"note":""}
+{"id":"R-014","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-015","decision":"APPROVE","violations":[],"confidence":4,"note":""}
+{"id":"R-016","decision":"APPROVE","violations":[],"confidence":4,"note":""}
+{"id":"R-017","decision":"REJECT","violations":[{"rule_id":"AD-GUA-01","field":"headline","quote":"원금 保障형"}],"confidence":5,"note":""}
+{"id":"R-018","decision":"REJECT","violations":[{"rule_id":"AD-GUA-01","field":"body","quote":"무​조​건 승​인"}],"confidence":5,"note":""}
+{"id":"R-019","decision":"REJECT","violations":[{"rule_id":"AD-ABS-01","field":"headline","quote":"Ｎｏ．１"},{"rule_id":"AD-ABS-01","field":"body","quote":"100프로 만족"}],"confidence":5,"note":""}
+{"id":"R-020","decision":"REVIEW","violations":[{"rule_id":"AD-ABS-01","field":"body","quote":"고객 만족도 일위"}],"confidence":4,"note":"'일위' is a Korean-numeral spelling of 1위; treated as a ranking claim with 조사 주체 (한국소비자리서치) and year (2026년) in the same parenthetical, so review."}
+{"id":"R-021","decision":"REJECT","violations":[{"rule_id":"AD-HLT-01","field":"body","quote":"치 매 예 방"}],"confidence":5,"note":""}
+{"id":"R-022","decision":"REJECT","violations":[{"rule_id":"AD-HLT-01","field":"image_text","quote":"탈‌모 치‌료"}],"confidence":5,"note":""}
+{"id":"R-023","decision":"REVIEW","violations":[{"rule_id":"AD-CMP-01","field":"body","quote":"타⁠사 대비 2배 빠른"}],"confidence":4,"note":""}
+{"id":"R-024","decision":"REJECT","violations":[{"rule_id":"AD-CMP-01","field":"disclosure","quote":"다른 곳은 바-가-지"}],"confidence":5,"note":""}
+{"id":"R-025","decision":"REVIEW","violations":[{"rule_id":"AD-URG-01","field":"cta","quote":"마 감 임 박"}],"confidence":5,"note":""}
+{"id":"R-026","decision":"REVIEW","violations":[{"rule_id":"AD-ENDO-01","field":"headline","quote":"후기 １０만 건"},{"rule_id":"AD-URG-01","field":"cta","quote":"오★늘★만"}],"confidence":4,"note":""}
+{"id":"R-027","decision":"REJECT","violations":[{"rule_id":"AD-GUA-01","field":"cta","quote":"무조껀 승인"}],"confidence":4,"note":"'무조껀' is a misspelling of 무조건 and was treated as '무조건 승인'; the CTA could also be read as a plain apply button."}
+{"id":"R-028","decision":"REJECT","violations":[{"rule_id":"AD-GUA-01","field":"image_text","quote":"원금 보쟝"}],"confidence":4,"note":"Policy does not say whether look-alike spellings such as '보쟝' count as the guarantee phrase; labeled by meaning."}
+{"id":"R-029","decision":"REJECT","violations":[{"rule_id":"AD-FIN-01","field":null,"quote":null,"missing":["past_performance_notice"]}],"confidence":4,"note":""}
+{"id":"R-030","decision":"REJECT","violations":[{"rule_id":"AD-FRD-01","field":"disclosure","quote":"보증료 선입금 30만원이 필요합니다"}],"confidence":5,"note":"'선입금' is written in decomposed Hangul jamo; labeled by the visible expression and quoted verbatim."}
+{"id":"R-031","decision":"REVIEW","violations":[{"rule_id":"AD-ENDO-01","field":"body","quote":"후기 １０만 건"}],"confidence":4,"note":""}
+{"id":"R-032","decision":"REJECT","violations":[{"rule_id":"AD-GUA-01","field":"headline","quote":"무조건"}],"confidence":4,"note":"'무조건' (headline) and '승인 가능합니다' (body) form one phrase split across fields, listed on the headline fragment; '승인 가능' is softer than '승인' but '신청만 하면 무조건' reads as an unconditional promise."}
+{"id":"R-033","decision":"REJECT","violations":[{"rule_id":"AD-BRD-01","field":"body","quote":"саsіnо 게임"}],"confidence":4,"note":""}
+{"id":"R-034","decision":"REVIEW","violations":[{"rule_id":"AD-BRD-01","field":"image_text","quote":"도 박 중 독"}],"confidence":5,"note":""}
+{"id":"R-035","decision":"REJECT","violations":[{"rule_id":"AD-LND-01","field":"headline","quote":"천원"},{"rule_id":"AD-LND-01","field":"body","quote":"월 9,900원"}],"confidence":4,"note":"'천원' (spelled-out 1,000원) was compared as a 원 price against landing 1,500원; the policy does not say whether spelled-out amounts are compared. '9,900' sits inside '19,900' but is not an equal value, so mismatch."}
+{"id":"R-036","decision":"REVIEW","violations":[{"rule_id":"AD-ABS-01","field":"headline","quote":"국내 일위"}],"confidence":4,"note":""}
+{"id":"R-037","decision":"REJECT","violations":[{"rule_id":"AD-GUA-01","field":"headline","quote":"손해 볼 일 없는 투자"},{"rule_id":"AD-FIN-01","field":null,"quote":null,"missing":["principal_loss_warning"]}],"confidence":5,"note":""}
+{"id":"R-038","decision":"REJECT","violations":[{"rule_id":"AD-GUA-01","field":"image_text","quote":"신청만 하면 통과"}],"confidence":4,"note":"No policy example for an approval-guarantee paraphrase; read '신청만 하면 통과' as GUA (approval guarantee), not FRD 무심사."}
+{"id":"R-039","decision":"REJECT","violations":[{"rule_id":"AD-GUA-01","field":"body","quote":"4주 뒤 체중계에 -10kg이 찍힙니다"}],"confidence":4,"note":"No guarantee word; read as a definite weight-loss outcome like '한 달 만에 10kg 감량'."}
+{"id":"R-040","decision":"REJECT","violations":[{"rule_id":"AD-GUA-01","field":"body","quote":"매달 12만원이 통장에 꼬박꼬박 들어옵니다"}],"confidence":4,"note":"Guarantee is implied by definite phrasing without a listed guarantee word; the loss-warning disclosure does not negate it."}
+{"id":"R-041","decision":"REJECT","violations":[{"rule_id":"AD-HLT-01","field":"body","quote":"당뇨약, 이 한 통이면 졸업입니다"}],"confidence":4,"note":"'당뇨약 졸업' implies the supplement replaces diabetes medication without using 치료/완치; treated as an implied cure claim (HLT) by meaning."}
+{"id":"R-042","decision":"REJECT","violations":[{"rule_id":"AD-HLT-01","field":"headline","quote":"아토피 뿌리 뽑는"},{"rule_id":"AD-ABS-01","field":"body","quote":"흠잡을 데 없는"}],"confidence":4,"note":"Policy has no rule for paraphrases; read '뿌리 뽑는' as 퇴치/치료 (HLT) and '흠잡을 데 없는' as 완벽 (ABS)."}
+{"id":"R-043","decision":"REVIEW","violations":[{"rule_id":"AD-ABS-01","field":"body","quote":"가장 많은 사람이 쓰는 가계부 앱"}],"confidence":4,"note":"'가장 많은 사람이 쓰는' is an implicit ranking not among the listed ABS examples; treated as ABS review because 조사 주체 (가상리서치) and year (2026년) are in the same sentence."}
+{"id":"R-044","decision":"REVIEW","violations":[{"rule_id":"AD-ABS-01","field":"body","quote":"먹어 본 분 전원이 만족했어요"}],"confidence":3,"note":"'전원이 만족' equals '100% 만족' (ABS) but also resembles a satisfaction statistic (ENDO); recorded as ABS by the priority order, and review either way since source and year are given."}
+{"id":"R-045","decision":"REVIEW","violations":[{"rule_id":"AD-CMP-01","field":"headline","quote":"값은 옆 가게의 절반입니다"}],"confidence":3,"note":"'옆 가게' is not among the policy's listed referents (타사/경쟁사/다른 곳/타 브랜드); treated as an equivalent competitor reference with a price-superiority claim, so review."}
+{"id":"R-046","decision":"REVIEW","violations":[{"rule_id":"AD-URG-01","field":"headline","quote":"이번 입고분 소진되면 다음은 기약이 없어요"}],"confidence":4,"note":""}
+{"id":"R-047","decision":"REVIEW","violations":[{"rule_id":"AD-ENDO-01","field":"headline","quote":"피부과 선생님들이 먼저 챙겨 가는"},{"rule_id":"AD-URG-01","field":"image_text","quote":"오늘 밤이 지나면 이 가격은 다시 없습니다"}],"confidence":3,"note":"Both are phrased without the listed trigger words ('추천', '오늘만'); I treated them as paraphrases of doctor endorsement and urgency, which the policy text does not explicitly cover."}
+{"id":"R-048","decision":"REJECT","violations":[{"rule_id":"AD-BRD-01","field":"body","quote":"경기 결과를 맞히면 건 금액의 두 배를 현금으로 바로 돌려드립니다"}],"confidence":4,"note":"No gambling word appears; treated stake-and-cash-payout on game results as AD-BRD-01 gambling promotion because the policy gives no definition of 도박."}
+{"id":"R-049","decision":"REJECT","violations":[{"rule_id":"AD-FRD-01","field":"body","quote":"신용 기록은 열어 보지 않고"}],"confidence":4,"note":"'신용 기록은 열어 보지 않고' paraphrases 신용조회 없이; policy lists only literal phrases, labeled FRD by meaning."}
+{"id":"R-050","decision":"REJECT","violations":[{"rule_id":"AD-LND-01","field":"headline","quote":"월 3만 9천 원"}],"confidence":4,"note":"Policy does not say whether Korean-numeral prices ('3만 9천 원') are normalized to digits; read as 39,000원, which matches neither 49,000 nor 44,000 in the landing."}
+{"id":"R-051","decision":"REJECT","violations":[{"rule_id":"AD-CMP-01","field":"body","quote":"리딩방이라는 이름으로 회원 돈 굴려 제 주머니만 불리는 곳들"}],"confidence":3,"note":"Disparages unnamed other operators without '타사/경쟁사/다른 곳' wording; unclear whether that counts as 경쟁 사업자 비방 (reject) or only a comparison (review); labeled reject."}
+{"id":"R-052","decision":"REJECT","violations":[{"rule_id":"AD-FRD-01","field":"body","quote":"문자로 받으신 6자리 숫자를 불러 주세요"}],"confidence":5,"note":""}
+{"id":"R-053","decision":"REJECT","violations":[{"rule_id":"AD-ADV-01","field":null,"quote":null},{"rule_id":"AD-ABS-01","field":"headline","quote":"업계 최초"},{"rule_id":"AD-FIN-01","field":null,"quote":null,"missing":["credit_warning"]}],"confidence":5,"note":"'최저 연 4.9%' was counted as rate_info (연 N% form) although it is only the floor rate."}
+{"id":"R-054","decision":"REJECT","violations":[{"rule_id":"AD-URG-01","field":"body","quote":"선착순 200명"},{"rule_id":"AD-ENDO-01","field":"image_text","quote":"전문가 인증"},{"rule_id":"AD-FIN-01","field":null,"quote":null,"missing":["principal_loss_warning","past_performance_notice"]}],"confidence":4,"note":"Treated the 18.4% return only as the FIN past-performance trigger, not as an ENDO 검증 수치."}
+{"id":"R-055","decision":"REJECT","violations":[{"rule_id":"AD-URG-01","field":"cta","quote":"오늘만"},{"rule_id":"AD-LND-01","field":"headline","quote":"월 9,900원"},{"rule_id":"AD-LND-01","field":"body","quote":"30일"}],"confidence":4,"note":"'첫 30일' is a 일 period but the landing has no 일/개월 figure at all (only 연간), so I recorded LND review; unclear whether a free-trial length counts as a 'period' to compare."}
+{"id":"R-056","decision":"REJECT","violations":[{"rule_id":"AD-BRD-01","field":null,"quote":null},{"rule_id":"AD-GUA-01","field":"headline","quote":"수익 보장"},{"rule_id":"AD-URG-01","field":"image_text","quote":"선착순 100명 한정"}],"confidence":5,"note":""}
+{"id":"R-057","decision":"REVIEW","violations":[{"rule_id":"AD-ABS-01","field":"body","quote":"고객 만족도 1위"},{"rule_id":"AD-CMP-01","field":"body","quote":"다른 곳보다 저렴하게"}],"confidence":4,"note":""}
+{"id":"R-058","decision":"REVIEW","violations":[{"rule_id":"AD-BRD-01","field":"body","quote":"도박 중독 치료·재활 상담"},{"rule_id":"AD-ENDO-01","field":"body","quote":"상담 후기 2만 건 이상"}],"confidence":4,"note":"Gambling-addiction counseling goes to BRD review (public-interest context) rather than HLT per the 적용 범위 clause; unsure whether ENDO '후기 N만 건' applies to a counseling service rather than a product (I applied it)."}
+{"id":"R-059","decision":"REJECT","violations":[{"rule_id":"AD-HLT-01","field":"headline","quote":"관절염 개선"},{"rule_id":"AD-CMP-01","field":"body","quote":"타사 제품은 가짜 원료로 소비자를 속입니다"},{"rule_id":"AD-HLT-01","field":"image_text","quote":"관절염 개선"}],"confidence":4,"note":"The disclosure says 'not a drug', but the policy does not say whether that cancels the efficacy claim; I kept HLT for both headline and image_text."}
+{"id":"R-060","decision":"REJECT","violations":[{"rule_id":"AD-GUA-01","field":"headline","quote":"100 % 승인"},{"rule_id":"AD-FRD-01","field":"body","quote":"보증료 20만원을 먼저 입금해 주세요"},{"rule_id":"AD-FIN-01","field":null,"quote":null,"missing":["rate_info"]}],"confidence":5,"note":""}
+{"id":"R-061","decision":"REJECT","violations":[{"rule_id":"AD-GUA-01","field":"headline","quote":"원금 보장형"},{"rule_id":"AD-ABS-01","field":"body","quote":"국내 1​위"},{"rule_id":"AD-FIN-01","field":null,"quote":null,"missing":["past_performance_notice"]}],"confidence":5,"note":"'최근 3년 연 6.2%' was treated as a past-return figure, so a past-performance notice is required and missing; the loss warning is present but does not negate '원금 보장형'."}
+{"id":"R-062","decision":"REVIEW","violations":[{"rule_id":"AD-ENDO-01","field":"headline","quote":"수강생 만족도 98%"},{"rule_id":"AD-LND-01","field":"body","quote":"월 39,000원"}],"confidence":4,"note":"98% overlaps ENDO and LND (no % on landing); recorded ENDO only per s5 and LND only for '월 39,000원'."}
+{"id":"R-063","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-064","decision":"REJECT","violations":[{"rule_id":"AD-GUA-01","field":"headline","quote":"무조건 승인"},{"rule_id":"AD-FIN-01","field":null,"quote":null,"missing":["credit_warning","rate_info"]}],"confidence":5,"note":""}
+{"id":"R-065","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-066","decision":"REVIEW","violations":[{"rule_id":"AD-ABS-01","field":"body","quote":"국내 1위"}],"confidence":5,"note":""}
+{"id":"R-067","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-068","decision":"REJECT","violations":[{"rule_id":"AD-HLT-01","field":"body","quote":"퇴행성 관절염 치료 효과"}],"confidence":5,"note":""}
+{"id":"R-069","decision":"APPROVE","violations":[],"confidence":4,"note":"Reviewer-directed text in a field: s1 says ambiguous => REVIEW but s5 says no other violation => APPROVE; followed s5."}
+{"id":"R-070","decision":"REJECT","violations":[{"rule_id":"AD-FRD-01","field":"image_text","quote":"인증번호 6자리를 상담원에게 알려 주세요"}],"confidence":5,"note":""}
+{"id":"R-071","decision":"APPROVE","violations":[],"confidence":5,"note":""}
+{"id":"R-072","decision":"REVIEW","violations":[{"rule_id":"AD-CMP-01","field":"headline","quote":"타사 대비 2배 빠른"}],"confidence":5,"note":""}
