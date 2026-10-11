@@ -37,6 +37,9 @@
   정확도, 비용, 지연, 거절 빈도, `fallbacks: "default"` 가 실제로 받아들여지는지, 프롬프트 캐시가 실제로 읽히는지는 **미확인**이다.
 - `adgate judge-check`(한 건 호출)와 `adgate eval --judge anthropic --max-usd N`(측정)으로 키가 있는 환경에서 확인한다.
 - **대리 측정**: 같은 프롬프트·스키마·근거 검증·병합 규칙을 거치게 하되 모델 응답은 Claude Code 서브에이전트가 만든 *녹음*을 재생했다([JUDGE_REPLAY.md](JUDGE_REPLAY.md)). 운영 경로(API, 지정 모델, 노력 수준)를 재는 것이 아니다.
+  결과: 패러프레이즈 위험 승인율 <!-- num:judge.results.redteam.full.slices.paraphrase.unsafe_approve|rpct1 -->87.5% (14/16)<!-- /num --> → <!-- num:judge.results.redteam.full+judge.slices.paraphrase.unsafe_approve|rpct1 -->0.0% (0/16)<!-- /num -->. **이 수치는 낙관적이다**: 설계자·작성자·라벨러·대역이 모두 같은 모델 계열이고, 대역은 평가임을 알며, 패러프레이즈는 16건이다. 같은 judge 가 정답 APPROVE 소재 <!-- num:judge.pooled.approve_changed|rpct1 -->4.4% (3/68)<!-- /num --> 의 판정을 바꿨고 그중 2건이 REJECT 였다 → 기본값을 상한 구성(Judge 는 REVIEW 까지만)으로 했다([D-14](DECISIONS.md)).
+- **Judge 프롬프트·입력의 알려진 결함(고치지 않음)**: 규칙을 한 줄로만 요약해 정책의 예외를 모른다, 랜딩 텍스트가 입력에 없다, `already_found` 가 인용 없는 발견을 빼 같은 규칙을 지어낸 앵커로 다시 제안한다, 부재형 위반을 내는 방법이 정해져 있지 않다([JUDGE_REPLAY.md](JUDGE_REPLAY.md) 4.4). 고치면 다시 재야 한다.
+- **근거 없는 인용의 빈도는 모른다.** 녹음 절차가 그것을 걸러 냈다(F-19). 실제 모델이 인용을 틀리게 옮기는 빈도는 실호출로만 안다.
 - LLM 은 위반을 **더할 수만** 있다. 결정론 경로의 오탐(정상 소재 오반려)을 LLM 이 바로잡지는 못한다.
 - 예산 상한에 닿으면 프로세스가 끝날 때까지 모든 승인이 REVIEW 가 된다(기간 예산이 없다).
 

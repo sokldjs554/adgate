@@ -66,7 +66,7 @@
 - **결정**: 레드팀이 놓친 21건 중 *표기를 바꾼* 7건은 규칙이 못 따라간 부류(한자·유사 문자·자모·장식 기호·낱글자 띄우기·한글 수사·어구가 낀 요구 표현)라서 고쳤고,
   *뜻을 돌려 말한* 14건("손해 볼 일 없는 투자")은 어휘를 늘려 막지 않았다.
 - **이유**: 14개 표현을 어휘에 넣으면 같은 셋의 수치는 좋아지지만, 그것은 평가셋에 맞춘 패치이고 다음 작성자의 열다섯 번째 표현에는 소용없다. 닫힌 어휘의 한계는 닫힌 어휘로 메울 수 없다.
-- **대가**: 결정론 경로의 패러프레이즈 위험 승인율이 87.5%(14/16)로 남는다. 이 한계를 메우는 것이 LLM judge 의 일이고, 그 효과를 재 보는 것이 [JUDGE_REPLAY.md](JUDGE_REPLAY.md)다.
+- **대가**: 결정론 경로의 패러프레이즈 위험 승인율이 87.5%(14/16)로 남는다. 이 한계를 메우는 것이 LLM judge 의 일이고, 그 효과를 재 보는 것이 [JUDGE_REPLAY.md](JUDGE_REPLAY.md)다. 녹음 재생(대리 측정)에서 judge 는 이 소재를 <!-- num:judge.results.redteam.full+judge.slices.paraphrase.unsafe_approve|rpct1 -->0.0% (0/16)<!-- /num --> 까지 낮췄다 — 같은 모델 계열이 쓴 소재와 응답이라 낙관적인 수치다.
 - **경계 사례**: 모든 수정은 *부류*를 고치고 그 부류의 다른 변형과 음성 대조를 회귀 테스트로 함께 묶는다. 사례의 문구만 맞춘 패치는 받지 않는다.
 
 ## D-12. 예외는 구멍이 될 수 있으니 *좁게* 인정하고, 악용 테스트를 같이 쓴다
@@ -80,3 +80,12 @@
 - **이유**: 랜딩은 광고 문구가 아니라 페이지 스냅샷이고 로그인 폼('비밀번호를 입력')·인증번호 입력·금연 안내 같은 정상 문구가 섞여 있다. 그것을 자동 반려하면 정상 광고가 막힌다(리뷰 M4). 그래도 광고는 깨끗한데 랜딩에서 치료 효능을 주장하는 낚시는 놓치고 싶지 않다 → 사람이 본다.
 - **정정**: 이전 코드는 정책 문서(랜딩은 URG·LND 에서만 쓴다)보다 넓게, 그리고 반려까지 랜딩을 검사했다. 정책 문서를 코드에 맞춰 고쳤다(변경 기록).
 
+## D-14. Judge 의 발견은 기본적으로 REVIEW 까지만 — 사전등록한 판단 규칙이 정했다
+- **결정**: `ReviewConfig.judge_cap_review` 의 기본값을 `True` 로 한다. Judge 가 더한 발견은 정책이 REJECT 로 정한 규칙이어도 REVIEW 로 낮춰 사람이 본다. 결정론 발견은 그대로다. 끄려면 명시해야 한다.
+- **이유**: 측정 *전에* '정답이 APPROVE 인 소재를 judge 가 1건이라도 REJECT 로 만들면 상한을 기본값으로 한다'고 정했다([JUDGE_REPLAY.md](JUDGE_REPLAY.md) 3절). 녹음 재생에서 <!-- num:judge.pooled.approve_to_reject|rpct1 -->2.9% (2/68)<!-- /num --> 가 그랬다(`dev` D-004·D-060).
+  규칙대로 했다. 수치가 마음에 들지 않아 규칙을 바꾸지도, 규칙에 걸린 두 소재의 정답을 바꾸지도 않았다.
+- **버린 것**: ① 정책 등급 그대로 두기 — `redteam` 정확도가 <!-- num:judge.results.redteam.full+judge.accuracy.value|pct1 -->98.6%<!-- /num --> 로 가장 좋아 보이지만 정상 소재를 자동 반려한다.
+  ② 신뢰도 문턱 — 오탐 후보의 신뢰도(0.60–0.70)가 맞는 후보(0.65–0.92)와 겹쳐 깨끗하게 나뉘지 않고, 같은 209건에 맞추는 일이 된다.
+- **대가**: `redteam` 정확도 <!-- num:judge.results.redteam.full+judge.accuracy.value|pct1 -->98.6%<!-- /num --> → <!-- num:judge.results.redteam.full+judge_cap.accuracy.value|pct1 -->84.7%<!-- /num -->, 자동 처리율 <!-- num:judge.results.redteam.full+judge.auto_rate.value|pct1 -->75.0%<!-- /num --> → <!-- num:judge.results.redteam.full+judge_cap.auto_rate.value|pct1 -->61.1%<!-- /num -->.
+  정답이 REJECT 인 패러프레이즈 <!-- num:judge.meta.judge_replay.datasets.redteam.transitions_cap.REJECT.APPROVE→REVIEW|int -->9<!-- /num -->건을 사람이 본다. 위험 승인율은 같다(<!-- num:judge.results.redteam.full+judge_cap.unsafe_approve|rpct1 -->0.0% (0/51)<!-- /num -->). 사람 검토 부담이 는다.
+- **한계**: 대역이 만든 녹음에서 나온 결정이다. 실제 모델의 오탐률은 다를 수 있다. 상한 구성이 안전 쪽(사람이 본다)이라 방향은 같은 결정이라고 본다.

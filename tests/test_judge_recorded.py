@@ -39,10 +39,19 @@ def test_key_depends_on_content_not_on_object_identity():
 def test_recorded_response_flows_through_the_real_grounding_and_decision():
     c = invest()
     assert review(c).outcome == "APPROVE"  # 결정론 경로는 이 문구를 못 잡는다(docs/LIMITATIONS.md)
-    r = review(c, ReviewConfig(judge=rec(c, [GUA])))
+    r = review(c, ReviewConfig(judge=rec(c, [GUA]), judge_cap_review=False))  # 상한 없이: 정책의 등급이 그대로 판정이 된다
     assert r.outcome == "REJECT"
     f = next(f for f in r.findings if f.source == "llm")
     assert c.headline[f.start:f.end] == f.quote == HEAD and f.severity == "reject"  # 심각도는 정책이 정한다
+
+
+def test_by_default_the_llm_alone_cannot_reject():
+    """D-14: 사전등록한 판단 규칙(정상 소재를 judge 가 REJECT 로 만들면 상한이 기본값)이 측정에서 발동했다."""
+    c = invest()
+    assert ReviewConfig().judge_cap_review is True
+    r = review(c, ReviewConfig(judge=rec(c, [GUA])))
+    assert r.outcome == "REVIEW"
+    assert next(f for f in r.findings if f.source == "llm").severity == "review"
 
 
 def test_cap_review_lets_the_llm_flag_but_not_reject_alone():

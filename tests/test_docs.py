@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -83,3 +84,81 @@ def test_failures_doc_lists_exactly_the_ids_the_first_contact_approved():
 
 def test_after_the_fixes_the_remaining_unsafe_approvals_are_exactly_the_paraphrases():
     assert _unsafe_ids("redteam_after_fixes_errors.json") == _doc_ids("paraphrase_v0")
+
+
+# --------------------------------------------------------------------------- LLM judge 녹음 재생(docs/JUDGE_REPLAY.md)
+REPLAY = ROOT / "docs" / "JUDGE_REPLAY.md"
+# 사전등록 커밋(1c22cc1)의 1–3절 본문 해시. 결과를 본 뒤에 사전등록을 고치지 못하게 한다.
+PREREGISTERED_SHA256 = "2113298c0c8c7bd07c97fb7eebf1490e23addcb60c66cdf39eeb228919cb9157"
+
+
+def _judge() -> dict:
+    return json.loads((ROOT / "artifacts" / "results_judge.json").read_text(encoding="utf-8"))
+
+
+def _replay_ids(name: str) -> set[str]:
+    m = re.search(rf"<!-- ids:{name} -->(.*?)<!-- /ids -->", REPLAY.read_text(encoding="utf-8"), re.DOTALL)
+    assert m, f"JUDGE_REPLAY.md 에 ids:{name} 표식이 없다"
+    return set(re.findall(r"[DTR]-\d{3}", m.group(1)))
+
+
+def test_judge_replay_preregistration_text_is_unchanged():
+    text = REPLAY.read_text(encoding="utf-8")
+    body = text[text.index("## 1. 무엇을 알고 싶은가"):text.index("\n## 4. 결과")]
+    assert hashlib.sha256(body.strip("\n").encode("utf-8")).hexdigest() == PREREGISTERED_SHA256, "사전등록(1–3절)을 측정 뒤에 고쳤다"
+
+
+def test_judge_replay_doc_names_exactly_the_creatives_the_artifact_says():
+    summ = _judge()["meta"]["judge_replay"]["datasets"]
+    # judge 가 고친 위험 승인 = F-14 가 '어휘로는 못 막는다'고 남겨 둔 패러프레이즈 14건과 정확히 같다
+    assert _replay_ids("judge_fixed") == set(summ["redteam"]["unsafe_fixed"]) == _doc_ids("paraphrase_v0")
+    assert not summ["dev"]["unsafe_fixed"] and not summ["test"]["unsafe_fixed"]
+    assert _replay_ids("judge_to_reject") == {i for d in summ.values() for i in d["approve_gold_to_reject"]}
+
+
+def test_judge_replay_artifact_was_measured_on_the_committed_recording():
+    meta = _judge()["meta"]["judge_replay"]
+    rec = ROOT / "data" / "judge_replay" / "recording.jsonl"
+    assert hashlib.sha256(rec.read_bytes()).hexdigest() == meta["file_sha256"]
+    assert meta["responses"] == 209 and meta["misses"] == 0
+    assert all(d["deterministic_lost"] == 0 for d in meta["datasets"].values())
+
+
+def test_judge_recording_is_not_stale_the_current_detector_sends_the_same_prompts(tmp_path):
+    """녹음은 대역이 본 프롬프트(탐지기가 이미 찾은 것 포함)에 대한 응답이다. 탐지기가 바뀌어 프롬프트가 달라지면 녹음은 낡는다."""
+    out = tmp_path / "prompts"
+    assert main(["judge-export", "--datasets", "dev,test,redteam", "--data-dir", str(ROOT / "data"), "--out-dir", str(out), "--shards", "9"]) == 0
+    expected = dict(reversed(line.split()) for line in (ROOT / "data/judge_replay/PROMPTS.sha256").read_text(encoding="utf-8").splitlines() if line.strip())
+    assert len(expected) == 11
+    for name, digest in expected.items():
+        assert hashlib.sha256((out / name).read_bytes()).hexdigest() == digest, f"{name} 이(가) 대역이 본 것과 다르다: 다시 녹음하고 다시 재거나 낡았다고 적는다"
+
+
+def test_judge_confidence_claim_in_the_doc_is_recomputed_from_the_recording():
+    from adgate.cli import load_dataset
+    from adgate.judge_recorded import creative_key
+
+    summ = _judge()["meta"]["judge_replay"]["datasets"]
+    recording = {}
+    for ln in (ROOT / "data/judge_replay/recording.jsonl").read_text(encoding="utf-8").splitlines():
+        row = json.loads(ln)
+        recording[row["key"]] = row["response"]
+    changed = {(ds, x["id"]): x for ds, d in summ.items() for x in d["changed"]}
+    wrong: list[float] = []
+    helped: list[float] = []
+    for ds in summ:
+        for ex in load_dataset(ds, ROOT / "data"):
+            x = changed.get((ds, ex.id))
+            if x is None:
+                continue
+            for f in recording[creative_key(ex.creative)]["findings"]:
+                (wrong if x["gold"] == "APPROVE" else helped).append(f["confidence"])
+    assert (len(wrong), min(wrong), max(wrong)) == (4, 0.6, 0.7)
+    assert (len(helped), min(helped), max(helped), sum(c > 0.7 for c in helped)) == (18, 0.65, 0.92, 15)
+
+
+def test_judge_replay_section_renders_from_the_committed_artifact():
+    text = "\n".join(docs.judge_replay_md(_judge(), "## 9. LLM judge — 녹음 재생 (실호출 아님)"))
+    assert text.startswith("## 9.") and "운영 모델의 성능이 아니다" in text and "자동 처리 정밀도" in text
+    assert text.count("전체 + LLM judge (녹음, 정책 등급 그대로)") == 3 and text.count("전체 + LLM judge (녹음, REVIEW 까지만)") == 3
+    assert "dev/D-004" in text and "dev/D-060" in text and "test/T-007" in text

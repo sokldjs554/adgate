@@ -17,7 +17,9 @@ class ReviewConfig:
     landing: bool = True      # 광고-랜딩 수치 대조, 랜딩 근거로 긴급성 확인
     competitors: tuple[str, ...] = ()  # 비교 광고 탐지에 쓸 경쟁 사업자 이름
     judge: Judge | None = None         # 의미 기반 검사(LLM). 없으면 결정론 경로만
-    judge_cap_review: bool = False     # True 면 Judge 가 더한 발견은 reject 등급이어도 review 로 낮춘다(LLM 이 혼자 반려하지 못하게)
+    # Judge 가 더한 발견은 reject 등급이어도 review 로 낮춘다 — LLM 한마디로 자동 반려하지 않고 사람이 본다.
+    # 기본값 True: 사전등록한 판단 규칙(docs/JUDGE_REPLAY.md 3절)이 녹음 재생 측정에서 발동했다(정상 소재 2건이 REJECT, D-14).
+    judge_cap_review: bool = True
     escalate_ungrounded: bool = True   # Judge 가 원문에서 확인되지 않는 인용을 보고하면 버리고 끝내지 않고 사람에게 넘긴다
 
     def describe(self) -> dict[str, object]:

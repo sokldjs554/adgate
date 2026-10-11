@@ -13,13 +13,13 @@ from pathlib import Path
 from typing import Any
 
 from .eval import gate
-from .eval.metrics import OUTCOMES
+from .eval.metrics import OUTCOMES, ratio
 
 MARKER = re.compile(r"<!-- num:([^|>\s]+)\|([a-z0-9_]+) -->(.*?)<!-- /num -->", re.DOTALL)
 SYSTEM_LABEL = {
     "full": "전체 파이프라인", "B0_all_human": "B0 전부 사람", "B1_blocklist": "B1 키워드 블록리스트",
     "-normalize": "− 정규화", "-exceptions": "− 예외(부정·범위·면책·근거)", "-challenge": "− 도전자", "-landing": "− 랜딩 대조",
-    "full+judge": "전체 + LLM judge",
+    "full+judge": "전체 + LLM judge (녹음, 정책 등급 그대로)", "full+judge_cap": "전체 + LLM judge (녹음, REVIEW 까지만)",
 }
 DATASET_LABEL = {
     "dev": "dev (개발용)", "test": "test (손작성·동결)", "redteam": "redteam (독립 에이전트)", "generated": "generated (합성·in-grammar)",
@@ -53,6 +53,8 @@ def fmt(value: Any, spec: str) -> str:
         return "-" if value["value"] is None else f"{value['value'] * 100:.1f}% ({value['k']}/{value['n']})"
     if spec == "ms":
         return f"{value:.2f} ms"
+    if spec == "len":
+        return f"{len(value)}"
     raise ValueError(f"알 수 없는 형식 {spec}")
 
 
@@ -117,7 +119,7 @@ def results_md(src: dict[str, Any]) -> str:
         if ds not in res:
             continue
         out += [f"### {DATASET_LABEL[ds]}", "", "| 시스템 | 정확도 | 위험 승인율 | 정상 오반려 | 정상 오보류 | 자동 처리율 | 규칙 F1 |", "|---|---:|---|---|---|---:|---:|"]
-        order = ["B0_all_human", "B1_blocklist", "full", "-normalize", "-exceptions", "-challenge", "-landing", "full+judge"]
+        order = ["B0_all_human", "B1_blocklist", "full", "-normalize", "-exceptions", "-challenge", "-landing", "full+judge", "full+judge_cap"]
         for sname in order:
             if sname not in res[ds]:
                 continue
@@ -181,9 +183,80 @@ def results_md(src: dict[str, Any]) -> str:
     spend = meta.get("judge_spend")
     if spend:
         out += [sec("LLM judge 사용량"), "", "```json", json.dumps(spend, ensure_ascii=False, indent=2), "```", ""]
-    else:
+    judge = src.get("judge")
+    if judge:
+        out += judge_replay_md(judge, sec("LLM judge — 녹음 재생 (실호출 아님)"))
+    elif not spend:
         out += [sec("LLM judge"), "", "이 저장소의 결과에는 LLM judge 측정이 없다(실호출 미실측). `adgate eval --judge anthropic` 으로 측정한다.", ""]
     return "\n".join(out)
+
+
+def pooled_judge(judge: dict[str, Any]) -> dict[str, Any]:
+    """세 데이터셋을 합친 값. 정답 APPROVE 소재를 judge 가 건드린 비율이 판단 규칙의 근거라서 합계를 따로 낸다."""
+    res, summ = judge["results"], judge["meta"]["judge_replay"]["datasets"]
+    n_approve = sum(res[ds]["full"]["gold_counts"]["APPROVE"] for ds in summ)
+    return {
+        "approve_changed": ratio(sum(len(summ[ds]["approve_gold_changed"]) for ds in summ), n_approve),
+        "approve_to_reject": ratio(sum(len(summ[ds]["approve_gold_to_reject"]) for ds in summ), n_approve),
+        "unsafe_fixed": sum(len(summ[ds]["unsafe_fixed"]) for ds in summ),
+        "items": sum(summ[ds]["n"] for ds in summ),
+        "lost": sum(summ[ds]["deterministic_lost"] for ds in summ),
+    }
+
+
+def judge_replay_md(judge: dict[str, Any], heading: str) -> list[str]:
+    meta, res = judge["meta"], judge["results"]
+    rp = meta["judge_replay"]
+    summ: dict[str, dict[str, Any]] = rp["datasets"]
+    pool = pooled_judge(judge)
+    out = [
+        heading,
+        "",
+        "> **이 수치는 운영 모델의 성능이 아니다.** 프롬프트·스키마·근거 검증·병합·판정은 실제 파이프라인이지만, 모델 응답은 서브에이전트가 '모델 대역'으로 만든 녹음이다.",
+        "> 설계자·작성자와 같은 모델 계열이고, 대역은 평가임을 안다(낙관 쪽 편향). 사전등록·방법·한계는 [JUDGE_REPLAY.md](JUDGE_REPLAY.md).",
+        f"> 녹음 {rp['responses']}건(sha256 `{rp['file_sha256'][:12]}…`, 누락 {rp['misses']}), 측정 기준 git `{meta['git_sha']}`{' (작업트리 수정됨)' if meta['dirty'] else ''}, {meta['created']}.",
+        "",
+        "| 데이터셋 | 시스템 | N | 정확도 | 위험 승인율 | 정상 오반려 | 정상 오보류 | 자동 처리율 | 자동 처리 정밀도 |",
+        "|---|---|---:|---:|---|---|---|---:|---|",
+    ]
+    for ds in summ:
+        for sname in ("full", "full+judge", "full+judge_cap"):
+            m = res[ds][sname]
+            out.append(
+                f"| {DATASET_LABEL[ds]} | {SYSTEM_LABEL[sname]} | {m['n']} | {m['accuracy']['value'] * 100:.1f}% | {_r(m['unsafe_approve'])} | "
+                f"{_r(m['false_reject'])} | {_r(m['over_review'])} | {m['auto_rate']['value'] * 100:.1f}% | {_r(m['auto_precision'])} |"
+            )
+    out += [
+        "",
+        "자동 처리 정밀도 = 자동으로 승인·반려한 것 중 정답과 같은 것. 결정론만 쓸 때의 높은 자동 처리율에는 잘못된 자동 승인이 섞여 있다.",
+        "",
+        "| 데이터셋 | Judge 가 후보를 낸 소재 | 후보 수 | 근거 없는 의심 | 결정론 발견 손실 | 판정이 바뀐 소재 | 정답 APPROVE 가 바뀜 | 그중 REJECT |",
+        "|---|---|---:|---|---:|---:|---|---|",
+    ]
+    for ds, s in summ.items():
+        n_ap = res[ds]["full"]["gold_counts"]["APPROVE"]
+        out.append(
+            f"| {DATASET_LABEL[ds]} | {_r(s['judge_added'])} | {s['judge_findings']} | {_r(s['judge_ungrounded'])} | {s['deterministic_lost']} | "
+            f"{len(s['changed'])} | {len(s['approve_gold_changed'])}/{n_ap} | {len(s['approve_gold_to_reject'])}/{n_ap} |"
+        )
+    pc, pr = pool["approve_changed"], pool["approve_to_reject"]
+    out += [
+        "",
+        f"정답 APPROVE 소재 합계 {pc['n']}건 중 judge 때문에 판정이 바뀐 것 **{pc['k']}건** ({pc['value'] * 100:.1f}%, Wilson 95% [{pc['ci'][0] * 100:.1f}–{pc['ci'][1] * 100:.1f}%]), "
+        f"그중 REJECT **{pr['k']}건**. 결정론이 놓친 위험 소재 중 judge 가 잡은 것 {pool['unsafe_fixed']}건.",
+        "",
+        "### Judge 가 정답 APPROVE 소재의 판정을 바꾼 경우",
+        "",
+        "| 소재 | 결정론 | + judge | + judge(REVIEW 까지만) | Judge 가 낸 규칙 |",
+        "|---|---|---|---|---|",
+    ]
+    rows = [(ds, x) for ds, s in summ.items() for x in s["approve_gold_changed"]]
+    for ds, x in rows:
+        out.append(f"| {ds}/{x['id']} | {x['full']} | {x['judge']} | {x['judge_cap']} | {', '.join(x['llm_rules'])} |")
+    if not rows:
+        out.append("| (없음) | | | | |")
+    out.append("")
+    return out
 
 
 def _agreement_block(title: str, ag: dict[str, Any], intro: str, outro: list[str]) -> list[str]:
@@ -269,6 +342,9 @@ def gather(root: Path) -> dict[str, Any]:
     if results:
         src["results"] = results["results"]
         src["results_meta"] = results["meta"]
+    judge = _load(art / "results_judge.json")
+    if judge:
+        src["judge"] = judge
     agree = _load(art / "agreement_test.json")
     if agree:
         src["agreement"] = agree
@@ -314,6 +390,8 @@ def lookup_sources(src: dict[str, Any]) -> dict[str, Any]:
             hist[k] = {ds: systems for ds, systems in v["results"].items()}
     tree["history"] = hist
     tree["sensitivity"] = src.get("sensitivity", {})
+    if "judge" in src:
+        tree["judge"] = {**src["judge"], "pooled": pooled_judge(src["judge"])}
     return tree
 
 
@@ -326,7 +404,9 @@ def build(root: Path) -> dict[Path, str]:
     if "agreement" in src or "agreement_redteam" in src:
         files[root / "docs/LABELER_AGREEMENT.md"] = agreement_md(src.get("agreement"), src.get("agreement_redteam"))
     tree = lookup_sources(src)
-    for path in (root / "README.md", root / "docs/DECISIONS.md", root / "docs/FAILURES.md", root / "docs/LIMITATIONS.md"):
+    for path in (
+        root / "README.md", root / "docs/DECISIONS.md", root / "docs/FAILURES.md", root / "docs/LIMITATIONS.md", root / "docs/JUDGE_REPLAY.md",
+    ):
         if path.exists():
             files[path] = fill_markers(path.read_text(encoding="utf-8"), tree)
     return files

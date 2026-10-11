@@ -95,7 +95,7 @@ def cmd_eval(args: argparse.Namespace) -> int:
         from .judge_anthropic import AnthropicJudge
 
         judge_obj = AnthropicJudge(max_usd=args.max_usd)
-        systems["full+judge"] = pipeline_system(ReviewConfig(judge=judge_obj))
+        systems["full+judge_cap"] = pipeline_system(ReviewConfig(judge=judge_obj, judge_cap_review=True))  # 기본 구성(D-14)
     elif args.judge == "recorded":
         if not args.judge_file:
             raise SystemExit("--judge recorded 는 --judge-file 이 필요합니다")
@@ -120,7 +120,7 @@ def cmd_eval(args: argparse.Namespace) -> int:
         ds_systems = dict(systems)
         if recorded is not None:
             if all(recorded.has(ex.creative) for ex in examples):
-                ds_systems["full+judge"] = pipeline_system(ReviewConfig(judge=recorded))
+                ds_systems["full+judge"] = pipeline_system(ReviewConfig(judge=recorded, judge_cap_review=False))
                 ds_systems["full+judge_cap"] = pipeline_system(ReviewConfig(judge=recorded, judge_cap_review=True))
             else:
                 print(f"[{name}] 녹음이 모든 소재를 덮지 못해 judge 구성은 이 데이터셋에서 건너뜁니다")
@@ -356,7 +356,8 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--note", default="")
     s.add_argument(
         "--judge", choices=["", "anthropic", "recorded"], default="",
-        help="LLM judge 를 켠 구성('full+judge')을 함께 측정한다. anthropic: 실호출(키 필요, 비용 발생). recorded: --judge-file 의 녹음을 재생",
+        help="LLM judge 를 켠 구성을 함께 측정한다. anthropic: 실호출(키 필요, 비용 발생)로 기본 구성('full+judge_cap': Judge 발견은 REVIEW 까지만)을 잰다. "
+        "recorded: --judge-file 의 녹음을 재생해 'full+judge'(정책 등급 그대로)와 'full+judge_cap' 을 함께 잰다",
     )
     s.add_argument("--judge-file", default="", help="--judge recorded 가 재생할 녹음(JSONL: key, response)")
     s.add_argument("--max-usd", type=float, default=2.0, help="--judge 사용 시 추정 비용 상한")
