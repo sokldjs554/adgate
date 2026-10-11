@@ -241,3 +241,16 @@ def test_validate_command_reports_and_drops_invalid_lines(tmp_path, capsys):
     assert main(["validate", str(f), "--drop-invalid", "--out", str(out)]) == 1
     assert len(out.read_text(encoding="utf-8").splitlines()) == 1 and "\"G\"" in out.read_text(encoding="utf-8")
     assert main(["validate", str(out)]) == 0
+
+
+# --------------------------------------------------------------------------- 게이트 종료 코드 (CI 가 의존한다)
+def test_gate_exit_codes_follow_required_checks_and_regressions(tmp_path, capsys):
+    d = _copy_data(tmp_path)
+    base = tmp_path / "baseline.json"
+    assert main(["gate", "--data-dir", str(d), "--baseline", str(base), "--update-baseline"]) == 0
+    assert main(["gate", "--data-dir", str(d), "--baseline", str(base)]) == 0      # 같은 코드, 같은 기준선 → 통과
+    saved = json.loads(base.read_text(encoding="utf-8"))
+    saved["dev"]["accuracy"] = 1.2                                                  # 현재보다 높은 기준선 → 회귀로 보고 실패
+    base.write_text(json.dumps(saved), encoding="utf-8")
+    assert main(["gate", "--data-dir", str(d), "--baseline", str(base)]) == 1
+    assert "R:dev:accuracy" in capsys.readouterr().out
