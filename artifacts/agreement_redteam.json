@@ -88,5 +88,10 @@
       }
     }
   },
+  "quote": {
+    "gold_quoted": 66,
+    "overlap": 66,
+    "exact": 51
+  },
   "disagreements": []
 }

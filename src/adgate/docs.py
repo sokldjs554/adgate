@@ -186,40 +186,74 @@ def results_md(src: dict[str, Any]) -> str:
     return "\n".join(out)
 
 
-def agreement_md(ag: dict[str, Any]) -> str:
+def _agreement_block(title: str, ag: dict[str, Any], intro: str, outro: list[str]) -> list[str]:
     d = ag["decision_agreement"]
     r = ag["rule"]
     out = [
-        "# 독립 라벨러 일치도 (자동 생성)",
+        f"## {title}",
         "",
-        "> `adgate agreement` 의 산출물에서 만든다. 라벨러는 **정책 문서만 보고** 광고 문구에 판정과 위반을 붙인 별도 에이전트(LLM)다.",
-        "> 설계자와 같은 모델 계열이므로 두 사람(사람) 사이의 일치도처럼 읽으면 안 된다. 정책 문구의 모호함을 찾는 데는 유용했다.",
+        intro,
         "",
         f"- 판정 일치: **{d['k']}/{d['n']}** ({d['value'] * 100:.1f}%), Cohen's κ = **{ag['kappa']:.3f}**",
         f"- 규칙 단위(소재×규칙) P/R/F1: {r['precision']:.3f} / {r['recall']:.3f} / **{r['f1']:.3f}** (tp {r['tp']}, fp {r['fp']}, fn {r['fn']})",
+        *(
+            [f"- 인용 위치(정답에 인용이 있는 {q['gold_quoted']}개): 같은 필드에서 겹침 **{q['overlap']}**, 글자까지 같음 **{q['exact']}**"]
+            if (q := ag.get("quote")) and q["gold_quoted"]
+            else []
+        ),
         "",
         "| 정답 \\ 라벨러 | " + " | ".join(OUTCOMES) + " |",
         "|---|" + "---:|" * 3,
     ]
     for g in OUTCOMES:
         out.append(f"| {g} | " + " | ".join(str(ag["confusion"][g][p]) for p in OUTCOMES) + " |")
-    out += ["", "## 불일치", ""]
+    out += ["", "### 불일치", ""]
     if not ag["disagreements"]:
-        out.append("없음.")
+        out += ["없음.", ""]
     for x in ag["disagreements"]:
         out += [
-            f"### {x['id']} — {x['headline']}",
+            f"#### {x['id']} — {x['headline']}",
             f"- 설계자 {x['gold']} {x['gold_rules']} / 라벨러 {x['labeler']} {x['labeler_rules']} (라벨러 확신 {x['confidence']}/5)",
             f"- 라벨러 메모: {x['note']}",
             "",
         ]
-    out += [
-        "## 이 결과로 한 일",
+    return [*out, *outro]
+
+
+def agreement_md(test_ag: dict[str, Any] | None, redteam_ag: dict[str, Any] | None = None) -> str:
+    out = [
+        "# 독립 라벨러 일치도 (자동 생성)",
         "",
-        "- 불일치의 원인은 정책 문구였다. `AD-BRD-01` 의 '성인'이 *어른*과 *성인물* 어느 쪽인지 모호했다. 문구를 고쳤다(규칙 동작은 바꾸지 않았다). 설계자의 정답은 정책의 의도와 같아서 바꾸지 않았다.",
-        "- 라벨러가 지적한 다른 모호함(HLT 의 적용 범위와 GUA 와의 구분, 고지가 있어도 위반인 보장 표현, LND 대조 단위, 심사 조작 시도 규칙의 부재)도 [POLICY.md](POLICY.md) 에 명확히 하거나 알려진 공백으로 적었다.",
+        "> `adgate agreement` 의 산출물에서 만든다. 라벨러는 **정책 문서만 보고, 정답을 모른 채** 광고 문구에 판정과 위반을 붙인 별도 에이전트(LLM)다.",
+        "> 설계자·작성자와 같은 모델 계열이므로 사람 심사자 사이의 일치도처럼 읽으면 안 된다. 일치도가 높은 것은 정책이 명확하다는 증거일 수도,",
+        "> 같은 계열이라 같은 방식으로 읽는다는 증거일 수도 있고 이 저장소로는 둘을 구분하지 못한다. 정책 문구의 모호함을 찾는 데는 유용했다.",
         "",
     ]
+    if test_ag is not None:
+        out += _agreement_block(
+            "test (설계자가 쓴 77건)", test_ag, "`test` 소재를 라벨러 1명이 라벨링했다.",
+            [
+                "### 이 결과로 한 일",
+                "",
+                "- 불일치의 원인은 정책 문구였다. `AD-BRD-01` 의 '성인'이 *어른*과 *성인물* 어느 쪽인지 모호했다. 문구를 고쳤다(규칙 동작은 바꾸지 않았다). 설계자의 정답은 정책의 의도와 같아서 바꾸지 않았다.",
+                "- 라벨러가 지적한 다른 모호함(HLT 의 적용 범위와 GUA 와의 구분, 고지가 있어도 위반인 보장 표현, LND 대조 단위, 심사 조작 시도 규칙의 부재)도 [POLICY.md](POLICY.md) 에 명확히 하거나 알려진 공백으로 적었다.",
+                "",
+            ],
+        )
+    if redteam_ag is not None:
+        out += _agreement_block(
+            "redteam (독립 작성자 8명이 쓴 72건)",
+            redteam_ag,
+            "`redteam` 소재의 정답·태그를 가리고 id 를 무작위로 바꿔 라벨러 3명에게 24건씩 나눠 맡겼다. 작성자와 라벨러는 서로를 모른다.",
+            [
+                "### 이 결과로 한 일",
+                "",
+                "- 판정과 규칙이 모두 일치해서 정답을 바꾸지 않았고, 불일치로 표시한 소재도 없다(불일치가 있었다면 설계자가 고르지 않고 기계적으로 `disputed` 태그를 붙여 두 수치를 모두 내기로 미리 정했다).",
+                "- 인용은 구간의 길이를 라벨러가 다르게 고르는 경우가 있다(위 인용 위치 항목). 정책 8절 4항이 이를 정리한다.",
+                "- 두 쪽이 *각자* 지적한 정책의 모호함은 [POLICY_GAPS.md](POLICY_GAPS.md) 에 모았다. 완전한 일치는 이 셋이 '정책으로 분명히 판정되는 경우'만 담도록 작성자에게 요청한 결과이기도 하다. **회색 지대 소재는 적다.**",
+                "",
+            ],
+        )
     return "\n".join(out)
 
 
@@ -238,6 +272,9 @@ def gather(root: Path) -> dict[str, Any]:
     agree = _load(art / "agreement_test.json")
     if agree:
         src["agreement"] = agree
+    agree_rt = _load(art / "agreement_redteam.json")
+    if agree_rt:
+        src["agreement_redteam"] = agree_rt
     sens = _load(art / "sensitivity.json")
     if sens:
         src["sensitivity"] = sens
@@ -268,7 +305,9 @@ def gather(root: Path) -> dict[str, Any]:
 
 def lookup_sources(src: dict[str, Any]) -> dict[str, Any]:
     """표식 경로가 읽는 트리: results.<ds>.<system>.<metric>, agreement.*, history.<key>.<ds>.full.*"""
-    tree: dict[str, Any] = {"results": src.get("results", {}), "agreement": src.get("agreement", {})}
+    tree: dict[str, Any] = {
+        "results": src.get("results", {}), "agreement": src.get("agreement", {}), "agreement_redteam": src.get("agreement_redteam", {}),
+    }
     hist: dict[str, Any] = {}
     for k, v in src.get("_history_raw", {}).items():
         if v:
@@ -284,8 +323,8 @@ def build(root: Path) -> dict[Path, str]:
     files: dict[Path, str] = {}
     if "results" in src:
         files[root / "docs/RESULTS.md"] = results_md(src)
-    if "agreement" in src:
-        files[root / "docs/LABELER_AGREEMENT.md"] = agreement_md(src["agreement"])
+    if "agreement" in src or "agreement_redteam" in src:
+        files[root / "docs/LABELER_AGREEMENT.md"] = agreement_md(src.get("agreement"), src.get("agreement_redteam"))
     tree = lookup_sources(src)
     for path in (root / "README.md", root / "docs/DECISIONS.md", root / "docs/FAILURES.md", root / "docs/LIMITATIONS.md"):
         if path.exists():

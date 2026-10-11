@@ -280,3 +280,25 @@ def test_measurement_run_does_not_mark_its_own_log_write_as_a_dirty_tree(tmp_pat
     assert main(["eval", "--datasets", "test", "--systems", "full", "--measure", "--data-dir", str(d), "--out", str(out),
                  "--errors-out", str(tmp_path / "e.json"), "--measurements", str(tmp_path / "M.md")]) == 0
     assert json.loads(out.read_text(encoding="utf-8"))["meta"]["dirty"] is False
+
+
+def test_agreement_reports_quote_overlap_and_exact_matches():
+    v = GoldViolation(rule_id="AD-GUA-01", field="headline", quote="무조건 승인")
+    examples = [
+        ex("a", "REJECT", [v], headline="무조건 승인 대출"),
+        ex("b", "REJECT", [v], headline="무조건 승인 대출"),
+        ex("c", "REJECT", [v], headline="무조건 승인 대출"),
+        ex("d", "APPROVE", headline="좋은 앱"),
+    ]
+
+    def lab(quote, field="headline"):
+        return {"decision": "REJECT", "violations": [{"rule_id": "AD-GUA-01", "field": field, "quote": quote}], "confidence": 4, "note": ""}
+
+    labels = {
+        "a": lab("무조건 승인"),          # 글자까지 같다
+        "b": lab("무조건"),               # 겹치지만 짧다
+        "c": lab("대출", field="body"),   # 필드가 다르다(겹치지 않음)
+        "d": {"decision": "APPROVE", "violations": [], "confidence": 5, "note": ""},
+    }
+    q = agreement.compare(examples, labels)["quote"]
+    assert q == {"gold_quoted": 3, "overlap": 2, "exact": 1}

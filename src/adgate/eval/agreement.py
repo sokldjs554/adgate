@@ -31,9 +31,23 @@ def compare(examples: list[Example], labels: dict[str, dict[str, Any]]) -> dict[
     tp = fp = fn = 0
     per_rule: dict[str, list[int]] = defaultdict(lambda: [0, 0, 0])
     disagreements: list[dict[str, Any]] = []
+    quoted = overlap = exact = 0
     for ex in examples:
         lab = labels[ex.id]
         conf[(ex.gold.decision, lab["decision"])] += 1
+        for v in ex.gold.violations:
+            if not (v.field and v.quote):
+                continue
+            quoted += 1
+            text = ex.creative.text(v.field)
+            gi = text.find(v.quote)
+            same = [x for x in lab["violations"] if x["rule_id"] == v.rule_id and x.get("field") == v.field and x.get("quote")]
+            exact += any(x["quote"] == v.quote for x in same)
+            for x in same:
+                xi = text.find(x["quote"])
+                if gi >= 0 and xi >= 0 and xi < gi + len(v.quote) and gi < xi + len(x["quote"]):
+                    overlap += 1
+                    break
         g = {v.rule_id for v in ex.gold.violations}
         p = {v["rule_id"] for v in lab["violations"]}
         for r in g & p:
@@ -69,5 +83,6 @@ def compare(examples: list[Example], labels: dict[str, dict[str, Any]]) -> dict[
             "f1": round(2 * prec * rec / (prec + rec), 4) if prec + rec else 0.0, "tp": tp, "fp": fp, "fn": fn,
             "per_rule": {r: {"agree": a, "labeler_extra": b, "labeler_missing": c} for r, (a, b, c) in sorted(per_rule.items())},
         },
+        "quote": {"gold_quoted": quoted, "overlap": overlap, "exact": exact},
         "disagreements": disagreements,
     }

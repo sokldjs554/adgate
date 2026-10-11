@@ -1,0 +1,110 @@
+{
+  "n": 77,
+  "decision_agreement": {
+    "k": 76,
+    "n": 77,
+    "value": 0.987
+  },
+  "kappa": 0.9805,
+  "confusion": {
+    "APPROVE": {
+      "APPROVE": 25,
+      "REVIEW": 1,
+      "REJECT": 0
+    },
+    "REVIEW": {
+      "APPROVE": 0,
+      "REVIEW": 24,
+      "REJECT": 0
+    },
+    "REJECT": {
+      "APPROVE": 0,
+      "REVIEW": 0,
+      "REJECT": 27
+    }
+  },
+  "rule": {
+    "precision": 0.9828,
+    "recall": 1.0,
+    "f1": 0.9913,
+    "tp": 57,
+    "fp": 1,
+    "fn": 0,
+    "per_rule": {
+      "AD-ABS-01": {
+        "agree": 7,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-ADV-01": {
+        "agree": 1,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-BRD-01": {
+        "agree": 4,
+        "labeler_extra": 1,
+        "labeler_missing": 0
+      },
+      "AD-CMP-01": {
+        "agree": 5,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-ENDO-01": {
+        "agree": 8,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-FIN-01": {
+        "agree": 4,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-FRD-01": {
+        "agree": 3,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-GUA-01": {
+        "agree": 8,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-HLT-01": {
+        "agree": 5,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-LND-01": {
+        "agree": 6,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      },
+      "AD-URG-01": {
+        "agree": 6,
+        "labeler_extra": 0,
+        "labeler_missing": 0
+      }
+    }
+  },
+  "quote": {
+    "gold_quoted": 54,
+    "overlap": 54,
+    "exact": 50
+  },
+  "disagreements": [
+    {
+      "id": "T-025",
+      "gold": "APPROVE",
+      "labeler": "REVIEW",
+      "gold_rules": [],
+      "labeler_rules": [
+        "AD-BRD-01"
+      ],
+      "confidence": 2,
+      "note": "'성인' means adults here (smoking-cessation campaign), not adult content; BRD-01's review clause (listed word + 캠페인/상담 public-interest context) fits literally, but a semantic reading finds no restricted topic (APPROVE); chose REVIEW because split judgments go to REVIEW.",
+      "headline": "성인 금연 캠페인에 함께해 주세요"
+    }
+  ]
+}
