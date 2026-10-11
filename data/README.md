@@ -9,6 +9,7 @@
 | `redteam.jsonl` | 정책 문서만 본 **독립 에이전트 8명**(조각 A–H, 조각당 8–10건, 병렬) | 탐지기 완성 뒤, 첫 측정 전에 동결 | 탐지기·저장소 코드를 보지 못한 상태로 작성(72건: 정상 유사 16 · 우회 20 · 패러프레이즈 16 · 복합 10 · 주입 10). 한 에이전트에게 72건을 맡겼다가 출력 한도에 걸려 한 건도 못 내서 8조각으로 나눴다. 첫 측정(수정 전) 수치를 보존한다 |
 | `labeler_test.jsonl` | 정책 문서만 본 **독립 라벨러** | `test` 동결 뒤 | `test` 소재에 정답을 모르는 채 붙인 판정·위반. 설계자 정답과의 일치도는 [LABELER_AGREEMENT.md](../docs/LABELER_AGREEMENT.md) |
 | `labeler_redteam.jsonl` | 정책 문서만 본 **독립 라벨러 3명** | `redteam` 동결 전 | `redteam` 소재를 정답·태그를 가리고 무작위 id 로 섞어 세 조각으로 라벨링. 작성자 정답과의 일치도는 [LABELER_AGREEMENT.md](../docs/LABELER_AGREEMENT.md) |
+| `judge_replay/recording.jsonl` | **서브에이전트 9명**(조각 1–9, 조각당 23–24건, 병렬)이 '모델 대역'으로 만든 응답 | `redteam` 동결·탐지기 `a3bdb12` 이후, [사전등록](../docs/JUDGE_REPLAY.md) 뒤 | `dev`+`test`+`redteam` 209건에 대한 LLM judge 응답의 녹음(`{key, response}`). 실제 API 응답이 **아니다**. `BRIEF.md` 는 대역에게 준 지시서, `PROMPTS.sha256` 은 그들이 본 시스템 프롬프트·스키마·사용자 메시지 조각의 해시(`adgate judge-export` 가 같은 파일을 만든다) |
 | (생성) | 시드 생성기 | `adgate eval` 이 매번 | `adgate gen --seed 7`. 생성기와 탐지기가 같은 어휘를 공유해 **낙관적**이다. 대조군으로만 쓴다 |
 
 ## 정답 라벨의 의미
