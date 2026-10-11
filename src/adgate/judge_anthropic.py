@@ -149,7 +149,7 @@ def system_prompt(policy: Policy) -> str:
     return f"""당신은 광고 소재 심사 보조입니다. 규칙 기반 탐지기가 놓쳤을 수 있는 **의미상 위반 후보**를 찾아 보고합니다.
 예: 보장이라는 단어 없이 돌려 말한 수익·승인 약속, 완곡한 비교, 질병과 암시적으로 연결한 효능, 출처 없는 추천.
 
-규칙 목록(정책 v{policy.version}):
+규칙 목록(정책 {policy.version}):
 {policy_digest(policy)}
 
 반드시 지킬 것:

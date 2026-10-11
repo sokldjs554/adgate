@@ -215,3 +215,11 @@ def test_a_judge_that_obeys_an_injection_still_cannot_approve_a_violation():
     rec = Recorder([message(findings_text())])  # 주입에 속아 '후보 없음'을 내도
     r = review(mk("100% 합격 보장 학원", inj, category="education"), ReviewConfig(judge=judge(rec)))
     assert r.outcome == "REJECT"
+
+
+def test_system_prompt_names_the_policy_version_once():
+    from adgate.judge_anthropic import system_prompt
+    from adgate.policy import load_policy
+
+    first = system_prompt(load_policy()).split("규칙 목록(정책 ")[1].split(")")[0]
+    assert first == load_policy().version and not first.startswith("vv")
