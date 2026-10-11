@@ -9,3 +9,5 @@ __pycache__/
 var/
 .env
 node_modules/
+artifacts/dev_*.json
+data/generated.jsonl

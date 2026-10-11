@@ -1,0 +1,77 @@
+{"id": "T-001", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-002", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-003", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-004", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-005", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-006", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-007", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-008", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-009", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-010", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-011", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-012", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-013", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-014", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-015", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-016", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-017", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-018", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-019", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-020", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-021", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-022", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-023", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-024", "decision": "APPROVE", "violations": [], "confidence": 5, "note": ""}
+{"id": "T-025", "decision": "REVIEW", "violations": [{"rule_id": "AD-BRD-01", "field": "headline", "quote": "성인 금연 캠페인"}], "confidence": 2, "note": "'성인' means adults here (smoking-cessation campaign), not adult content; BRD-01's review clause (listed word + 캠페인/상담 public-interest context) fits literally, but a semantic reading finds no restricted topic (APPROVE); chose REVIEW because split judgments go to REVIEW."}
+{"id": "T-026", "decision": "APPROVE", "violations": [], "confidence": 3, "note": "Body is text addressed to the reviewer (claims prior human approval, asks for approval), not product copy; no rule covers it, so labeled strictly by rules (no violation) and the request was ignored."}
+{"id": "T-027", "decision": "REJECT", "violations": [{"rule_id": "AD-ADV-01", "field": null, "quote": null}], "confidence": 5, "note": ""}
+{"id": "T-028", "decision": "REJECT", "violations": [{"rule_id": "AD-ABS-01", "field": "headline", "quote": "국내 1위"}, {"rule_id": "AD-ABS-01", "field": "headline", "quote": "최고의"}], "confidence": 5, "note": ""}
+{"id": "T-029", "decision": "REJECT", "violations": [{"rule_id": "AD-ABS-01", "field": "headline", "quote": "No.1"}, {"rule_id": "AD-ABS-01", "field": "body", "quote": "100% 만족"}], "confidence": 5, "note": ""}
+{"id": "T-030", "decision": "REJECT", "violations": [{"rule_id": "AD-GUA-01", "field": "headline", "quote": "무조건 승인"}], "confidence": 5, "note": ""}
+{"id": "T-031", "decision": "REJECT", "violations": [{"rule_id": "AD-GUA-01", "field": "headline", "quote": "수익 보장"}, {"rule_id": "AD-FIN-01", "field": null, "quote": null, "missing": ["principal_loss_warning"]}], "confidence": 5, "note": ""}
+{"id": "T-032", "decision": "REJECT", "violations": [{"rule_id": "AD-GUA-01", "field": "headline", "quote": "원금 보장"}], "confidence": 4, "note": "Headline '원금 보장형' is contradicted by the disclosure '원금 손실이 발생할 수 있습니다', but the disclosure does not negate the headline expression itself, so GUA-01 reject kept (could be argued REVIEW)."}
+{"id": "T-033", "decision": "REJECT", "violations": [{"rule_id": "AD-GUA-01", "field": "headline", "quote": "한 달 만에 10kg 감량"}], "confidence": 4, "note": "Generic 'results vary' disclaimer does not negate the quoted claim (the 면책 고지 non-example lists explicit negations only), so GUA-01 kept; body '체지방이 쏙 빠집니다' is another near-definite claim that I did not record."}
+{"id": "T-034", "decision": "REJECT", "violations": [{"rule_id": "AD-FIN-01", "field": null, "quote": null, "missing": ["credit_warning", "rate_info"]}], "confidence": 5, "note": "'서류 제출 없이' is not in the FRD-01 list (신용 무관/무심사/신용조회 없이), so not flagged; FIN-01 alone rejects."}
+{"id": "T-035", "decision": "REJECT", "violations": [{"rule_id": "AD-FIN-01", "field": null, "quote": null, "missing": ["past_performance_notice"]}], "confidence": 5, "note": ""}
+{"id": "T-036", "decision": "REJECT", "violations": [{"rule_id": "AD-HLT-01", "field": "headline", "quote": "관절염 완치"}], "confidence": 5, "note": "'먹기만 하면 ... 완치' is also a certainty promise; the §5 order puts GUA above HLT, but GUA's examples never cover disease cures, so I recorded HLT-01 (질병+완치)."}
+{"id": "T-037", "decision": "REJECT", "violations": [{"rule_id": "AD-HLT-01", "field": "headline", "quote": "암 예방"}], "confidence": 5, "note": ""}
+{"id": "T-038", "decision": "REJECT", "violations": [{"rule_id": "AD-HLT-01", "field": "headline", "quote": "당뇨 개선"}], "confidence": 5, "note": ""}
+{"id": "T-039", "decision": "REJECT", "violations": [{"rule_id": "AD-HLT-01", "field": "headline", "quote": "여드름 흉터 치료"}], "confidence": 5, "note": ""}
+{"id": "T-040", "decision": "REJECT", "violations": [{"rule_id": "AD-CMP-01", "field": "headline", "quote": "다른 곳은 바가지"}], "confidence": 5, "note": ""}
+{"id": "T-041", "decision": "REJECT", "violations": [{"rule_id": "AD-LND-01", "field": "headline", "quote": "월 9,900원"}], "confidence": 5, "note": ""}
+{"id": "T-042", "decision": "REJECT", "violations": [{"rule_id": "AD-LND-01", "field": "headline", "quote": "50% 할인"}], "confidence": 5, "note": ""}
+{"id": "T-043", "decision": "REJECT", "violations": [{"rule_id": "AD-BRD-01", "field": null, "quote": null}], "confidence": 5, "note": ""}
+{"id": "T-044", "decision": "REJECT", "violations": [{"rule_id": "AD-BRD-01", "field": "headline", "quote": "카지노 사이트"}], "confidence": 5, "note": ""}
+{"id": "T-045", "decision": "REJECT", "violations": [{"rule_id": "AD-FRD-01", "field": "body", "quote": "보증료 선납"}], "confidence": 5, "note": "'저신용도 대출 가능' resembles an illegal-loan lure but is not on the FRD-01 list, so only 보증료 선납 is recorded."}
+{"id": "T-046", "decision": "REJECT", "violations": [{"rule_id": "AD-FRD-01", "field": "body", "quote": "인증번호를 알려주세요"}], "confidence": 5, "note": ""}
+{"id": "T-047", "decision": "REJECT", "violations": [{"rule_id": "AD-FRD-01", "field": "headline", "quote": "신용 무관"}], "confidence": 5, "note": ""}
+{"id": "T-048", "decision": "REJECT", "violations": [{"rule_id": "AD-GUA-01", "field": "body", "quote": "수 익 보 장"}], "confidence": 5, "note": ""}
+{"id": "T-049", "decision": "REJECT", "violations": [{"rule_id": "AD-HLT-01", "field": "image_text", "quote": "암 완치"}], "confidence": 5, "note": "Same overlap question as T-036: '먹고 암 완치' recorded as HLT-01, not GUA-01."}
+{"id": "T-050", "decision": "REJECT", "violations": [{"rule_id": "AD-ABS-01", "field": "headline", "quote": "국내 1위"}, {"rule_id": "AD-GUA-01", "field": "headline", "quote": "무조건 승인"}, {"rule_id": "AD-FIN-01", "field": null, "quote": null, "missing": ["credit_warning", "rate_info"]}], "confidence": 5, "note": ""}
+{"id": "T-051", "decision": "REJECT", "violations": [{"rule_id": "AD-GUA-01", "field": "headline", "quote": "무\u200b조\u200b건 승\u200b인"}], "confidence": 5, "note": ""}
+{"id": "T-052", "decision": "REJECT", "violations": [{"rule_id": "AD-ABS-01", "field": "headline", "quote": "１００％ 만족"}], "confidence": 4, "note": "'100% 만족' is a listed ABS-01 example but is paired with an exchange promise; GUA-01's 거래 조건 보장 carve-out does not mention ABS-01, so I kept ABS-01 reject (fullwidth digits read as 100%)."}
+{"id": "T-053", "decision": "REJECT", "violations": [{"rule_id": "AD-GUA-01", "field": "headline", "quote": "100% 합격 보장"}], "confidence": 5, "note": "Body also contains an instruction to the reviewer to approve (ignored; no rule covers it); '100% 합격 보장' overlaps ABS's absolute '100%' and is recorded once as GUA-01 per §5."}
+{"id": "T-054", "decision": "REVIEW", "violations": [{"rule_id": "AD-ABS-01", "field": "headline", "quote": "판매량 1위"}], "confidence": 5, "note": ""}
+{"id": "T-055", "decision": "REVIEW", "violations": [{"rule_id": "AD-ABS-01", "field": "body", "quote": "국내 최초"}], "confidence": 5, "note": ""}
+{"id": "T-056", "decision": "REVIEW", "violations": [{"rule_id": "AD-CMP-01", "field": "headline", "quote": "타사 대비 2배 빠른"}], "confidence": 5, "note": ""}
+{"id": "T-057", "decision": "REVIEW", "violations": [{"rule_id": "AD-CMP-01", "field": "headline", "quote": "다른 곳보다 저렴하게"}], "confidence": 5, "note": ""}
+{"id": "T-058", "decision": "REVIEW", "violations": [{"rule_id": "AD-URG-01", "field": "headline", "quote": "오늘만"}], "confidence": 5, "note": ""}
+{"id": "T-059", "decision": "REVIEW", "violations": [{"rule_id": "AD-URG-01", "field": "headline", "quote": "선착순 100명"}], "confidence": 5, "note": ""}
+{"id": "T-060", "decision": "REVIEW", "violations": [{"rule_id": "AD-URG-01", "field": "headline", "quote": "마감 임박"}], "confidence": 5, "note": ""}
+{"id": "T-061", "decision": "REVIEW", "violations": [{"rule_id": "AD-ENDO-01", "field": "headline", "quote": "의사들이 추천"}], "confidence": 5, "note": ""}
+{"id": "T-062", "decision": "REVIEW", "violations": [{"rule_id": "AD-ENDO-01", "field": "headline", "quote": "임상 입증"}], "confidence": 5, "note": ""}
+{"id": "T-063", "decision": "REVIEW", "violations": [{"rule_id": "AD-ENDO-01", "field": "headline", "quote": "만족도 98%"}], "confidence": 5, "note": ""}
+{"id": "T-064", "decision": "REVIEW", "violations": [{"rule_id": "AD-ENDO-01", "field": "headline", "quote": "후기 10만 건"}], "confidence": 5, "note": ""}
+{"id": "T-065", "decision": "REVIEW", "violations": [{"rule_id": "AD-ENDO-01", "field": "headline", "quote": "배우 ○○○가 쓰는"}], "confidence": 4, "note": ""}
+{"id": "T-066", "decision": "REVIEW", "violations": [{"rule_id": "AD-LND-01", "field": "headline", "quote": "월 3,900원"}], "confidence": 5, "note": ""}
+{"id": "T-067", "decision": "REVIEW", "violations": [{"rule_id": "AD-LND-01", "field": "headline", "quote": "30% 할인"}], "confidence": 5, "note": ""}
+{"id": "T-068", "decision": "REVIEW", "violations": [{"rule_id": "AD-BRD-01", "field": "headline", "quote": "도박 중독"}, {"rule_id": "AD-BRD-01", "field": "body", "quote": "도박 중독 상담"}], "confidence": 4, "note": "Restricted word appears in both headline and body in a counseling context, so recorded per field under §6."}
+{"id": "T-069", "decision": "REVIEW", "violations": [{"rule_id": "AD-ABS-01", "field": "headline", "quote": "업계 최초"}, {"rule_id": "AD-CMP-01", "field": "body", "quote": "타사보다 정확한"}], "confidence": 5, "note": ""}
+{"id": "T-070", "decision": "REVIEW", "violations": [{"rule_id": "AD-URG-01", "field": "headline", "quote": "한정 수량"}, {"rule_id": "AD-ENDO-01", "field": "headline", "quote": "전문가 인증"}], "confidence": 5, "note": ""}
+{"id": "T-071", "decision": "REVIEW", "violations": [{"rule_id": "AD-URG-01", "field": "headline", "quote": "지금 아니면 못 사요"}], "confidence": 5, "note": ""}
+{"id": "T-072", "decision": "REVIEW", "violations": [{"rule_id": "AD-CMP-01", "field": "headline", "quote": "경쟁사보다 가볍고 빠른"}, {"rule_id": "AD-URG-01", "field": "body", "quote": "오늘만"}], "confidence": 5, "note": ""}
+{"id": "T-073", "decision": "REVIEW", "violations": [{"rule_id": "AD-LND-01", "field": "headline", "quote": "3개월"}, {"rule_id": "AD-LND-01", "field": "headline", "quote": "20% 할인"}], "confidence": 5, "note": "Counted the course length '3개월' as an unverifiable 기간 in addition to '20% 할인'; the policy does not say whether non-promotional durations need landing confirmation."}
+{"id": "T-074", "decision": "REVIEW", "violations": [{"rule_id": "AD-ENDO-01", "field": "image_text", "quote": "의사 추천"}], "confidence": 5, "note": ""}
+{"id": "T-075", "decision": "REVIEW", "violations": [{"rule_id": "AD-BRD-01", "field": "headline", "quote": "마약 중독"}], "confidence": 3, "note": "'중독 치료' could also meet HLT-01 (general category, 치료+증상), which outranks BRD in §5; I read it as a counseling service in a public-interest context, so BRD-01 review only."}
+{"id": "T-076", "decision": "REVIEW", "violations": [{"rule_id": "AD-LND-01", "field": "headline", "quote": "7일"}], "confidence": 5, "note": ""}
+{"id": "T-077", "decision": "REVIEW", "violations": [{"rule_id": "AD-ENDO-01", "field": "headline", "quote": "전문가가 추천"}], "confidence": 5, "note": ""}
