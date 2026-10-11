@@ -161,8 +161,9 @@ class Store:
         return [{"seq": r["seq"], "ts": r["ts"], "type": r["type"], "payload": json.loads(r["payload_json"])} for r in rows]
 
     def list_runs(self, *, submitter: str | None = None, state: str | None = None, limit: int = 50) -> list[Run]:
-        sql, args = "SELECT * FROM runs", []
-        where = []
+        sql = "SELECT * FROM runs"
+        args: list[str | int] = []
+        where: list[str] = []
         if submitter is not None:
             where.append("submitter=?")
             args.append(submitter)
