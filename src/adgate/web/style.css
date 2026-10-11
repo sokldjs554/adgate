@@ -1,0 +1,57 @@
+:root {
+  --bg: #f6f7f9; --card: #ffffff; --text: #1b1f24; --muted: #66707c; --line: #dde1e6; --accent: #2457d6;
+  --approve: #1a7f4b; --approve-bg: #e4f5ec; --reject: #c0392b; --reject-bg: #fbe9e7; --review: #a05a00; --review-bg: #fff2d9;
+  --mark-reject: #fbd0ca; --mark-review: #ffe2a8;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1216; --card: #171b21; --text: #e8ebef; --muted: #98a2ae; --line: #2a313a; --accent: #7aa2ff;
+    --approve: #5fd39a; --approve-bg: #12301f; --reject: #ff8d80; --reject-bg: #3a1a17; --review: #ffc266; --review-bg: #38290c;
+    --mark-reject: #6b2a24; --mark-review: #5c4410;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 system-ui, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+.top { background: var(--card); border-bottom: 1px solid var(--line); padding: 14px 0; }
+h1 { margin: 0; font-size: 20px; } h1 .sub { color: var(--muted); font-weight: 400; font-size: 15px; margin-left: 6px; }
+h2 { margin: 0 0 12px; font-size: 17px; } h3 { margin: 18px 0 8px; font-size: 15px; }
+.notice { margin: 4px 0 8px; color: var(--muted); font-size: 13px; }
+.who { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+.grid { display: grid; gap: 16px; padding-top: 16px; padding-bottom: 40px; grid-template-columns: 1fr; }
+@media (min-width: 900px) { .grid { grid-template-columns: minmax(340px, 420px) 1fr; align-items: start; } }
+.stack { display: grid; gap: 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+.muted { color: var(--muted); }
+label { display: block; font-size: 13px; color: var(--muted); margin-top: 10px; }
+label.check { display: inline-flex; gap: 6px; align-items: center; margin-top: 0; color: var(--text); }
+input, select, textarea { width: 100%; margin-top: 4px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; }
+input[type=checkbox], input[type=radio] { width: auto; margin: 0; }
+.row { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; } .row > label:first-child { flex: 1; min-width: 150px; }
+.actions { display: flex; gap: 8px; margin-top: 14px; }
+button { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; font: inherit; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button:disabled { opacity: .55; cursor: wait; }
+.error { color: var(--reject); margin: 10px 0 0; }
+.head { display: flex; gap: 10px; align-items: center; }
+.badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 14px; }
+.badge.approve { background: var(--approve-bg); color: var(--approve); }
+.badge.reject { background: var(--reject-bg); color: var(--reject); }
+.badge.review { background: var(--review-bg); color: var(--review); }
+.field { margin-top: 12px; } .field h4 { margin: 0; font-size: 12px; color: var(--muted); font-weight: 600; }
+.field p { margin: 2px 0 0; white-space: pre-wrap; word-break: break-word; }
+mark { border-radius: 3px; padding: 0 2px; color: inherit; }
+mark.reject { background: var(--mark-reject); } mark.review { background: var(--mark-review); }
+.reasons { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.reasons li { border: 1px solid var(--line); border-left-width: 4px; border-radius: 8px; padding: 10px 12px; }
+.reasons li.reject { border-left-color: var(--reject); } .reasons li.review { border-left-color: var(--review); }
+.reasons .rid { font-weight: 700; font-size: 13px; } .reasons .q { background: var(--bg); border-radius: 4px; padding: 0 4px; }
+.reasons .fix { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.diff { display: grid; gap: 4px; margin: 8px 0; font-size: 13px; } .diff del { color: var(--reject); } .diff ins { color: var(--approve); text-decoration: none; }
+.events { margin: 0; padding-left: 20px; font-size: 13px; color: var(--muted); }
+code { background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+.flush { margin: 0; }
+.queue { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.queue li button { width: 100%; text-align: left; display: flex; justify-content: space-between; gap: 8px; }
+.queue .meta { color: var(--muted); font-size: 12px; }
+#reviewBox .row > label:first-child { flex: 0 0 auto; min-width: 0; }
