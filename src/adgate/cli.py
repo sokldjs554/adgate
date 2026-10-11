@@ -10,13 +10,13 @@ from pathlib import Path
 from typing import Any
 
 from .config import ReviewConfig
-from .eval import agreement, dataset, gate, report
+from .eval import agreement, dataset, gate, judge_replay, report
 from .eval import gen as generator
 from .eval import metrics as eval_metrics
 from .eval.dataset import Example
 from .eval.runner import errors as eval_errors
 from .eval.runner import run_system
-from .eval.systems import ablations, all_to_human, naive_blocklist, pipeline_system
+from .eval.systems import Prediction, ablations, all_to_human, naive_blocklist, pipeline_system
 from .judge_recorded import RecordedJudge, creative_key, export_prompts, prompt_bundle
 from .models import Creative
 from .pipeline import review
@@ -28,6 +28,7 @@ DATASETS = ("dev", "test", "redteam", "generated")  # 알려진 이름만 받는
 # 게이트가 회귀 감시에 쓰는 셋. 합격 기준(H1-H3)은 test 에만 건다. redteam 은 첫 접촉이 history 에 보존돼 있고 이후 수치는 holdout 이 아니므로,
 # 정상 유사를 하나라도 놓치거나 오반려하면 바로 잡는 회귀 감시용으로 쓴다(리뷰 반영 중 R-002 오반려를 게이트가 못 잡았다 — FAILURES F-18).
 GATE_DATASETS = ("dev", "test", "redteam")
+REPLAY_SYSTEMS = ("full", "full+judge", "full+judge_cap")  # 녹음 재생 요약이 짝지어 보는 구성(docs/JUDGE_REPLAY.md 3절)
 
 
 def _path(name: str, data_dir: Path) -> Path:
@@ -104,6 +105,8 @@ def cmd_eval(args: argparse.Namespace) -> int:
     results: dict[str, dict[str, Any]] = {}
     ds_meta: dict[str, dict[str, Any]] = {}
     error_dump: dict[str, Any] = {}
+    replay_preds: dict[str, dict[str, list[Prediction]]] = {}  # 녹음 재생 요약이 소재별로 짝지어 보는 세 구성의 예측
+    replay_examples: dict[str, list[Example]] = {}
     sha, dirty = report.git_state(ROOT)
     for name in names:
         examples = load_dataset(name, data_dir)
@@ -129,6 +132,9 @@ def cmd_eval(args: argparse.Namespace) -> int:
             results[name][sname] = eval_metrics.compute(examples, preds)
             if sname == "full":
                 error_dump[name] = eval_errors(examples, preds)
+            if recorded is not None and sname in REPLAY_SYSTEMS:
+                replay_preds.setdefault(name, {})[sname] = preds
+                replay_examples[name] = examples
         if name in FROZEN and "full" in results[name]:
             report.append_measurement(Path(args.measurements), name, "full", sha, dirty, results[name]["full"], args.note)
 
@@ -140,6 +146,11 @@ def cmd_eval(args: argparse.Namespace) -> int:
             "responses": len(recorded.responses),
             "file_sha256": dataset.sha256_file(args.judge_file),
             "misses": recorded.misses,
+            "datasets": {
+                name: judge_replay.summarize(replay_examples[name], t["full"], t["full+judge"], t["full+judge_cap"])
+                for name, t in replay_preds.items()
+                if all(k in t for k in REPLAY_SYSTEMS)
+            },
         }
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)

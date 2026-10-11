@@ -5,6 +5,7 @@ from __future__ import annotations
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
+from dataclasses import field as dc_field
 
 from ..config import ReviewConfig
 from ..models import AD_FIELDS, Creative, Finding, Outcome
@@ -17,6 +18,8 @@ class Prediction:
     findings: list[Finding]
     latency_ms: float
     quote_mismatch: int = 0  # 인용이 어긋나 지운 발견 수(grounding 지표가 이것을 '틀림'으로 센다)
+    escalations: list[str] = dc_field(default_factory=list)  # judge_unavailable, judge_ungrounded 등(녹음 재생 요약이 센다)
+    dropped_ungrounded: int = 0  # Judge 가 낸 의심 중 근거(인용)를 못 댄 것의 수
 
 
 System = Callable[[Creative], Prediction]
@@ -27,7 +30,10 @@ def pipeline_system(cfg: ReviewConfig | None = None) -> System:
 
     def run(creative: Creative) -> Prediction:
         r = review(creative, cfg)
-        return Prediction(r.outcome, r.findings, r.stats.latency_ms, r.stats.quote_mismatch)
+        return Prediction(
+            r.outcome, r.findings, r.stats.latency_ms, r.stats.quote_mismatch,
+            escalations=list(r.escalations), dropped_ungrounded=r.stats.dropped_ungrounded,
+        )
 
     return run
 

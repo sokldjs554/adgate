@@ -169,3 +169,66 @@ def test_eval_recorded_without_a_file_is_a_usage_error(tmp_path):
     with pytest.raises(SystemExit, match="--judge-file"):
         main(["eval", "--datasets", "dev", "--data-dir", str(d), "--judge", "recorded", "--out", str(tmp_path / "o.json"),
               "--errors-out", str(tmp_path / "e.json")])
+
+
+# --------------------------------------------------------------------------- 요약(사전등록 E1–E4 를 산출물에서 계산한다)
+def _replay_meta(tmp_path, rows, recorded):
+    d = tmp_path / "data"
+    d.mkdir(exist_ok=True)
+    (d / "dev.jsonl").write_text("".join(r.model_dump_json() + "\n" for r in rows), encoding="utf-8")
+    rec = tmp_path / "rec.jsonl"
+    rec.write_text(
+        "".join(json.dumps({"key": creative_key(r.creative), "response": {"findings": recorded.get(r.id, [])}}, ensure_ascii=False) + "\n" for r in rows),
+        encoding="utf-8",
+    )
+    out = tmp_path / "o.json"
+    assert main(["eval", "--datasets", "dev", "--data-dir", str(d), "--errors-out", str(tmp_path / "e.json"), "--out", str(out),
+                 "--judge", "recorded", "--judge-file", str(rec)]) == 0
+    return json.loads(out.read_text(encoding="utf-8"))["meta"]["judge_replay"]["datasets"]["dev"]
+
+
+def test_summary_pairs_the_same_creatives_and_lists_what_the_judge_changed(tmp_path):
+    d, rows = _write_dataset(tmp_path)
+    s = _replay_meta(tmp_path, rows, {"X-1": [GUA]})
+    assert s["n"] == 2
+    assert s["transitions"]["REJECT"] == {"APPROVE→REJECT": 1}          # 결정론은 놓치고 녹음된 LLM 후보가 잡았다
+    assert s["transitions"]["APPROVE"] == {"APPROVE→APPROVE": 1}
+    assert s["transitions_cap"]["REJECT"] == {"APPROVE→REVIEW": 1}      # 상한 구성은 반려 대신 사람에게 보낸다
+    assert s["unsafe_fixed"] == ["X-1"] and s["approve_gold_changed"] == [] and s["approve_gold_to_reject"] == []
+    assert s["deterministic_lost"] == 0 and s["judge_added"]["k"] == 1 and s["judge_findings"] == 1
+    assert s["judge_ungrounded"]["k"] == 0 and s["judge_unavailable"]["k"] == 0 and s["dropped_ungrounded"] == 0
+    (x,) = s["changed"]
+    assert x["id"] == "X-1" and x["gold"] == "REJECT" and (x["full"], x["judge"], x["judge_cap"]) == ("APPROVE", "REJECT", "REVIEW") and x["llm_rules"] == ["AD-GUA-01"]
+
+
+def test_summary_names_the_normal_creative_the_judge_turned_into_a_rejection(tmp_path):
+    """판단 규칙: 정답이 APPROVE 인 소재를 Judge 가 REJECT 로 만들면 목록에 오르고 상한 구성에서는 REVIEW 에 그친다."""
+    d, rows = _write_dataset(tmp_path)
+    harmless = {**GUA, "quote": "편하게 쓰세요", "field": "body"}
+    s = _replay_meta(tmp_path, rows, {"X-2": [harmless]})
+    assert s["approve_gold_to_reject"] == ["X-2"]
+    (x,) = s["approve_gold_changed"]
+    assert (x["full"], x["judge"], x["judge_cap"]) == ("APPROVE", "REJECT", "REVIEW")
+    assert s["transitions"]["APPROVE"] == {"APPROVE→REJECT": 1} and s["transitions_cap"]["APPROVE"] == {"APPROVE→REVIEW": 1}
+
+
+def test_summary_counts_suspicions_that_could_not_be_grounded(tmp_path):
+    d, rows = _write_dataset(tmp_path)
+    s = _replay_meta(tmp_path, rows, {"X-2": [{**GUA, "quote": "원금이 보장되는 투자", "field": "body"}]})
+    assert s["judge_ungrounded"]["k"] == 1 and s["dropped_ungrounded"] == 1 and s["judge_added"]["k"] == 0
+    (x,) = s["changed"]
+    assert x["ungrounded"] is True and (x["full"], x["judge"]) == ("APPROVE", "REVIEW")  # 근거 없는 의심은 승인하지 않고 사람에게 보낸다
+
+
+def test_summary_would_notice_a_lost_deterministic_finding():
+    """E3 의 검사 자체가 실패할 수 있는가: 결정론 발견이 빠진 예측을 주면 센다. Judge(llm) 발견의 차이는 세지 않는다."""
+    from adgate.eval.judge_replay import summarize
+    from adgate.eval.systems import Prediction
+    from adgate.models import Finding
+
+    det = Finding(rule_id="AD-GUA-01", code="guarantee", severity="reject", field="headline", quote="무조건", start=0, end=3)
+    llm = Finding(rule_id="AD-ABS-01", code="absolute", severity="review", field="body", quote="최고", start=0, end=2, source="llm")
+    ex = Example(id="X", creative=mk("무조건 승인", "최고"), gold=Gold(decision="REJECT", violations=[]))
+    kept = summarize([ex], [Prediction("REJECT", [det], 0.0)], [Prediction("REJECT", [det, llm], 0.0)], [Prediction("REJECT", [det, llm], 0.0)])
+    lost = summarize([ex], [Prediction("REJECT", [det], 0.0)], [Prediction("REVIEW", [llm], 0.0)], [Prediction("REVIEW", [llm], 0.0)])
+    assert kept["deterministic_lost"] == 0 and lost["deterministic_lost"] == 1
