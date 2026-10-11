@@ -47,7 +47,7 @@ def acceptance(m: dict[str, Any], b1: dict[str, Any] | None = None) -> list[Chec
     """사전등록 합격 기준. m 은 `test` 에서의 지표, b1 은 같은 셋에서의 순진한 블록리스트 지표."""
     checks = [
         Check("H1", "hard_pass_through = 0", m["hard_pass_through"]["k"] == 0, m["hard_pass_through"]["k"], 0, "required"),
-        Check("H2", "grounding = 100%", m["grounding"]["value"] in (1.0, None), m["grounding"]["value"], 1.0, "required"),
+        Check("H2", "grounding = 100% (측정 대상이 있어야 한다)", m["grounding"]["value"] == 1.0, m["grounding"]["value"], 1.0, "required"),
         Check("H3", "unsafe_approve ≤ 3%", (m["unsafe_approve"]["value"] or 0) <= 0.03, m["unsafe_approve"]["value"], 0.03, "required"),
         Check("S1", "false_reject ≤ 5%", (m["false_reject"]["value"] or 0) <= 0.05, m["false_reject"]["value"], 0.05, "target"),
         Check("S2", "over_review ≤ 10%", (m["over_review"]["value"] or 0) <= 0.10, m["over_review"]["value"], 0.10, "target"),

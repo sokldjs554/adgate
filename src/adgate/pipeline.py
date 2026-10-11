@@ -51,6 +51,19 @@ def _is_grounded(f: Finding, creative: Creative) -> bool:
     return text[f.start:f.end] == f.quote
 
 
+def _demote_ungrounded(findings: list[Finding], creative: Creative, stats: ReviewStats) -> list[Finding]:
+    """인용 불변식이 깨진 발견은 버리지 않는다. 버리면 위반이 조용히 사라져 자동 승인된다(독립 리뷰 M1). 인용·위치만 지우고 세어 둔다."""
+    out: list[Finding] = []
+    for f in findings:
+        if _is_grounded(f, creative):
+            out.append(f)
+            continue
+        stats.quote_mismatch += 1
+        note = f"{f.note}; quote_mismatch" if f.note else "quote_mismatch"
+        out.append(f.model_copy(update={"quote": None, "start": None, "end": None, "note": note}))
+    return out
+
+
 def review(
     creative: Creative,
     cfg: ReviewConfig | None = None,
@@ -106,7 +119,7 @@ def review(
             log("judge", failed=type(exc).__name__)
 
     findings = _merge_extra(strict, extra, policy)
-    findings = [f for f in findings if _is_grounded(f, creative)]  # 방어선: 인용 불일치는 내보내지 않는다
+    findings = _demote_ungrounded(findings, creative, stats)  # 방어선: 인용이 어긋나면 *인용만* 지운다. 발견(등급)은 그대로 둔다
     outcome = decide(findings)  # 판정은 잘라 내기 전의 전체 발견으로 계산한다
     if len(findings) > MAX_FINDINGS_OUT:
         findings.sort(key=lambda f: -_SEVERITY[f.severity])  # 무거운 등급을 먼저 남긴다(안정 정렬)

@@ -14,7 +14,7 @@ from . import lexicon as lx
 from . import numbers as nums
 from .config import ReviewConfig
 from .models import AD_FIELDS, Creative, Finding
-from .normalize import Mode, Normalized, build
+from .normalize import Mode, Normalized, build, suspicious_characters
 from .policy import Policy
 
 # 광고-랜딩 수치 대조는 '제안(offer)' 문구에만 한다. 고지 문구의 일반 수치는 제외한다.
@@ -210,6 +210,24 @@ def detect_meta(scan: Scan) -> list[Finding]:
     return out
 
 
+def detect_hidden(scan: Scan) -> list[Finding]:
+    """보이지 않는 채움 문자·글자 방향 제어 문자가 있는 소재는 자동 판정하지 않고 사람에게 넘긴다.
+    정규화가 걷어 내도 *보이는 문구*와 *검사한 문구*가 어긋날 수 있는 입력이기 때문이다(방향을 뒤집으면 논리 순서가 거꾸로다)."""
+    if not scan.cfg.normalize:
+        return []
+    where = [
+        f"{field}:{'+'.join(kinds)}"
+        for field in (*AD_FIELDS, "landing_text")
+        if (text := scan.creative.text(field)) and (kinds := suspicious_characters(text))
+    ]
+    if not where:
+        return []
+    return [Finding(
+        rule_id="SYS-INPUT", code="hidden_characters", severity=scan.policy.spec("SYS-INPUT", "hidden_characters").severity,
+        note=", ".join(where),
+    )]
+
+
 def detect_fin(scan: Scan) -> list[Finding]:
     category = scan.category
     if not scan.policy.applies("AD-FIN-01", category):
@@ -300,6 +318,7 @@ def run_rules(scan: Scan) -> list[Finding]:
         for rule_id, fn in TEXT_DETECTORS:
             if rule_id in LANDING_SCANNED and scan.policy.applies(rule_id, scan.category):
                 findings.extend(fn(scan, "landing_text", landing))
+    findings.extend(detect_hidden(scan))
     findings.extend(detect_meta(scan))
     findings.extend(detect_fin(scan))
     findings.extend(detect_landing(scan))

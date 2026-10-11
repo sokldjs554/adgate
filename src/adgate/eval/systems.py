@@ -16,6 +16,7 @@ class Prediction:
     outcome: Outcome
     findings: list[Finding]
     latency_ms: float
+    quote_mismatch: int = 0  # 인용이 어긋나 지운 발견 수(grounding 지표가 이것을 '틀림'으로 센다)
 
 
 System = Callable[[Creative], Prediction]
@@ -26,7 +27,7 @@ def pipeline_system(cfg: ReviewConfig | None = None) -> System:
 
     def run(creative: Creative) -> Prediction:
         r = review(creative, cfg)
-        return Prediction(r.outcome, r.findings, r.stats.latency_ms)
+        return Prediction(r.outcome, r.findings, r.stats.latency_ms, r.stats.quote_mismatch)
 
     return run
 

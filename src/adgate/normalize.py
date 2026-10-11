@@ -21,7 +21,7 @@ from functools import cached_property
 from typing import Literal
 
 # 글자 사이에 끼워 넣어 단어를 쪼개는 데 쓰이는 구분 기호
-SEPARATORS = ".·‧∙ㆍ-‐‑‒–—―_*~^'\"`|/\\•"
+SEPARATORS = ".·‧∙ㆍᆞ-‐‑‒–—―_*~^'\"`|/\\•()[]{}「」『』【】〈〉《》〔〕"
 # 장식 기호: ※, 화살표, 기술 기호, 도형·기호·딩뱃(★ ♥ ■ ▶ …), 이모지. 단어 사이에 끼우면 구분 기호처럼 쓰인다.
 _DECORATIONS = "\u203b\u2190-\u21ff\u2300-\u23ff\u2500-\u27bf\u2b00-\u2bff\U0001f000-\U0001faff"
 _SEP_CLASS = re.escape(SEPARATORS) + _DECORATIONS
@@ -42,15 +42,31 @@ _HANJA = {
     "內": "내", "第": "제", "百": "백", "全": "전", "額": "액", "還": "환", "給": "급", "利": "이", "損": "손", "失": "실",
 }
 _FOLD = str.maketrans({**_CONFUSABLES, **_HANJA})
+
+# 눈에 보이지 않는 채움 문자(한글 채움 문자, 점자 빈칸). 글자 사이에 끼워 단어를 쪼개는 데 쓰인다 → soft 에서 지운다.
+_FILLERS = frozenset("\u115f\u1160\u3164\uffa0\u2800")
+# 글자 방향을 바꾸는 제어 문자(RLO 등): 논리 순서와 화면에 보이는 순서가 달라져 어휘 검사가 속는다 → 지우는 대신 사람이 본다.
+_BIDI = frozenset("\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069")
+
+
+def suspicious_characters(text: str) -> list[str]:
+    """보이지 않는 채움 문자(``filler``)나 글자 방향을 바꾸는 제어 문자(``bidi``)가 있는가. 있으면 파이프라인이 사람에게 넘긴다."""
+    found: list[str] = []
+    if any(c in _BIDI for c in text):
+        found.append("bidi")
+    if any(unicodedata.normalize("NFKC", c) in _FILLERS or c in _FILLERS for c in text):
+        found.append("filler")
+    return found
 _WORD = r"[0-9a-z가-힣ᄀ-ᇿ㄰-㆏%]"  # % 는 "100■%", "100%★승인" 처럼 숫자·낱말과 붙어 쓰이므로 낱말 문자로 본다
 # 구분 기호가 글자에 바로 붙어 있거나(수.익), 앞뒤에 공백이 낀 경우(수 - 익, N o . 1) 모두 단어를 쪼개는 용도로 본다.
 # 마침표 뒤에만 공백이 오는 "수익. 보장"은 문장 경계이므로 건드리지 않는다.
 _SEP_RUN = re.compile(rf"(?<={_WORD})(?:[{_SEP_CLASS}]+|\s+[{_SEP_CLASS}]+\s*)(?={_WORD})")
 _SENTENCE_END = re.compile(r"[.!?。]+(?=\s|$)|\n")
-# 글자 사이를 하나씩 띄운 낱말("치 매 예 방에"): 한글 낱글자 3개 이상이 한두 칸 공백으로 이어진 덩어리.
+# 글자 사이를 하나씩 띄운 낱말("치 매 예 방에", "국\n내\n1\n위"): 낱글자(한글·영문·숫자) 3개 이상이 한두 칸 공백·줄바꿈으로 이어진 덩어리.
 # 마지막 글자 뒤에 조사 한 글자가 바로 붙어도("방에") 덩어리로 본다. 그 외의 한글이 붙으면("첫 달 천원"의 '천원') 낱말의 일부이므로 붙이지 않는다.
+# 길이를 40 으로 묶어 선형 시간을 지킨다(끝이 맞지 않는 긴 덩어리를 시작 위치마다 다시 훑지 않게). 숫자만 이어진 덩어리("1 2 3")는 붙이지 않는다.
 _SPACED_LETTERS = re.compile(
-    r"(?<![가-힣])[가-힣](?: {1,2}[가-힣]){2,}(?:(?![가-힣])|(?=[은는이가을를에의도과와로만](?![가-힣])))"
+    r"(?<![0-9a-z가-힣])[0-9a-z가-힣](?:[ \n]{1,2}[0-9a-z가-힣]){2,40}(?:(?![0-9a-z가-힣])|(?=[은는이가을를에의도과와로만](?![가-힣])))"
 )
 
 Mode = Literal["full", "plain"]
@@ -69,11 +85,14 @@ def _soft(text: str) -> tuple[str, list[int], list[int]]:
         if cat == "Cc" and c not in "\n\t\r":
             continue
         for ch in unicodedata.normalize("NFKC", c).lower().translate(_FOLD):
+            if ch in _FILLERS:
+                continue
             chars.append(ch)
             starts.append(i)
             ends.append(i + 1)
     chars, starts, ends = _compose_jamo(chars, starts, ends)
-    return _join_spaced_letters(chars, starts, ends)
+    soft, starts, ends = _join_spaced_letters(chars, starts, ends)
+    return _drop_separator_runs(soft, starts, ends)
 
 
 def _compose_jamo(chars: list[str], starts: list[int], ends: list[int]) -> tuple[list[str], list[int], list[int]]:
@@ -102,12 +121,48 @@ def _compose_jamo(chars: list[str], starts: list[int], ends: list[int]) -> tuple
     return out_c, out_s, out_e
 
 
+_WORD_CH = re.compile(_WORD)
+
+
+def _is_word(soft: str, i: int) -> bool:
+    return 0 <= i < len(soft) and _WORD_CH.match(soft[i]) is not None
+
+
+def _separator_runs(soft: str) -> list[tuple[int, int, bool]]:
+    """(시작, 끝, 낱자 사이의 공백 낀 구분인가) 목록. 숫자 사이의 기호(3.5, 2026-10, 9~18)는 뺀다."""
+    out: list[tuple[int, int, bool]] = []
+    for m in _SEP_RUN.finditer(soft):
+        a, b = m.span()
+        if soft[a - 1].isdigit() and soft[b].isdigit():
+            continue
+        spaced = any(c.isspace() for c in soft[a:b])
+        singles = not _is_word(soft, a - 2) and not _is_word(soft, b + 1)  # 양쪽 낱말이 한 글자
+        out.append((a, b, not spaced or singles))
+    return out
+
+
+def _drop_separator_runs(soft: str, starts: list[int], ends: list[int]) -> tuple[str, list[int], list[int]]:
+    """낱말 사이에 끼운 구분·장식 기호("수.익.보.장", "무★조★건", "수(익)보(장)")를 soft 에서도 걷어 낸다.
+    soft 에서 찾는 규칙(질병명 경계 등)도 같은 우회에 속지 않게 하려는 것이다. 공백이 낀 구분 기호는 양쪽이 한 글자짜리 낱말일 때만 걷는다
+    ("당 · 뇨" 는 걷고, "건강 · 당뇨 예방" 의 낱말 경계는 지키지 않으면 질병명이 앞 낱말에 붙어 버린다)."""
+    drop: set[int] = set()
+    for a, b, safe in _separator_runs(soft):
+        if safe:
+            drop.update(range(a, b))
+    if not drop:
+        return soft, starts, ends
+    keep = [i for i in range(len(soft)) if i not in drop]
+    return "".join(soft[i] for i in keep), [starts[i] for i in keep], [ends[i] for i in keep]
+
+
 def _join_spaced_letters(chars: list[str], starts: list[int], ends: list[int]) -> tuple[str, list[int], list[int]]:
     """"치 매 예 방" 처럼 낱글자를 띄워 쓴 덩어리의 공백을 걷어 낸다(문자 경계가 필요한 soft 규칙이 우회당하지 않게)."""
     soft = "".join(chars)
     drop: set[int] = set()
     for m in _SPACED_LETTERS.finditer(soft):
-        drop.update(i for i in range(m.start(), m.end()) if soft[i] == " ")
+        if "".join(m.group().split()).isdigit():
+            continue
+        drop.update(i for i in range(m.start(), m.end()) if soft[i] in " \n")
     if not drop:
         return soft, starts, ends
     keep = [i for i in range(len(soft)) if i not in drop]
@@ -158,16 +213,9 @@ def build(text: str, mode: Mode = "full") -> Normalized:
         keep = [i for i, c in enumerate(soft) if c != " "]
     else:
         soft, soft_idx, soft_end = _soft(text)
-        drop: set[int] = set()
-        for m in _SEP_RUN.finditer(soft):
-            a, b = m.span()
-            if soft[a - 1].isdigit() and soft[b].isdigit():
-                continue  # 3.5 · 2026-10 · 9~18 같은 숫자 표기는 그대로 둔다
-            drop.update(range(a, b))
-        keep = [
-            i for i, c in enumerate(soft)
-            if i not in drop and (c == "\n" or not c.isspace())
-        ]
+        # tight 는 soft 에서 공백과, 아직 남은 모든 구분 기호(공백이 낀 것 포함)를 더 걷어 낸다.
+        drop = {i for a, b, _ in _separator_runs(soft) for i in range(a, b)}
+        keep = [i for i, c in enumerate(soft) if i not in drop and (c == "\n" or not c.isspace())]
     tight = "".join(soft[i] for i in keep)
     return Normalized(
         original=text,

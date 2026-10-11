@@ -91,6 +91,7 @@ class ReviewStats(BaseModel):
     judge_called: bool = False
     judge_failed: bool = False
     findings_truncated: int = 0  # 출력에서 잘라 낸 발견 수(판정은 전체로 계산한다)
+    quote_mismatch: int = 0      # 인용이 원문 [start:end] 와 달라 인용만 지운 발견 수. 0 이어야 한다(발견 자체는 지우지 않는다)
 
 
 class ReviewResult(BaseModel):

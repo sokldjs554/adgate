@@ -110,6 +110,7 @@ def compute(examples: list[Example], preds: list[Prediction]) -> dict[str, Any]:
             if f.quote is not None and f.field is not None and f.start is not None and f.end is not None:
                 ground_n += 1
                 ground_k += ex.creative.text(f.field)[f.start:f.end] == f.quote
+        ground_n += p.quote_mismatch  # 인용이 어긋나 파이프라인이 인용을 지운 발견도 '틀림'이다(분자에는 더하지 않는다)
 
     prec = tp / (tp + fp) if tp + fp else 0.0
     rec = tp / (tp + fn) if tp + fn else 0.0

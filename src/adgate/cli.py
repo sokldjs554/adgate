@@ -23,6 +23,7 @@ from .policy import load_policy
 
 ROOT = Path.cwd()
 FROZEN = ("test", "redteam")
+DATASETS = ("dev", "test", "redteam", "generated")  # 알려진 이름만 받는다('./test' 같은 경로로 --measure 가드를 피하지 못하게)
 
 
 def _path(name: str, data_dir: Path) -> Path:
@@ -49,14 +50,25 @@ def cmd_review(args: argparse.Namespace) -> int:
     return 0
 
 
+def _check_dataset_names(names: list[str]) -> None:
+    unknown = [n for n in names if n not in DATASETS]
+    if unknown:
+        raise SystemExit(f"알 수 없는 데이터셋: {', '.join(unknown)} (가능: {', '.join(DATASETS)})")
+
+
 def _verify_frozen(data_dir: Path, names: list[str], allow_modified: bool) -> None:
+    """동결 셋을 쓰려면 매니페스트가 있고, 그 파일이 목록에 있고, 해시가 같아야 한다. 하나라도 아니면 거부한다(열린 채로 실패하지 않는다)."""
+    if not names:
+        return
     manifest = data_dir / "MANIFEST.sha256"
     if not manifest.exists():
-        return
+        raise SystemExit(f"{manifest} 가 없습니다. 동결 셋({', '.join(names)})은 매니페스트로 해시를 확인할 수 있을 때만 씁니다.")
     status = dataset.verify_manifest(manifest)
     for name in names:
         fname = f"{name}.jsonl"
-        if fname in status and not status[fname] and not allow_modified:
+        if fname not in status:
+            raise SystemExit(f"{fname} 이(가) {manifest.name} 에 없습니다. 동결하지 않은 파일은 동결 셋으로 쓰지 않습니다.")
+        if not status[fname] and not allow_modified:
             raise SystemExit(
                 f"{fname} 이(가) 동결 시점(MANIFEST.sha256)과 다릅니다. 라벨 오류 수정이면 --allow-modified-frozen 과 메모를 쓰세요."
             )
@@ -65,6 +77,7 @@ def _verify_frozen(data_dir: Path, names: list[str], allow_modified: bool) -> No
 def cmd_eval(args: argparse.Namespace) -> int:
     data_dir = Path(args.data_dir)
     names = [n for n in args.datasets.split(",") if n]
+    _check_dataset_names(names)
     frozen_used = [n for n in names if n in FROZEN]
     if frozen_used and not args.measure:
         raise SystemExit(f"{','.join(frozen_used)} 측정은 --measure 가 필요합니다(측정 기록이 자동으로 남습니다).")
@@ -105,7 +118,8 @@ def cmd_eval(args: argparse.Namespace) -> int:
             else:
                 print(f"[{name}] 녹음이 모든 소재를 덮지 못해 judge 구성은 이 데이터셋에서 건너뜁니다")
         if wanted is not None:
-            ds_systems = {k: v for k, v in ds_systems.items() if k in wanted}
+            # 동결 셋은 `full` 을 항상 돌린다 — 측정 기록(MEASUREMENTS.md)이 `full` 한 줄로 남기 때문이다.
+            ds_systems = {k: v for k, v in ds_systems.items() if k in wanted or (name in FROZEN and k == "full")}
         for sname, system in ds_systems.items():
             preds = run_system(system, examples)
             results[name][sname] = eval_metrics.compute(examples, preds)
@@ -146,6 +160,7 @@ def _print_checks(checks: list[gate.Check]) -> None:
 
 
 def cmd_gate(args: argparse.Namespace) -> int:
+    """회귀 감시. `test` 를 매번 읽지만 측정으로 세지 않는다(CI 가 기록을 커밋할 수 없다) → test 는 첫 측정 뒤 holdout 이 아니다(docs/DECISIONS.md D-5)."""
     data_dir = Path(args.data_dir)
     _verify_frozen(data_dir, ["test"], args.allow_modified_frozen)
     datasets = {n: dataset.load(_path(n, data_dir)) for n in ("dev", "test")}

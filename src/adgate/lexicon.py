@@ -88,8 +88,9 @@ _WEAK = r"(?:예방|개선|호전|억제)"
 _B = r"(?<![가-힣a-z0-9])"
 _JOSA = r"(?:을|를|이|가|은|는|의|에|도)?"
 HLT: tuple[Pat, ...] = (
-    _c("strong", rf"{_B}(?:(?:{_DIS}|{_SYM})\s*)+{_JOSA}\s*{_STRONG}"),
-    _c("weak", rf"{_B}(?:{_DIS}\s*)+{_JOSA}\s*(?:{_STRONG}|{_WEAK})"),
+    # 질병명 나열은 4개까지만 본다: 제한이 없으면 같은 낱말을 수천 번 반복한 입력에서 시작 위치마다 끝까지 훑어 2차 시간이 든다(docs/REVIEW.md C2).
+    _c("strong", rf"{_B}(?:(?:{_DIS}|{_SYM})\s*){{1,4}}{_JOSA}\s*{_STRONG}"),
+    _c("weak", rf"{_B}(?:{_DIS}\s*){{1,4}}{_JOSA}\s*(?:{_STRONG}|{_WEAK})"),
 )
 # '의약품이 아닙니다' 같은 면책 고지가 같은 문장에 있으면 위반이 아니다.
 HLT_DISCLAIMER = re.compile(

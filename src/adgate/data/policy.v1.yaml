@@ -20,6 +20,10 @@ common_codes:
     severity: review
     message: "느슨한 두 번째 검사에서 변형된 위반 의심 표현이 발견되어 사람이 확인합니다."
     fix: "의심 표현을 명확한 문구로 고치거나 삭제해 주세요."
+  hidden_characters:
+    severity: review
+    message: "소재에 눈에 보이지 않는 채움 문자나 글자 방향을 바꾸는 제어 문자가 있어, 보이는 문구와 검사한 문구가 다를 수 있으므로 사람이 확인합니다."
+    fix: "보이지 않는 문자와 글자 방향 제어 문자를 지우고 다시 제출해 주세요."
   judge_unavailable:
     severity: review
     message: "의미 기반 검사를 수행하지 못해 자동 승인하지 않고 사람이 확인합니다."

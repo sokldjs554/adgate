@@ -302,3 +302,61 @@ def test_agreement_reports_quote_overlap_and_exact_matches():
     }
     q = agreement.compare(examples, labels)["quote"]
     assert q == {"gold_quoted": 3, "overlap": 2, "exact": 1}
+
+
+def test_grounding_counts_a_quote_mismatch_as_a_failure_and_the_gate_rejects_a_vacuous_pass():
+    examples = [ex("1", "REJECT", headline="무조건 승인")]
+    ok = metrics.compute(examples, [pred("REJECT", finding("AD-GUA-01", "headline", "무조건 승인", "무조건"))])
+    assert ok["grounding"]["value"] == 1.0
+    p = Prediction("REJECT", [], 1.0, quote_mismatch=1)  # 파이프라인이 어긋난 인용을 지웠다
+    bad = metrics.compute(examples, [p])
+    assert bad["grounding"]["k"] == 0 and bad["grounding"]["n"] == 1 and bad["grounding"]["value"] == 0.0
+    assert not next(c for c in gate.acceptance(bad) if c.id == "H2").ok
+    empty = metrics.compute([ex("2", "APPROVE", headline="좋은 앱")], [pred("APPROVE")])
+    assert empty["grounding"]["value"] is None and not next(c for c in gate.acceptance(empty) if c.id == "H2").ok
+
+
+# --------------------------------------------------------------------------- 동결 셋 가드는 열린 채로 실패하지 않는다 (리뷰 H8)
+def _eval_args(d, tmp_path, *extra):
+    return ["eval", *extra, "--data-dir", str(d), "--out", str(tmp_path / "o.json"), "--errors-out", str(tmp_path / "e.json"),
+            "--measurements", str(tmp_path / "M.md")]
+
+
+def test_dataset_names_are_an_allowlist_so_a_path_cannot_dodge_the_measure_guard(tmp_path):
+    d = _copy_data(tmp_path)
+    for bad in ("./test", "../data/test", "test.jsonl", "Test"):
+        with pytest.raises(SystemExit, match="알 수 없는 데이터셋"):
+            main(_eval_args(d, tmp_path, "--datasets", bad))
+    assert not (tmp_path / "M.md").exists()
+
+
+def test_a_missing_or_incomplete_manifest_refuses_frozen_sets(tmp_path):
+    d = _copy_data(tmp_path)
+    (d / "MANIFEST.sha256").unlink()
+    with pytest.raises(SystemExit, match="MANIFEST.sha256"):
+        main(_eval_args(d, tmp_path, "--datasets", "test", "--measure"))
+    (d / "MANIFEST.sha256").write_text("", encoding="utf-8")  # 비어 있다
+    with pytest.raises(SystemExit, match="매니페스트|MANIFEST"):
+        main(_eval_args(d, tmp_path, "--datasets", "test", "--measure"))
+    with pytest.raises(SystemExit, match="MANIFEST"):
+        main(["gate", "--data-dir", str(d)])
+
+
+def test_measuring_a_frozen_set_always_logs_even_if_the_user_picked_other_systems(tmp_path):
+    d = _copy_data(tmp_path)
+    assert main(_eval_args(d, tmp_path, "--datasets", "test", "--measure", "--systems", "B1_blocklist")) == 0
+    rows = [ln for ln in (tmp_path / "M.md").read_text(encoding="utf-8").splitlines() if ln.startswith("| 20")]
+    assert len(rows) == 1 and "| full |" in rows[0]
+
+
+def test_unknown_git_state_is_logged_as_unknown_not_clean(tmp_path, monkeypatch):
+    import adgate.cli as cli
+
+    d = _copy_data(tmp_path)
+    plain = tmp_path / "not_a_repo"
+    plain.mkdir()
+    monkeypatch.setattr(cli, "ROOT", plain)  # git 저장소가 아닌 곳
+    assert main(_eval_args(d, tmp_path, "--datasets", "test", "--measure", "--systems", "full")) == 0
+    row = next(ln for ln in (tmp_path / "M.md").read_text(encoding="utf-8").splitlines() if ln.startswith("| 20"))
+    assert "unknown" in row and "알 수 없음" in row and "깨끗" not in row
+    assert json.loads((tmp_path / "o.json").read_text(encoding="utf-8"))["meta"]["dirty"] is None

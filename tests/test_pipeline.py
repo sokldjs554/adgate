@@ -100,3 +100,20 @@ def test_truncation_keeps_the_heaviest_findings():
     c = mk("오늘만 " * 300 + "무조건 승인", category="loan", disclosure="신용점수 하락 가능. 연 9.0%")
     r = review(c)
     assert r.outcome == "REJECT" and any(f.severity == "reject" for f in r.findings)
+
+
+def test_a_broken_quote_invariant_keeps_the_finding_and_clears_only_the_quote(monkeypatch):
+    """리뷰 M1: 인용 방어선이 발견을 버리면 위반이 조용히 사라져 APPROVE 가 된다. 인용만 지우고 등급은 지켜야 한다."""
+    from adgate import rules
+
+    real = rules._hit
+
+    def broken(*a, **kw):
+        f = real(*a, **kw)
+        return f.model_copy(update={"quote": (f.quote or "") + "x"})
+
+    monkeypatch.setattr(rules, "_hit", broken)
+    c = mk("무조건 승인", category="loan", disclosure="신용점수 하락 가능. 연 9.0%")
+    r = review(c)
+    assert r.outcome == "REJECT" and r.stats.quote_mismatch >= 1
+    assert all(f.quote is None and f.start is None for f in r.findings if f.rule_id == "AD-GUA-01")
