@@ -1,0 +1,175 @@
+# 광고 심사 정책 v1 — 기계가 읽는 부분(규칙 메타데이터, 사유·수정 안내 문구).
+# 정의와 예시의 기준 문서는 docs/POLICY.md 이고, 이 파일은 그것을 따른다.
+version: v1
+
+# 같은 표현이 여러 규칙에 해당할 때 남길 규칙의 우선순위(앞이 높음). docs/POLICY.md 5절.
+priority:
+  - AD-FRD-01
+  - AD-GUA-01
+  - AD-HLT-01
+  - AD-FIN-01
+  - AD-BRD-01
+  - AD-CMP-01
+  - AD-ABS-01
+  - AD-URG-01
+  - AD-ENDO-01
+  - AD-LND-01
+
+common_codes:
+  loose_match:
+    severity: review
+    message: "느슨한 두 번째 검사에서 변형된 위반 의심 표현이 발견되어 사람이 확인합니다."
+    fix: "의심 표현을 명확한 문구로 고치거나 삭제해 주세요."
+  judge_unavailable:
+    severity: review
+    message: "의미 기반 검사를 수행하지 못해 자동 승인하지 않고 사람이 확인합니다."
+    fix: "추가 조치는 필요하지 않습니다. 심사자가 확인한 뒤 결과를 안내합니다."
+
+rules:
+  AD-ADV-01:
+    title: 광고주 인증
+    applies_to: [loan, invest]
+    codes:
+      advertiser_not_verified:
+        severity: reject
+        message: "금융 업종(대출·투자) 광고는 사업자 인증을 마친 광고주만 집행할 수 있습니다."
+        fix: "금융업 인증을 완료한 뒤 다시 제출해 주세요."
+
+  AD-ABS-01:
+    title: 근거 없는 최상급·절대 표현
+    codes:
+      unsubstantiated:
+        severity: reject
+        message: "객관적 근거 없이 최상급·절대적 표현을 사용했습니다."
+        fix: "조사 주체와 기준 연도를 함께 표시하거나, 표현을 구체적인 사실(수치·기간·조건)로 바꿔 주세요."
+      substantiated_needs_check:
+        severity: review
+        message: "근거가 표시되어 있으나 출처의 진위를 시스템이 확인할 수 없어 사람이 검토합니다."
+        fix: "조사 보고서나 인증서 같은 근거 자료를 함께 제출해 주세요."
+
+  AD-GUA-01:
+    title: 결과·수익·승인 보장
+    codes:
+      guarantee:
+        severity: reject
+        message: "결과나 수익, 승인을 확정적으로 보장하는 표현은 허용되지 않습니다."
+        fix: "조건과 불확실성을 밝히는 표현(예: '승인 여부는 심사 후 결정됩니다')으로 바꿔 주세요."
+
+  AD-FIN-01:
+    title: 금융상품 필수 고지
+    applies_to: [loan, invest]
+    codes:
+      missing_disclosure:
+        severity: reject
+        message: "금융상품 광고에 필수 고지가 빠져 있습니다."
+        fix: "아래 고지 문구를 광고 안에 넣어 주세요."
+    missing:
+      credit_warning:
+        label: 신용점수 하락 가능성 안내
+        text: "과도한 대출은 개인신용평점 하락의 원인이 될 수 있습니다."
+      rate_info:
+        label: 금리 정보
+        text: "금리는 신용도에 따라 달라질 수 있습니다."
+      principal_loss_warning:
+        label: 원금 손실 가능성 안내
+        text: "투자 상품은 원금 손실이 발생할 수 있습니다."
+      past_performance_notice:
+        label: 과거 성과의 한계 안내
+        text: "과거 운용 성과가 미래 수익을 보장하지 않습니다."
+
+  AD-HLT-01:
+    title: 질병 치료·예방 효능 표방
+    applies_to: [supplement, cosmetic, ecommerce, general]
+    codes:
+      disease_claim:
+        severity: reject
+        message: "제품이 질병을 치료·예방·개선한다는 표현은 허용되지 않습니다."
+        fix: "질병과 연결하지 말고, 승인된 기능성 범위(예: '혈행 개선에 도움을 줄 수 있음')에서 표현해 주세요."
+
+  AD-CMP-01:
+    title: 비교·비방
+    codes:
+      comparison:
+        severity: review
+        message: "경쟁 사업자와의 비교 표현은 근거 확인이 필요합니다."
+        fix: "비교 대상과 근거 자료를 함께 제출하거나 비교 표현을 삭제해 주세요."
+      disparagement:
+        severity: reject
+        message: "경쟁 사업자를 깎아내리는 표현은 허용되지 않습니다."
+        fix: "다른 사업자에 대한 언급을 삭제해 주세요."
+
+  AD-URG-01:
+    title: 근거 없는 긴급·희소성
+    codes:
+      urgency_unverified:
+        severity: review
+        message: "긴급성·희소성 표현을 뒷받침하는 기간이나 수량 근거가 랜딩 페이지에서 확인되지 않습니다."
+        fix: "랜딩 페이지에 이벤트 기간이나 수량을 명시하거나 해당 표현을 삭제해 주세요."
+
+  AD-ENDO-01:
+    title: 근거 없는 추천·후기·임상 표방
+    codes:
+      unsubstantiated_endorsement:
+        severity: review
+        message: "출처 없는 추천·후기·임상 표현은 근거 확인이 필요합니다."
+        fix: "조사 주체·기준 시점·표본 같은 출처를 함께 제출하거나 표현을 삭제해 주세요."
+
+  AD-LND-01:
+    title: 광고-랜딩 불일치
+    codes:
+      mismatch:
+        severity: reject
+        message: "광고에 표시한 수치가 랜딩 페이지의 수치와 일치하지 않습니다."
+        fix: "광고와 랜딩 페이지의 가격·할인율·기간을 같게 맞춰 주세요."
+      unverifiable:
+        severity: review
+        message: "광고에 표시한 수치를 랜딩 페이지에서 확인할 수 없습니다."
+        fix: "랜딩 페이지에 같은 수치를 명시해 주세요."
+
+  AD-BRD-01:
+    title: 제한 업종·브랜드 안전
+    codes:
+      restricted_category:
+        severity: reject
+        message: "도박·성인 업종은 광고를 집행할 수 없습니다."
+        fix: "해당 업종은 광고 집행이 불가합니다."
+      restricted_content:
+        severity: reject
+        message: "제한 업종 또는 유해 콘텐츠를 홍보하는 표현입니다."
+        fix: "해당 표현을 삭제해 주세요."
+      public_interest:
+        severity: review
+        message: "제한 업종 단어가 있으나 공익 문맥으로 보여 사람이 확인합니다."
+        fix: "공익 캠페인임을 확인할 수 있는 자료(기관명, 사업자 정보)를 함께 제출해 주세요."
+
+  AD-FRD-01:
+    title: 사기·개인정보 탈취 유도
+    codes:
+      deceptive_solicitation:
+        severity: reject
+        message: "선입금 요구, 개인정보·인증번호 입력 유도, 불법 대출 유인 표현은 허용되지 않습니다."
+        fix: "해당 표현을 삭제하고 정식 절차를 안내해 주세요."
+
+  AD-FMT-01:
+    title: 소재 형식 품질
+    codes:
+      headline_too_long:
+        severity: info
+        message: "제목이 30자를 넘습니다."
+        fix: "제목을 30자 이내로 줄여 보세요."
+      repeated_punctuation:
+        severity: info
+        message: "느낌표·물음표가 반복되어 있습니다."
+        fix: "반복 부호를 줄여 보세요."
+      excessive_emoji:
+        severity: info
+        message: "이모지가 4개 이상입니다."
+        fix: "이모지를 줄여 보세요."
+      missing_cta:
+        severity: info
+        message: "행동 유도 문구(CTA)가 비어 있습니다."
+        fix: "CTA 문구를 추가해 보세요."
+      headline_equals_body:
+        severity: info
+        message: "제목과 본문이 같습니다."
+        fix: "본문에 제목과 다른 정보를 담아 보세요."

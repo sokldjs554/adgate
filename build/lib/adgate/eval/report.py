@@ -1,0 +1,52 @@
+"""측정 기록과 결과 문서. 문서의 수치는 산출물 JSON 에서만 채운다(손으로 옮겨 적지 않는다)."""
+
+from __future__ import annotations
+
+import datetime as dt
+import platform
+import subprocess
+from pathlib import Path
+from typing import Any
+
+
+def git_state(root: Path) -> tuple[str, bool]:
+    try:
+        sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=root, capture_output=True, text=True, check=True).stdout.strip()
+        dirty = bool(subprocess.run(["git", "status", "--porcelain"], cwd=root, capture_output=True, text=True, check=True).stdout.strip())
+        return sha, dirty
+    except Exception:  # noqa: BLE001
+        return "unknown", False
+
+
+def now() -> str:
+    return dt.datetime.now(dt.UTC).strftime("%Y-%m-%d %H:%M:%SZ")
+
+
+def meta(root: Path, datasets: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    sha, dirty = git_state(root)
+    return {"git_sha": sha, "dirty": dirty, "created": now(), "python": platform.python_version(), "datasets": datasets}
+
+
+HEADER = """# 측정 기록
+
+`adgate eval --measure` 가 `test`·`redteam` 을 측정할 때마다 한 줄씩 **자동으로** 덧붙입니다. 손으로 고치지 않습니다.
+`test` 를 본 뒤 코드를 고쳤다면 그 이후 `test` 수치는 순수 holdout 이 아닙니다([EVAL_PLAN.md](EVAL_PLAN.md) 7절).
+
+| 시각(UTC) | 데이터셋 | 시스템 | git | 작업트리 | N | accuracy | unsafe_approve | false_reject | 메모 |
+|---|---|---|---|---|---|---|---|---|---|
+"""
+
+
+def append_measurement(path: Path, dataset: str, system: str, sha: str, dirty: bool, m: dict[str, Any], note: str) -> None:
+    if not path.exists():
+        path.write_text(HEADER, encoding="utf-8")
+
+    def pct(x: dict[str, Any]) -> str:
+        return "-" if x["value"] is None else f"{x['value'] * 100:.1f}% ({x['k']}/{x['n']})"
+
+    row = (
+        f"| {now()} | {dataset} | {system} | {sha} | {'수정됨' if dirty else '깨끗'} | {m['n']} | {pct(m['accuracy'])} | "
+        f"{pct(m['unsafe_approve'])} | {pct(m['false_reject'])} | {note or ''} |\n"
+    )
+    with path.open("a", encoding="utf-8") as f:
+        f.write(row)

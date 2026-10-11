@@ -173,6 +173,12 @@ def cmd_agreement(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_docs(args: argparse.Namespace) -> int:
+    from . import docs
+
+    return docs.run(Path(args.root), args.check)
+
+
 def cmd_judge_check(args: argparse.Namespace) -> int:
     """키가 있는 환경에서 Judge 한 건을 실제로 호출해 본다(요청·응답 계약 확인용)."""
     from .judge_anthropic import AnthropicJudge
@@ -197,6 +203,13 @@ def cmd_judge_check(args: argparse.Namespace) -> int:
 def cmd_serve(args: argparse.Namespace) -> int:
     import uvicorn
 
+    from .settings import Settings
+
+    try:
+        Settings.from_env()  # 토큰이 없으면 시작하지 않는다. 트레이스백 대신 안내를 낸다.
+    except (RuntimeError, ValueError) as exc:
+        print(f"설정 오류: {exc}", file=sys.stderr)
+        return 2
     uvicorn.run("adgate.api:create_app", factory=True, host=args.host, port=args.port)
     return 0
 
@@ -244,6 +257,11 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--labels", default="data/labeler_test.jsonl")
     s.add_argument("--out", default="artifacts/agreement_test.json")
     s.set_defaults(fn=cmd_agreement)
+
+    s = sub.add_parser("docs", help="산출물에서 문서의 수치와 결과 문서를 생성(--check 는 불일치만 검사)")
+    s.add_argument("--root", default=".")
+    s.add_argument("--check", action="store_true")
+    s.set_defaults(fn=cmd_docs)
 
     s = sub.add_parser("judge-check", help="LLM judge 를 한 건 실제로 호출해 확인(키 필요, 비용 발생)")
     s.add_argument("--max-usd", type=float, default=0.5)

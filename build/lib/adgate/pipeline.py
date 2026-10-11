@@ -1,0 +1,115 @@
+"""심사 파이프라인. 순수 함수 ``review`` 하나가 한 건을 처리한다(입출력 없음, 저장은 runtime 담당).
+
+    정규화 → 엄격한 규칙 → 도전자(느슨한 두 번째 검사) → [Judge(선택)] → 병합 → 판정 → 사유
+
+* 판정은 발견의 가장 높은 등급이다. 도전자와 Judge 는 발견을 **더할 수만** 있고 지울 수 없다.
+* Judge 가 설정됐는데 실패하면 자동 승인하지 않는다(fail-closed): REVIEW 로 보낸다.
+"""
+
+from __future__ import annotations
+
+import time
+from typing import Any
+
+from .challenge import challenge
+from .config import ReviewConfig
+from .decide import decide
+from .explain import explain
+from .judge import ground
+from .models import Creative, Finding, ReviewResult, ReviewStats
+from .policy import Policy, load_policy
+from .rules import Scan, build_scan, resolve_overlaps, run_rules
+
+_SEVERITY = {"info": 0, "review": 1, "reject": 2}
+
+
+def _merge_extra(strict: list[Finding], extra: list[Finding], policy: Policy) -> list[Finding]:
+    """도전자·Judge 발견을 엄격한 발견에 붙인다. 이미 같은 자리를 더 무겁게(또는 같게) 판정했으면 버린다."""
+    extra = resolve_overlaps(extra, policy)
+    kept: list[Finding] = []
+    for f in extra:
+        if f.start is not None and f.end is not None:
+            covered = any(
+                s.field == f.field and s.start is not None and s.end is not None
+                and f.start < s.end and s.start < f.end and _SEVERITY[s.severity] >= _SEVERITY[f.severity]
+                for s in strict
+            )
+            if covered:
+                continue
+        kept.append(f)
+    return strict + kept
+
+
+def _is_grounded(f: Finding, creative: Creative) -> bool:
+    """불변식: 인용이 있는 발견은 원문 필드의 [start:end] 와 정확히 같다."""
+    if f.quote is None:
+        return f.start is None and f.end is None
+    if f.field is None or f.start is None or f.end is None:
+        return False
+    text = creative.text(f.field)
+    return text[f.start:f.end] == f.quote
+
+
+def review(
+    creative: Creative,
+    cfg: ReviewConfig | None = None,
+    policy: Policy | None = None,
+    trace: list[dict[str, Any]] | None = None,
+) -> ReviewResult:
+    t0 = time.perf_counter()
+    cfg = cfg or ReviewConfig()
+    policy = policy or load_policy()
+    stats = ReviewStats()
+
+    def log(stage: str, **data: Any) -> None:
+        if trace is not None:
+            trace.append({"stage": stage, **data})
+
+    scan: Scan = build_scan(creative, cfg, policy)
+    log("normalize", mode="full" if cfg.normalize else "plain", fields=sorted(scan.views))
+
+    strict = resolve_overlaps(run_rules(scan), policy)
+    log("rules", count=len(strict), rules=sorted({f.rule_id for f in strict}))
+
+    extra: list[Finding] = []
+    if cfg.challenge:
+        loose = challenge(scan, strict)
+        extra.extend(loose)
+        log("challenge", count=len(loose))
+
+    escalations: list[str] = []
+    if cfg.judge is not None:
+        stats.judge_called = True
+        try:
+            already = [
+                {"rule_id": f.rule_id, "field": f.field, "quote": f.quote}
+                for f in (*strict, *extra) if f.severity != "info" and f.quote
+            ]
+            proposals = cfg.judge.propose(creative, policy, already)
+            grounded, dropped = ground(proposals, creative, policy)
+            stats.dropped_ungrounded = dropped
+            extra.extend(grounded)
+            log("judge", proposed=len(proposals), kept=len(grounded), dropped_ungrounded=dropped)
+        except Exception as exc:  # noqa: BLE001 — 어떤 실패든 fail-closed
+            stats.judge_failed = True
+            escalations.append("judge_unavailable")
+            extra.append(
+                Finding(
+                    rule_id="SYS-JUDGE", code="judge_unavailable",
+                    severity=policy.spec("SYS-JUDGE", "judge_unavailable").severity,
+                    note=type(exc).__name__,
+                )
+            )
+            log("judge", failed=type(exc).__name__)
+
+    findings = _merge_extra(strict, extra, policy)
+    findings = [f for f in findings if _is_grounded(f, creative)]  # 방어선: 인용 불일치는 내보내지 않는다
+    outcome = decide(findings)
+    reasons = explain(findings, policy)
+    stats.latency_ms = round((time.perf_counter() - t0) * 1000, 3)
+    log("decide", outcome=outcome, reasons=len(reasons))
+
+    return ReviewResult(
+        ad_id=creative.ad_id, outcome=outcome, findings=findings, reasons=reasons,
+        policy_version=policy.version, escalations=escalations, stats=stats,
+    )

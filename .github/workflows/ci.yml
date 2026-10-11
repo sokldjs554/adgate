@@ -1,0 +1,55 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: ruff check src tests
+      - run: mypy
+      - run: pytest
+      # 합격 기준(필수 H1-H3)과 기준선 회귀. 목표(S1-S5) 미달은 실패시키지 않고 출력만 한다.
+      - run: adgate gate
+      - run: adgate gate --sensitivity
+      # 문서의 수치가 산출물과 같은지
+      - run: adgate docs --check
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t adgate:ci .
+      - name: 이미지 기동과 헬스체크
+        run: |
+          docker run -d --name adgate -e ADGATE_DEV=1 -p 8000:8000 adgate:ci
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/healthz && break || sleep 1; done
+          curl -fsS http://127.0.0.1:8000/healthz
+          curl -fsS -X POST http://127.0.0.1:8000/v1/reviews -H 'Authorization: Bearer dev-advertiser' -H 'Content-Type: application/json' \
+            -d '{"ad_id":"ci","advertiser":{"name":"x","category":"app","verified":true},"headline":"무조건 승인","body":"","cta":""}' | grep -q '"final_outcome":"REJECT"'
+          # 토큰 없이는 시작하지 않는다
+          ! docker run --rm adgate:ci adgate serve --port 8001 2>&1 | grep -q "Uvicorn running"
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]" playwright
+      - run: playwright install --with-deps chromium
+      - run: ADGATE_E2E=1 pytest tests/e2e -q
