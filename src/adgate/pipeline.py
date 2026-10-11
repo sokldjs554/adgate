@@ -21,6 +21,7 @@ from .policy import Policy, load_policy
 from .rules import Scan, build_scan, resolve_overlaps, run_rules
 
 _SEVERITY = {"info": 0, "review": 1, "reject": 2}
+MAX_FINDINGS_OUT = 100  # 같은 표현을 수천 번 반복한 소재가 응답·저장소를 부풀리지 못하게 한다
 
 
 def _merge_extra(strict: list[Finding], extra: list[Finding], policy: Policy) -> list[Finding]:
@@ -104,7 +105,11 @@ def review(
 
     findings = _merge_extra(strict, extra, policy)
     findings = [f for f in findings if _is_grounded(f, creative)]  # 방어선: 인용 불일치는 내보내지 않는다
-    outcome = decide(findings)
+    outcome = decide(findings)  # 판정은 잘라 내기 전의 전체 발견으로 계산한다
+    if len(findings) > MAX_FINDINGS_OUT:
+        findings.sort(key=lambda f: -_SEVERITY[f.severity])  # 무거운 등급을 먼저 남긴다(안정 정렬)
+        stats.findings_truncated = len(findings) - MAX_FINDINGS_OUT
+        findings = findings[:MAX_FINDINGS_OUT]
     reasons = explain(findings, policy)
     stats.latency_ms = round((time.perf_counter() - t0) * 1000, 3)
     log("decide", outcome=outcome, reasons=len(reasons))

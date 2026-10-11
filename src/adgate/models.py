@@ -90,6 +90,7 @@ class ReviewStats(BaseModel):
     dropped_ungrounded: int = 0
     judge_called: bool = False
     judge_failed: bool = False
+    findings_truncated: int = 0  # 출력에서 잘라 낸 발견 수(판정은 전체로 계산한다)
 
 
 class ReviewResult(BaseModel):
