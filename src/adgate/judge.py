@@ -14,7 +14,7 @@ Judge 호출이 실패하면 호출한 쪽(pipeline)이 fail-closed 로 처리�
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Protocol
+from typing import Any, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -41,7 +41,9 @@ class ProposedFinding(BaseModel):
 class Judge(Protocol):
     name: str
 
-    def propose(self, creative: Creative, policy: Policy) -> Sequence[ProposedFinding]: ...
+    def propose(
+        self, creative: Creative, policy: Policy, already: Sequence[dict[str, Any]] = ...,
+    ) -> Sequence[ProposedFinding]: ...
 
 
 def locate(original: str, quote: str) -> tuple[int, int] | None:
@@ -101,9 +103,13 @@ class ScriptedJudge:
         self.proposals = list(proposals)
         self.raises = raises
         self.calls = 0
+        self.last_already: list[dict[str, Any]] = []
 
-    def propose(self, creative: Creative, policy: Policy) -> Sequence[ProposedFinding]:
+    def propose(
+        self, creative: Creative, policy: Policy, already: Sequence[dict[str, Any]] = (),
+    ) -> Sequence[ProposedFinding]:
         self.calls += 1
+        self.last_already = list(already)
         if self.raises is not None:
             raise self.raises
         return self.proposals

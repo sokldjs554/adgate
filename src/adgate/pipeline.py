@@ -81,7 +81,11 @@ def review(
     if cfg.judge is not None:
         stats.judge_called = True
         try:
-            proposals = cfg.judge.propose(creative, policy)
+            already = [
+                {"rule_id": f.rule_id, "field": f.field, "quote": f.quote}
+                for f in (*strict, *extra) if f.severity != "info" and f.quote
+            ]
+            proposals = cfg.judge.propose(creative, policy, already)
             grounded, dropped = ground(proposals, creative, policy)
             stats.dropped_ungrounded = dropped
             extra.extend(grounded)

@@ -69,6 +69,12 @@ def cmd_eval(args: argparse.Namespace) -> int:
     _verify_frozen(data_dir, frozen_used, args.allow_modified_frozen)
 
     systems: dict[str, Any] = {"B0_all_human": all_to_human(), "B1_blocklist": naive_blocklist(), **ablations()}
+    judge_obj = None
+    if args.judge == "anthropic":
+        from .judge_anthropic import AnthropicJudge
+
+        judge_obj = AnthropicJudge(max_usd=args.max_usd)
+        systems["full+judge"] = pipeline_system(ReviewConfig(judge=judge_obj))
     if args.systems:
         wanted = set(args.systems.split(","))
         systems = {k: v for k, v in systems.items() if k in wanted}
@@ -95,6 +101,8 @@ def cmd_eval(args: argparse.Namespace) -> int:
             report.append_measurement(Path(args.measurements), name, "full", sha, dirty, results[name]["full"], args.note)
 
     out = {"meta": report.meta(ROOT, ds_meta), "results": results}
+    if judge_obj is not None:
+        out["meta"]["judge_spend"] = judge_obj.spend.summary()
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -165,6 +173,27 @@ def cmd_agreement(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_judge_check(args: argparse.Namespace) -> int:
+    """키가 있는 환경에서 Judge 한 건을 실제로 호출해 본다(요청·응답 계약 확인용)."""
+    from .judge_anthropic import AnthropicJudge
+    from .models import Advertiser
+
+    judge = AnthropicJudge(max_usd=args.max_usd, model=args.model or None)
+    creative = Creative(
+        ad_id="judge-check", advertiser=Advertiser(name="점검용", category="invest", verified=True),
+        headline="손해 볼 일 없는 투자", body="누구나 안심하고 시작하세요.", cta="가입하기",
+        disclosure="투자 상품은 원금 손실이 발생할 수 있습니다.",
+    )
+    base = review(creative, ReviewConfig())
+    result = review(creative, ReviewConfig(judge=judge))
+    print(f"결정론 경로: {base.outcome}  /  judge 포함: {result.outcome}  escalations={result.escalations}")
+    for f in result.findings:
+        if f.source == "llm":
+            print(f"  LLM 후보 {f.rule_id}/{f.code} [{f.field}] “{f.quote}” confidence={f.confidence} — {f.note}")
+    print("사용량:", json.dumps(judge.spend.summary(), ensure_ascii=False))
+    return 0 if not result.stats.judge_failed else 1
+
+
 def cmd_serve(args: argparse.Namespace) -> int:
     import uvicorn
 
@@ -191,6 +220,8 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--measure", action="store_true", help="test/redteam 을 측정한다(기록이 자동으로 남는다)")
     s.add_argument("--allow-modified-frozen", action="store_true")
     s.add_argument("--note", default="")
+    s.add_argument("--judge", choices=["", "anthropic"], default="", help="LLM judge 를 켠 구성('full+judge')을 함께 측정한다(키 필요, 비용 발생)")
+    s.add_argument("--max-usd", type=float, default=2.0, help="--judge 사용 시 추정 비용 상한")
     s.set_defaults(fn=cmd_eval)
 
     s = sub.add_parser("gate", help="합격 기준과 기준선 회귀 검사")
@@ -213,6 +244,11 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--labels", default="data/labeler_test.jsonl")
     s.add_argument("--out", default="artifacts/agreement_test.json")
     s.set_defaults(fn=cmd_agreement)
+
+    s = sub.add_parser("judge-check", help="LLM judge 를 한 건 실제로 호출해 확인(키 필요, 비용 발생)")
+    s.add_argument("--max-usd", type=float, default=0.5)
+    s.add_argument("--model", default="")
+    s.set_defaults(fn=cmd_judge_check)
 
     s = sub.add_parser("serve", help="API 서버")
     s.add_argument("--host", default="127.0.0.1")
