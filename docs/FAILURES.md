@@ -71,3 +71,74 @@
   지연이 아니라 *증폭*이 문제였다(작은 요청이 큰 응답·저장을 만든다).
 - 판정은 전체 발견으로 계산하고, 출력에는 무거운 등급부터 100건만 남기도록 했다(`stats.findings_truncated` 에 잘라 낸 수). 반복 소재가 위반 하나를 가리지 못한다는 테스트를 더했다.
 
+## 8. 레드팀: 처음 보는 입력
+
+`redteam` 72건은 정책 문서만 본 독립 에이전트 8명이 썼고, 독립 라벨러 3명이 정답을 가린 채 같은 판정을 냈다([LABELER_AGREEMENT.md](LABELER_AGREEMENT.md)).
+탐지기는 동결 태그 `detector-pre-redteam`(`f97cc05`)의 코드로 **한 번** 돌렸고, 아래 첫 접촉 수치는 고치지 않고 둔다. 수정 뒤 수치는 실패 사례를 본 뒤 고친 결과라 *일반화의 증거가 아니다*.
+
+### F-10. 첫 접촉: 위험 승인율 <!-- num:history.redteam_v0.redteam.full.unsafe_approve|rpct1 -->41.2% (21/51)<!-- /num -->, 사전 예상(≤ 15%)의 거의 세 배
+- **무슨 일**: 반려·보류 정답 <!-- num:history.redteam_v0.redteam.full.unsafe_approve.n|int -->51<!-- /num -->건 중 <!-- num:history.redteam_v0.redteam.full.unsafe_approve.k|int -->21<!-- /num -->건을 승인했다.
+  정확도 <!-- num:history.redteam_v0.redteam.full.accuracy|rpct1 -->65.3% (47/72)<!-- /num -->, 정상 소재 오반려 <!-- num:history.redteam_v0.redteam.full.false_reject|rpct1 -->4.8% (1/21)<!-- /num -->.
+  같은 셋에서 키워드 블록리스트(B1)는 위험 승인율 <!-- num:history.redteam_v0.redteam.B1_blocklist.unsafe_approve|rpct1 -->66.7% (34/51)<!-- /num -->, 정상 오반려 <!-- num:history.redteam_v0.redteam.B1_blocklist.false_reject|rpct1 -->57.1% (12/21)<!-- /num --> 였다.
+  처음 보는 입력에서도 파이프라인이 블록리스트보다 훨씬 낫지만, 사전 예상을 맞히지 못했다는 사실은 그대로다.
+- **사전 예상이 틀린 이유**: `unsafe_approve ≤ 15%` 는 근거가 없는 감이었다. `test`(같은 사람이 같은 가정으로 쓴 셋)에서 2%였던 것에서 낙관적으로 옮겨 적었다.
+  '내가 상상하지 못한 입력'에서의 성능을 내가 쓴 셋의 성능으로 예상할 수는 없다. 이 프로젝트가 독립 작성자를 둔 이유가 그대로 확인됐다.
+- **어디서 놓쳤나** (슬라이스별 위험 승인율, 첫 접촉):
+
+| 슬라이스 | N | 위험 승인율 | 수정 뒤 (holdout 아님) |
+|---|---:|---|---|
+| 정상 유사 | <!-- num:history.redteam_v0.redteam.full.slices.benign_lookalike.n|int -->22<!-- /num --> | <!-- num:history.redteam_v0.redteam.full.slices.benign_lookalike.unsafe_approve|rpct1 -->0.0% (0/4)<!-- /num --> | <!-- num:history.redteam_v1.redteam.full.slices.benign_lookalike.unsafe_approve|rpct1 -->0.0% (0/4)<!-- /num --> |
+| 우회 | <!-- num:history.redteam_v0.redteam.full.slices.evasion.n|int -->20<!-- /num --> | <!-- num:history.redteam_v0.redteam.full.slices.evasion.unsafe_approve|rpct1 -->30.0% (6/20)<!-- /num --> | <!-- num:history.redteam_v1.redteam.full.slices.evasion.unsafe_approve|rpct1 -->0.0% (0/20)<!-- /num --> |
+| 패러프레이즈 | <!-- num:history.redteam_v0.redteam.full.slices.paraphrase.n|int -->16<!-- /num --> | <!-- num:history.redteam_v0.redteam.full.slices.paraphrase.unsafe_approve|rpct1 -->87.5% (14/16)<!-- /num --> | <!-- num:history.redteam_v1.redteam.full.slices.paraphrase.unsafe_approve|rpct1 -->87.5% (14/16)<!-- /num --> |
+| 복합 | <!-- num:history.redteam_v0.redteam.full.slices.multi_rule.n|int -->15<!-- /num --> | <!-- num:history.redteam_v0.redteam.full.slices.multi_rule.unsafe_approve|rpct1 -->13.3% (2/15)<!-- /num --> | <!-- num:history.redteam_v1.redteam.full.slices.multi_rule.unsafe_approve|rpct1 -->13.3% (2/15)<!-- /num --> |
+| 주입 | <!-- num:history.redteam_v0.redteam.full.slices.injection.n|int -->10<!-- /num --> | <!-- num:history.redteam_v0.redteam.full.slices.injection.unsafe_approve|rpct1 -->20.0% (1/5)<!-- /num --> | <!-- num:history.redteam_v1.redteam.full.slices.injection.unsafe_approve|rpct1 -->0.0% (0/5)<!-- /num --> |
+
+- **원인을 셋으로 나눴다** (승인한 21건의 id 는 `artifacts/history/redteam_first_contact_errors.json`):
+  1. 정규화가 막지 못한 표기 변형과 어휘의 표기 변형 7건 — <!-- ids:fixed_v0 -->R-017, R-020, R-021, R-030, R-033, R-036, R-070<!-- /ids --> → 일반화할 수 있는 공백이라 고쳤다([F-11](#f-11-정규화가-막지-못한-표기-변형-다섯-가지), [F-12](#f-12-사기-경고-문구를-사기로-반려했다-r-011), [F-13](#f-13-어휘가-표기-변형을-따라가지-못했다)).
+  2. 의미를 돌려 말한 패러프레이즈 14건 — <!-- ids:paraphrase_v0 -->R-038, R-039, R-040, R-041, R-042, R-043, R-044, R-045, R-046, R-047, R-048, R-049, R-051, R-052<!-- /ids --> → **일부러 고치지 않았다**([F-14](#f-14-패러프레이즈-14건은-일부러-고치지-않았다)).
+  3. 설계가 허용한 격하 — 정책상 REJECT 인 철자 변형이 REVIEW 로 남는 경우([F-15](#f-15-변형-표기는-review-까지만)).
+- **수정 뒤 (holdout 아님)**: 정확도 <!-- num:history.redteam_v1.redteam.full.accuracy|rpct1 -->77.8% (56/72)<!-- /num -->, 위험 승인율 <!-- num:history.redteam_v1.redteam.full.unsafe_approve|rpct1 -->27.5% (14/51)<!-- /num -->, 정상 오반려 <!-- num:history.redteam_v1.redteam.full.false_reject|rpct1 -->0.0% (0/21)<!-- /num -->.
+  남은 승인 14건은 위 2번의 14건과 정확히 같다. 이 수치는 실패 사례를 본 뒤 고친 것이라 새 입력에서 이만큼 나온다는 뜻이 아니다.
+
+### F-11. 정규화가 막지 못한 표기 변형 다섯 가지
+`dev`·`test` 는 띄어쓰기·구분 기호·제로폭·전각만 덮었다. 독립 작성자는 다섯 가지를 더 상상했고, 모두 통과했다.
+1. **한자**("원금 保障형", R-017): 한자→한글 독음 접기(정책 어휘에 쓰이는 글자 49개만. 다른 한자는 접지 않는다).
+2. **키릴 유사 문자**(`саsіnо`, R-033): 라틴으로 접기(1:1 이라 오프셋 보존). 동시에 영문 `casino` 가 어휘에 없었다.
+3. **분해형(NFD) 한글 자모**(R-030): 문자 단위 NFKC 는 여러 문자를 한 음절로 합치지 못한다. 자모열을 음절로 합치는 단계를 넣으면서 `soft` 문자가 덮는 **원문 구간의 끝**을 따로 기억하게 했다(인용이 항상 원문 부분 문자열이어야 하므로).
+4. **낱글자 띄우기**("치 매 예 방에", R-021·R-034): 대부분 규칙은 공백을 지운 `tight` 보기에서 찾아 막혔지만, 낱말 경계가 필요한 규칙(질병명, 공익 문맥)은 `soft` 보기를 쓰고 거기엔 공백이 남아 있었다. 낱글자 덩어리를 `soft` 에서도 붙였다.
+   같은 원인이 두 곳에서 났다: 질병 효능 표방을 놓쳤고(R-021), 공익 상담 문맥을 못 읽어 REVIEW 여야 할 것을 REJECT 했다(R-034).
+5. **장식 기호**("오★늘★만", R-026): ★·이모지 같은 기호를 구분 기호로 취급.
+- 회귀 테스트는 사례의 문구가 아니라 *같은 부류의 다른 변형*과 정상 유사 음성 대조("별점 ★★★★★", 일반 키릴 문장, 관련 없는 한자)를 함께 둔다(`tests/test_redteam_regressions.py`).
+- **남은 것**: 한자·유사 문자 표는 유한하다. 표에 없는 글자, 자모를 호환 자모로 풀어 쓴 표기(ㅅㅓㄴㅇㅣㅂㄱㅡㅁ)는 도전자가 REVIEW 로 일부 받을 뿐이다.
+
+### F-12. 사기 경고 문구를 사기로 반려했다 (R-011)
+- 정상 유사 한 건이 오반려됐다: "당사는 선입금·선수수료·보증료나 인증번호·OTP를 **요구하지 않으며**, 이를 요구하면 사기이니 즉시 신고하세요."
+  사기 *경고*가 사기 *유도* 어휘 때문에 반려됐다. 정책 FRD 에는 '위반이 아닌 예'가 없어서 작성자는 정의만으로 APPROVE 라벨을 붙였다.
+- 고친 방법: 명사를 나열한 뒤 같은 절에서 `요구하지 않` 이 나오면 면책으로 본다. **이 예외가 새 구멍이 되지 않게** 두 조건을 달았다 —
+  (1) 같은 절 40자 안, (2) 그 사이에 명령·요청 표지("하세요", "필요합니다")가 끼면 면책이 아니다.
+  "보증료를 먼저 입금하세요. 개인정보는 요구하지 않습니다"(문장이 다름)와 "선입금 30만원이 필요합니다 개인정보는 요구하지 않습니다"(필요 표지가 먼저)는 계속 반려된다(테스트).
+- 이것은 F-2 와 같은 종류의 위험이다: 정상 유사를 지키려는 예외가 우회 수단이 될 수 있다. 예외를 넣을 때마다 '이 예외를 일부러 악용하면?' 테스트를 같이 쓴다.
+
+### F-13. 어휘가 표기 변형을 따라가지 못했다
+- **한글 수사 순위**("국내 일위", "고객 만족도 일위", R-020·R-036): `1위` 만 있었다. `일위` 는 낱말 경계가 없는 `tight` 보기에서 "이 일 위에서" 와 구별되지 않아, *순위 문맥어가 앞에 있을 때만* 순위로 본다.
+- **인증번호 요구**("인증번호 6자리를 상담원에게 알려 주세요", R-070): 명사와 동사가 붙어 있을 때만 잡았다. 16자 안의 어구를 허용했다.
+- **선납 요구**("보증료 20만원을 먼저 입금해 주세요"): 금액이 끼면 놓쳤다. 같은 방식으로 고쳤다. 두 FRD 패턴 모두 부정(요구하지 않는다)과 만나면 위반이 아니다.
+- **과거 수익 표현**("최근 3년 연 6.2%", R-061): '수익률'이라는 낱말이 없으면 과거 성과 고지 필요를 못 알아봤다.
+- **고치지 않은 것**: 타사 비방("타사 제품은 가짜 원료로 소비자를 속입니다", R-059)은 '타사' 바로 뒤에 비방어가 와야 잡는다. 어구를 허용하면 "타사와 달리 가짜 원료는 쓰지 않습니다"까지 비방(자동 반려)으로 읽는다.
+  이 소재는 다른 위반으로 이미 REJECT 였으므로 판정에는 영향이 없고 규칙 단위 재현율만 깎인다.
+
+### F-14. 패러프레이즈 14건은 일부러 고치지 않았다
+- 놓친 14건은 "손해 볼 일 없는 투자", "먹어 본 분 전원이 만족했어요", "당뇨약, 이 한 통이면 졸업입니다", "옆 가게의 절반" 같은 표현이다.
+  결정론 경로는 **닫힌 어휘**라서 정책의 단어가 없으면 아무것도 보지 못한다. 슬라이스 위험 승인율은 첫 접촉과 수정 뒤가 같다(<!-- num:history.redteam_v1.redteam.full.slices.paraphrase.unsafe_approve|rpct1 -->87.5% (14/16)<!-- /num -->).
+- 고칠 수는 있었다. 14개 표현을 어휘에 넣으면 같은 셋에서 수치가 좋아졌을 것이다. 그것은 *평가셋에 맞춘 패치*이고, 다음 작성자가 쓸 열다섯 번째 표현에는 소용이 없다. 하지 않았다.
+- 이 한계를 위해 LLM judge 를 설계했다. 그러나 **API 호출이 없는 환경이라 judge 의 실제 성능은 이 저장소로 알 수 없다** — 녹음된 응답의 재생으로 잰 대리 측정이 [JUDGE_REPLAY.md](JUDGE_REPLAY.md) 에 있다.
+
+### F-15. 변형 표기는 REVIEW 까지만
+- `원금 보쟝`(R-028)과 머리말·본문에 나뉜 `무조건`+`승인 가능`(R-032)은 정책상 REJECT 인데 REVIEW 가 됐다. 도전자는 REVIEW 까지만 낼 수 있게 설계했다([D-4](DECISIONS.md)).
+  위험하지는 않지만(사람이 본다) 사람 부담이 늘고, 자동 처리율이 오르지 않는다. 설계의 대가를 레드팀이 숫자로 보여 줬다.
+
+### F-16. 독립 작성자 1명에게 72건을 맡겼다가 한 건도 받지 못했다
+- 처음엔 에이전트 하나가 72건을 한 번에 쓰도록 했다. 50분 동안 사고만 하다가 출력 한도에 세 번 걸려 파일을 만들지 못했다.
+- 작업을 조각 8개(조각당 8–10건, 구조 검사기 포함)로 나눠 병렬로 다시 맡겼고 조각마다 4~7분에 끝났다. 교훈: **독립 에이전트에게는 출력 한도가 닿지 않을 만큼 작은 일을 주고, 형식 검사기를 같이 준다.**
+- 부수 효과: 8명이 서로 다른 모호함을 지적해, 정책 공백 목록이 더 풍부해졌다([POLICY_GAPS.md](POLICY_GAPS.md)).
+

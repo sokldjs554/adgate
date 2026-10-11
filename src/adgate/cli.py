@@ -16,8 +16,10 @@ from .eval.dataset import Example
 from .eval.runner import errors as eval_errors
 from .eval.runner import run_system
 from .eval.systems import ablations, all_to_human, naive_blocklist, pipeline_system
+from .judge_recorded import RecordedJudge, creative_key, export_prompts, prompt_bundle
 from .models import Creative
 from .pipeline import review
+from .policy import load_policy
 
 ROOT = Path.cwd()
 FROZEN = ("test", "redteam")
@@ -70,14 +72,17 @@ def cmd_eval(args: argparse.Namespace) -> int:
 
     systems: dict[str, Any] = {"B0_all_human": all_to_human(), "B1_blocklist": naive_blocklist(), **ablations()}
     judge_obj = None
+    recorded: RecordedJudge | None = None
     if args.judge == "anthropic":
         from .judge_anthropic import AnthropicJudge
 
         judge_obj = AnthropicJudge(max_usd=args.max_usd)
         systems["full+judge"] = pipeline_system(ReviewConfig(judge=judge_obj))
-    if args.systems:
-        wanted = set(args.systems.split(","))
-        systems = {k: v for k, v in systems.items() if k in wanted}
+    elif args.judge == "recorded":
+        if not args.judge_file:
+            raise SystemExit("--judge recorded 는 --judge-file 이 필요합니다")
+        recorded = RecordedJudge.from_file(args.judge_file)
+    wanted = set(args.systems.split(",")) if args.systems else None
 
     results: dict[str, dict[str, Any]] = {}
     ds_meta: dict[str, dict[str, Any]] = {}
@@ -92,7 +97,16 @@ def cmd_eval(args: argparse.Namespace) -> int:
         if name != "generated":
             ds_meta[name]["sha256"] = dataset.sha256_file(_path(name, data_dir))
         results[name] = {}
-        for sname, system in systems.items():
+        ds_systems = dict(systems)
+        if recorded is not None:
+            if all(recorded.has(ex.creative) for ex in examples):
+                ds_systems["full+judge"] = pipeline_system(ReviewConfig(judge=recorded))
+                ds_systems["full+judge_cap"] = pipeline_system(ReviewConfig(judge=recorded, judge_cap_review=True))
+            else:
+                print(f"[{name}] 녹음이 모든 소재를 덮지 못해 judge 구성은 이 데이터셋에서 건너뜁니다")
+        if wanted is not None:
+            ds_systems = {k: v for k, v in ds_systems.items() if k in wanted}
+        for sname, system in ds_systems.items():
             preds = run_system(system, examples)
             results[name][sname] = eval_metrics.compute(examples, preds)
             if sname == "full":
@@ -100,9 +114,15 @@ def cmd_eval(args: argparse.Namespace) -> int:
         if name in FROZEN and "full" in results[name]:
             report.append_measurement(Path(args.measurements), name, "full", sha, dirty, results[name]["full"], args.note)
 
-    out = {"meta": report.meta(ROOT, ds_meta), "results": results}
+    out = {"meta": report.meta(ROOT, ds_meta, (sha, dirty)), "results": results}
     if judge_obj is not None:
         out["meta"]["judge_spend"] = judge_obj.spend.summary()
+    if recorded is not None:
+        out["meta"]["judge_replay"] = {
+            "responses": len(recorded.responses),
+            "file_sha256": dataset.sha256_file(args.judge_file),
+            "misses": recorded.misses,
+        }
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -229,6 +249,37 @@ def cmd_judge_check(args: argparse.Namespace) -> int:
     return 0 if not result.stats.judge_failed else 1
 
 
+def cmd_judge_export(args: argparse.Namespace) -> int:
+    """Judge 에게 보낼 프롬프트를 내보낸다(녹음용). 어느 소재가 어느 데이터셋인지는 index.json 에만 있고, 조각 파일에는 없다."""
+    import random
+
+    data_dir = Path(args.data_dir)
+    names = [n for n in args.datasets.split(",") if n]
+    _verify_frozen(data_dir, [n for n in names if n in FROZEN], False)
+    policy = load_policy()
+    creatives: dict[str, Creative] = {}
+    index: dict[str, list[str]] = {}
+    for name in names:
+        for ex in load_dataset(name, data_dir):
+            key = creative_key(ex.creative)
+            if key not in creatives:
+                creatives[key] = ex.creative
+            index.setdefault(key, []).append(f"{name}/{ex.id}")
+    keys = list(creatives)
+    prompts = export_prompts([creatives[k] for k in keys], policy, lambda j: ReviewConfig(judge=j))
+    random.Random(args.seed).shuffle(prompts)
+    out = Path(args.out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    for fname, text in prompt_bundle(policy).items():
+        (out / fname).write_text(text, encoding="utf-8")
+    shards = [prompts[i::args.shards] for i in range(args.shards)]
+    for i, shard in enumerate(shards, start=1):
+        (out / f"shard_{i}.jsonl").write_text("".join(json.dumps(x, ensure_ascii=False) + "\n" for x in shard), encoding="utf-8")
+    (out / "index.json").write_text(json.dumps(index, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"소재 {len(prompts)}건 → {out} (조각 {args.shards}개, 시스템 프롬프트·스키마 포함)")
+    return 0
+
+
 def cmd_serve(args: argparse.Namespace) -> int:
     import uvicorn
 
@@ -262,7 +313,11 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--measure", action="store_true", help="test/redteam 을 측정한다(기록이 자동으로 남는다)")
     s.add_argument("--allow-modified-frozen", action="store_true")
     s.add_argument("--note", default="")
-    s.add_argument("--judge", choices=["", "anthropic"], default="", help="LLM judge 를 켠 구성('full+judge')을 함께 측정한다(키 필요, 비용 발생)")
+    s.add_argument(
+        "--judge", choices=["", "anthropic", "recorded"], default="",
+        help="LLM judge 를 켠 구성('full+judge')을 함께 측정한다. anthropic: 실호출(키 필요, 비용 발생). recorded: --judge-file 의 녹음을 재생",
+    )
+    s.add_argument("--judge-file", default="", help="--judge recorded 가 재생할 녹음(JSONL: key, response)")
     s.add_argument("--max-usd", type=float, default=2.0, help="--judge 사용 시 추정 비용 상한")
     s.set_defaults(fn=cmd_eval)
 
@@ -302,6 +357,14 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--max-usd", type=float, default=0.5)
     s.add_argument("--model", default="")
     s.set_defaults(fn=cmd_judge_check)
+
+    s = sub.add_parser("judge-export", help="Judge 프롬프트 내보내기(녹음용)")
+    s.add_argument("--datasets", default="dev,test,redteam")
+    s.add_argument("--data-dir", default="data")
+    s.add_argument("--out-dir", required=True)
+    s.add_argument("--shards", type=int, default=9)
+    s.add_argument("--seed", type=int, default=7)
+    s.set_defaults(fn=cmd_judge_export)
 
     s = sub.add_parser("serve", help="API 서버")
     s.add_argument("--host", default="127.0.0.1")

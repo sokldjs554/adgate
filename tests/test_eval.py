@@ -262,3 +262,21 @@ def test_manifest_with_a_missing_file_reports_false_instead_of_raising(tmp_path)
         f"{dataset.sha256_file(tmp_path / 'a.jsonl')}  a.jsonl\n{'0' * 64}  gone.jsonl\n", encoding="utf-8"
     )
     assert dataset.verify_manifest(tmp_path / "MANIFEST.sha256") == {"a.jsonl": True, "gone.jsonl": False}
+
+
+def test_measurement_run_does_not_mark_its_own_log_write_as_a_dirty_tree(tmp_path, monkeypatch):
+    """측정 기록을 덧붙이는 것 때문에 결과의 git 상태가 '수정됨'이 되면 안 된다(시작 시점의 상태를 쓴다)."""
+    d = _copy_data(tmp_path)
+    import subprocess
+
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "add", "-A"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-qm", "x"], cwd=tmp_path, check=True)
+    monkeypatch.chdir(tmp_path)
+    import adgate.cli as cli
+
+    monkeypatch.setattr(cli, "ROOT", tmp_path)
+    out = tmp_path / "artifacts_out.json"
+    assert main(["eval", "--datasets", "test", "--systems", "full", "--measure", "--data-dir", str(d), "--out", str(out),
+                 "--errors-out", str(tmp_path / "e.json"), "--measurements", str(tmp_path / "M.md")]) == 0
+    assert json.loads(out.read_text(encoding="utf-8"))["meta"]["dirty"] is False

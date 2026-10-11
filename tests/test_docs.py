@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import re
+from pathlib import Path
 
 import pytest
 
@@ -54,3 +56,30 @@ def test_check_mode_flags_drift_and_generate_fixes_it(tmp_path):
     assert main(["docs", "--root", str(root), "--check"]) == 0
     (root / "README.md").write_text("정확도 <!-- num:results.test.full.accuracy.value|pct1 -->50.0%<!-- /num -->\n", encoding="utf-8")
     assert main(["docs", "--root", str(root), "--check"]) == 1       # 손으로 고친 수치는 잡힌다
+
+
+# --------------------------------------------------------------------------- 문서가 말하는 id 목록은 산출물과 같아야 한다
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def _doc_ids(name: str) -> set[str]:
+    text = (ROOT / "docs" / "FAILURES.md").read_text(encoding="utf-8")
+    m = re.search(rf"<!-- ids:{name} -->(.*?)<!-- /ids -->", text, re.DOTALL)
+    assert m, f"FAILURES.md 에 ids:{name} 표식이 없다"
+    return set(re.findall(r"R-\d{3}", m.group(1)))
+
+
+def _unsafe_ids(fname: str) -> set[str]:
+    errors = json.loads((ROOT / "artifacts" / "history" / fname).read_text(encoding="utf-8"))["redteam"]
+    return {e["id"] for e in errors if e["pred"] == "APPROVE" and e["gold"] != "APPROVE"}
+
+
+def test_failures_doc_lists_exactly_the_ids_the_first_contact_approved():
+    """F-10 이 '고친 7건 + 고치지 않은 패러프레이즈 14건' 으로 나눈 id 가 첫 접촉의 위험 승인 21건과 정확히 같다."""
+    fixed, paraphrase = _doc_ids("fixed_v0"), _doc_ids("paraphrase_v0")
+    assert not fixed & paraphrase and len(fixed) == 7 and len(paraphrase) == 14
+    assert fixed | paraphrase == _unsafe_ids("redteam_first_contact_errors.json")
+
+
+def test_after_the_fixes_the_remaining_unsafe_approvals_are_exactly_the_paraphrases():
+    assert _unsafe_ids("redteam_after_fixes_errors.json") == _doc_ids("paraphrase_v0")

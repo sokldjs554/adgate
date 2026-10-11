@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import unicodedata
+
 from hypothesis import given
 from hypothesis import strategies as st
 
 from adgate.normalize import build
 
-ALPHABET = list("수익보장무조건승인 .-_*​‌１２３００％%abNo!?\n가나다선입保障с★🔥")  # 분해형 자모·한자·키릴·장식 기호 포함
+ALPHABET = list("수익보장무조건승인 .-_*​‌１２３００％%abNo!?\n가나다선입保障с★🔥") + list(unicodedata.normalize("NFD", "선입금"))  # 분해형 자모·한자·키릴·장식 기호 포함
 
 
 def test_quote_roundtrip_with_zero_width():
@@ -72,3 +74,24 @@ def test_sentence_period_followed_by_space_is_a_boundary_not_a_separator():
 
 def test_digit_ranges_with_spaces_survive():
     assert build("9 ~ 18%").tight == "9~18%"
+
+
+def test_letter_spaced_words_are_joined_in_the_soft_view_but_ordinary_phrases_are_not():
+    assert build("치 매 예 방에 도움").soft == "치매예방에 도움"
+    assert build("암 예 방을 돕습니다").soft == "암예방을 돕습니다"
+    assert build("첫 달 천원").soft == "첫 달 천원"  # '천원' 은 낱말이다. 붙이면 금액을 못 읽는다
+    assert build("도 박 중 독 · 무 료 상 담 센 터").soft == "도박중독 · 무료상담센터"
+
+
+def test_decomposed_hangul_is_composed_and_spans_cover_every_source_jamo():
+    nfd = unicodedata.normalize("NFD", "선입금")
+    n = build(nfd)
+    assert n.soft == "선입금" and n.tight == "선입금"
+    assert n.orig_span_from_tight(0, 3) == (0, len(nfd))
+    assert n.orig_span_from_tight(1, 2) == (len(unicodedata.normalize("NFD", "선")), len(unicodedata.normalize("NFD", "선입")))
+
+
+def test_hanja_and_cyrillic_lookalikes_are_folded_one_to_one():
+    assert build("원금 保障").tight == "원금보장"
+    assert build("саsіnо").tight == "casino"
+    assert build("無條件").orig_span_from_tight(0, 3) == (0, 3)

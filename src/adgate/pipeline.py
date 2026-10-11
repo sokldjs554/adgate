@@ -88,6 +88,8 @@ def review(
             ]
             proposals = cfg.judge.propose(creative, policy, already)
             grounded, dropped = ground(proposals, creative, policy)
+            if cfg.judge_cap_review:  # LLM 의 말만으로 자동 반려하지 않는다: 사람이 본다
+                grounded = [f.model_copy(update={"severity": "review"}) if f.severity == "reject" else f for f in grounded]
             stats.dropped_ungrounded = dropped
             extra.extend(grounded)
             log("judge", proposed=len(proposals), kept=len(grounded), dropped_ungrounded=dropped)

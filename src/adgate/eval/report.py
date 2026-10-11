@@ -22,8 +22,9 @@ def now() -> str:
     return dt.datetime.now(dt.UTC).strftime("%Y-%m-%d %H:%M:%SZ")
 
 
-def meta(root: Path, datasets: dict[str, dict[str, Any]]) -> dict[str, Any]:
-    sha, dirty = git_state(root)
+def meta(root: Path, datasets: dict[str, dict[str, Any]], git: tuple[str, bool] | None = None) -> dict[str, Any]:
+    """git 상태는 측정을 시작할 때 한 번 읽어 넘기는 게 맞다. 끝에서 다시 읽으면 측정 기록(MEASUREMENTS.md)을 덧붙인 것 때문에 '수정됨'으로 보인다."""
+    sha, dirty = git if git is not None else git_state(root)
     return {"git_sha": sha, "dirty": dirty, "created": now(), "python": platform.python_version(), "datasets": datasets}
 
 

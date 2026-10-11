@@ -1,4 +1,4 @@
-"""레드팀 첫 접촉(docs/FAILURES.md F-8~F-12)이 찾은 공백의 회귀 테스트.
+"""레드팀 첫 접촉(docs/FAILURES.md F-10~F-13)이 찾은 공백의 회귀 테스트.
 
 각 수정은 레드팀 사례 한 건에 맞춘 문구 패치가 아니라 *부류*를 고친 것이어야 한다. 그래서 사례의 문구 말고 같은 부류의 다른 변형과,
 같은 장치가 정상 소재를 건드리지 않는지(음성 대조)를 함께 묶었다.
@@ -24,7 +24,7 @@ def _quotes(c, rule):
     return [(f.field, f.quote) for f in r.findings if f.rule_id == rule and f.quote is not None]
 
 
-# --------------------------------------------------------------------------- F-8 한자·유사 문자
+# --------------------------------------------------------------------------- F-11 한자·유사 문자
 @pytest.mark.parametrize("text", ["원금 保障형 상품", "無條件 승인", "收益 保障", "원금 保證", "百% 승인"])
 def test_hanja_spellings_of_policy_words_are_folded(text):
     assert GUA in codes(mk(text, category="invest", disclosure=INV_OK))
@@ -44,7 +44,7 @@ def test_ordinary_cyrillic_text_is_not_flagged():
     assert not codes(mk("привет мир", "спасибо за заказ"))
 
 
-# --------------------------------------------------------------------------- F-9 장식 기호 / 낱글자 띄우기
+# --------------------------------------------------------------------------- F-11 장식 기호 / 낱글자 띄우기
 @pytest.mark.parametrize("text", ["오★늘★만", "오☆늘☆만", "오 ★ 늘 ★ 만", "오🔥늘🔥만", "오♥늘♥만"])
 def test_decorative_symbols_between_syllables_are_removed(text):
     assert ("AD-URG-01", "urgency_unverified") in codes(mk("할인", cta=f"{text} 구매"))
@@ -81,7 +81,7 @@ def test_quote_of_a_letter_spaced_claim_is_the_original_text():
     assert _quotes(c, "AD-HLT-01") == [("body", "치 매 예 방")]
 
 
-# --------------------------------------------------------------------------- F-10 분해형(NFD) 한글 자모
+# --------------------------------------------------------------------------- F-11 분해형(NFD) 한글 자모
 @pytest.mark.parametrize("phrase", ["선입금", "무조건 승인", "수익 보장"])
 def test_decomposed_hangul_is_composed_and_the_quote_is_the_original_slice(phrase):
     nfd = unicodedata.normalize("NFD", phrase)
@@ -103,7 +103,7 @@ def test_composition_keeps_spans_inside_the_original():
     assert unicodedata.normalize("NFC", text[s:e]) == "선입금" and len(text[s:e]) == len(unicodedata.normalize("NFD", "선입금"))
 
 
-# --------------------------------------------------------------------------- F-11 한글 수사 순위
+# --------------------------------------------------------------------------- F-13 한글 수사 순위
 @pytest.mark.parametrize("text", ["국내 일위 영어 앱", "업계 일위 브랜드", "고객 만족도 일위", "판매 일위 달성", "시장 점유율 일위"])
 def test_hangul_numeral_rank_with_a_ranking_context_is_flagged(text):
     assert any(rule == "AD-ABS-01" for rule, _ in codes(mk(text)))
@@ -119,7 +119,7 @@ def test_hangul_numeral_rank_with_a_stated_basis_is_review_grade():
     assert ("AD-ABS-01", "substantiated_needs_check") in codes(c)
 
 
-# --------------------------------------------------------------------------- F-12 사기 유도: 금액·어구가 낀 표현, 경고 문구
+# --------------------------------------------------------------------------- F-12·F-13 사기 유도: 금액·어구가 낀 표현, 경고 문구
 @pytest.mark.parametrize(
     "text",
     [
