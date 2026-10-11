@@ -18,6 +18,7 @@ class ReviewConfig:
     competitors: tuple[str, ...] = ()  # 비교 광고 탐지에 쓸 경쟁 사업자 이름
     judge: Judge | None = None         # 의미 기반 검사(LLM). 없으면 결정론 경로만
     judge_cap_review: bool = False     # True 면 Judge 가 더한 발견은 reject 등급이어도 review 로 낮춘다(LLM 이 혼자 반려하지 못하게)
+    escalate_ungrounded: bool = True   # Judge 가 원문에서 확인되지 않는 인용을 보고하면 버리고 끝내지 않고 사람에게 넘긴다
 
     def describe(self) -> dict[str, object]:
         return {
@@ -27,6 +28,7 @@ class ReviewConfig:
             "landing": self.landing,
             "judge": type(self.judge).__name__ if self.judge is not None else None,
             "judge_cap_review": self.judge_cap_review,
+            "escalate_ungrounded": self.escalate_ungrounded,
         }
 
     def without(self, component: str) -> ReviewConfig:

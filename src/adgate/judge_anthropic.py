@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import threading
 from collections.abc import Sequence
 from typing import Any
@@ -76,20 +77,36 @@ class Spend:
         self.calls = self.input_tokens = self.output_tokens = 0
         self.cache_write_tokens = self.cache_read_tokens = 0
         self.refusals = self.failures = 0
+        self.reserved = 0.0     # 진행 중인 호출이 쓸 것으로 미리 잡아 둔 추정 비용
+        self.failed_usd = 0.0   # 응답(사용량)을 못 받은 호출은 청구됐다고 보고 추정 비용을 그대로 더한다
         self._lock = threading.Lock()
 
     @property
     def usd(self) -> float:
         p_in, p_out = PRICES.get(self.model, (10.0, 50.0))
         billed_in = self.input_tokens + 1.25 * self.cache_write_tokens + 0.1 * self.cache_read_tokens
-        return (billed_in * p_in + self.output_tokens * p_out) / 1_000_000
+        return (billed_in * p_in + self.output_tokens * p_out) / 1_000_000 + self.failed_usd
 
-    def check(self) -> None:
-        if self.max_usd is not None and self.usd >= self.max_usd:
-            raise BudgetExceeded(f"추정 비용 ${self.usd:.4f} 가 상한 ${self.max_usd:.2f} 에 도달했습니다")
+    def estimate(self, prompt_chars: int, *, expected_output_tokens: int = 800) -> float:
+        """호출 전 추정 비용. 한국어는 글자당 토큰 하나로 넉넉히 보고, 출력은 후보 몇 건의 JSON 정도로 본다."""
+        p_in, p_out = PRICES.get(self.model, (10.0, 50.0))
+        return (prompt_chars * p_in + expected_output_tokens * p_out) / 1_000_000
 
-    def add(self, usage: Any) -> None:
+    def reserve(self, est_usd: float) -> None:
+        """호출 전에 추정 비용을 잠그고 예산을 검사한다. 동시에 많은 호출이 들어와도 상한을 넘겨 시작하지 않는다(독립 리뷰 M9: 검사와 기록이 갈려 상한의 45배를 썼다)."""
         with self._lock:
+            if self.max_usd is not None and self.usd + self.reserved + est_usd > self.max_usd:
+                raise BudgetExceeded(
+                    f"추정 비용 ${self.usd:.4f} + 진행 중 ${self.reserved:.4f} 에 이 호출 ${est_usd:.4f} 를 더하면 상한 ${self.max_usd:.2f} 를 넘습니다"
+                )
+            self.reserved += est_usd
+
+    def settle(self, est_usd: float, usage: Any | None) -> None:
+        with self._lock:
+            self.reserved = max(0.0, self.reserved - est_usd)
+            if usage is None:
+                self.failed_usd += est_usd
+                return
             self.calls += 1
             self.input_tokens += int(getattr(usage, "input_tokens", 0) or 0)
             self.output_tokens += int(getattr(usage, "output_tokens", 0) or 0)
@@ -101,6 +118,7 @@ class Spend:
             "model": self.model, "calls": self.calls, "input_tokens": self.input_tokens, "output_tokens": self.output_tokens,
             "cache_write_tokens": self.cache_write_tokens, "cache_read_tokens": self.cache_read_tokens,
             "refusals": self.refusals, "failures": self.failures, "estimated_usd": round(self.usd, 6), "max_usd": self.max_usd,
+            "failed_usd": round(self.failed_usd, 6),
         }
 
 
@@ -163,9 +181,14 @@ def system_prompt(policy: Policy) -> str:
 6. 최대 {MAX_FINDINGS}건. 후보가 없으면 `findings` 를 빈 배열로 둡니다."""
 
 
+_INVISIBLE = re.compile(r"[\u00ad\u034f\u061c\u115f\u1160\u17b4\u17b5\u180b-\u180f\u200b-\u200f\u202a-\u202e\u2060-\u206f\u2800\u3164\ufe00-\ufe0f\ufeff\uffa0\U000e0000-\U000e007f]")
+
+
 def _safe_json(value: Any) -> str:
-    """JSON 으로 직렬화하되 `<` `>` 를 이스케이프해서, 광고 문구 속 '</creative>' 가 구분자를 흉내 내지 못하게 한다."""
-    return json.dumps(value, ensure_ascii=False).replace("<", "\\u003c").replace(">", "\\u003e")
+    """JSON 으로 직렬화하되 `<` `>` 를 이스케이프해서, 광고 문구 속 '</creative>' 가 구분자를 흉내 내지 못하게 한다.
+    사람 눈에 안 보이는 서식·채움·태그 문자(예: U+E0000 대역으로 쓴 숨은 지시)는 \\uXXXX 로 풀어 모델에게도 *보이게* 한다(독립 리뷰 L5)."""
+    out = json.dumps(value, ensure_ascii=False).replace("<", "\\u003c").replace(">", "\\u003e")
+    return _INVISIBLE.sub(lambda m: json.dumps(m.group())[1:-1], out)
 
 
 def user_content(creative: Creative, already: Sequence[dict[str, Any]]) -> str:
@@ -221,10 +244,11 @@ class AnthropicJudge:
         kwargs: dict[str, Any] = {
             "model": self.model,
             "max_tokens": self.max_tokens,
-            "system": system_prompt(policy),
+            # 캐시 표지는 *고정된* 시스템 프롬프트 끝에 둔다. 최상위(자동) cache_control 은 소재마다 달라지는 마지막 블록에 붙어
+            # 읽히지 않는 쓰기 할증만 낸다(독립 리뷰 L5). 프롬프트가 최소 캐시 길이보다 짧으면 그냥 캐시되지 않을 뿐이다.
+            "system": [{"type": "text", "text": system_prompt(policy), "cache_control": {"type": "ephemeral"}}],
             "messages": [{"role": "user", "content": user_content(creative, already)}],
             "output_config": {"effort": self.effort, "format": {"type": "json_schema", "schema": self._schema}},
-            "cache_control": {"type": "ephemeral"},
         }
         if self.fallbacks:
             kwargs["betas"] = [FALLBACK_BETA]
@@ -232,15 +256,17 @@ class AnthropicJudge:
         return kwargs
 
     def propose(self, creative: Creative, policy: Policy, already: Sequence[dict[str, Any]] = ()) -> list[ProposedFinding]:
-        self.spend.check()
         kwargs = self.request(creative, policy, already)
+        est = self.spend.estimate(len(kwargs["system"][0]["text"]) + len(kwargs["messages"][0]["content"]))
+        self.spend.reserve(est)
         try:
             api = self.client.beta.messages if self.fallbacks else self.client.messages
             message = api.create(**kwargs)
         except Exception:
+            self.spend.settle(est, None)
             self.spend.failures += 1
             raise
-        self.spend.add(getattr(message, "usage", None))
+        self.spend.settle(est, getattr(message, "usage", None))
         try:
             return parse_message(message)
         except JudgeRefused:

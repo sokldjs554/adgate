@@ -145,3 +145,16 @@ def test_no_csp_violations_or_page_errors_and_no_mobile_overflow(page):  # type:
     page.set_viewport_size({"width": 390, "height": 800})
     assert page.evaluate("() => document.documentElement.scrollWidth > document.documentElement.clientWidth") is False
     assert page.problems == []
+
+
+def test_submit_works_when_crypto_random_uuid_is_missing(browser, base_url):  # type: ignore[no-untyped-def]
+    """리뷰 L3: crypto.randomUUID 는 보안 컨텍스트에서만 있다. 비보안 주소(http://다른-IP)로 열면 제출이 깨졌다."""
+    pg = browser.new_page(viewport={"width": 1280, "height": 900})
+    problems: list[str] = []
+    pg.on("pageerror", lambda e: problems.append(str(e)))
+    pg.add_init_script("Object.defineProperty(crypto, 'randomUUID', { value: undefined, configurable: true });")
+    pg.goto(base_url)
+    pg.wait_for_selector("#me:not(:empty)")
+    submit_example(pg, "반려: 띄어쓰기로 우회한 수익 보장")
+    assert pg.inner_text("#badge") == "반려" and problems == []
+    pg.close()

@@ -117,7 +117,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         response: Response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "no-referrer"
-        response.headers["Content-Security-Policy"] = "default-src 'self'; img-src 'self' data:; frame-ancestors 'none'"
+        if request.url.path == "/docs":  # Swagger UI 는 CDN 에서 스크립트·스타일을 가져온다. 이 경로만 허용한다(콘솔에는 적용하지 않는다)
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https://fastapi.tiangolo.com; frame-ancestors 'none'"
+            )
+        else:
+            response.headers["Content-Security-Policy"] = "default-src 'self'; img-src 'self' data:; frame-ancestors 'none'"
         if request.url.path.startswith("/v1/"):
             response.headers["Cache-Control"] = "no-store"
         return response
@@ -141,9 +147,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return run
 
     def view(run: Run, me: Principal) -> dict[str, Any]:
+        result = run.result
+        if me.role != "reviewer":  # 내부 메모(탐지 패턴 이름, 예외 클래스 이름)는 광고주에게 보이지 않는다(독립 리뷰 L2)
+            result = {**result, "findings": [{k: v for k, v in f.items() if k != "note"} for f in result["findings"]]}
         out: dict[str, Any] = {
             "run_id": run.id, "state": run.state, "created_at": run.created_at, "outcome": run.result["outcome"],
-            "final_outcome": run.final_outcome, "decided_by": run.decided_by, "result": run.result, "creative": run.creative,
+            "final_outcome": run.final_outcome, "decided_by": run.decided_by, "result": result, "creative": run.creative,
         }
         if me.role == "reviewer":
             out["submitter"] = run.submitter
@@ -152,14 +161,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # ------------------------------------------------------------------ 엔드포인트
     @app.get("/healthz")
     def healthz() -> dict[str, Any]:
-        return {"status": "ok", "version": __version__, "policy_version": policy.version, "dev": settings.dev}
+        return {"status": "ok", "version": __version__, "policy_version": policy.version}
 
     @app.get("/v1/me")
     def whoami(me: Me) -> dict[str, str]:
         return {"identity": me.identity, "role": me.role}
 
     @app.get("/metrics", response_class=PlainTextResponse)
-    def metrics() -> str:
+    def metrics(me: Me) -> str:  # 규칙별 건수를 담으므로 인증된 호출자만(Prometheus 는 Authorization 헤더를 보낼 수 있다)
         waiting = float(store.count_by_state().get("waiting_input", 0))
         return registry.render({"adgate_waiting_input": {(): waiting}})
 
@@ -184,7 +193,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ) -> dict[str, Any]:
         if idempotency_key is not None and not IDEM_KEY.match(idempotency_key):
             raise Problem(422, "Idempotency-Key 형식이 올바르지 않습니다", "영문·숫자·_.:- 128자 이하만 쓸 수 있습니다.")
-        req_hash = _hash_creative(creative)
+        req_hash = _hash_creative(creative)  # 멱등성은 *제출된* 본문으로 본다
+        if creative.advertiser.verified and not me.verified:
+            # 소재가 스스로 '인증 완료' 라고 적어도 플랫폼이 인증하지 않은 계정이면 인증되지 않은 광고주로 심사한다(독립 리뷰 H6)
+            creative = creative.model_copy(update={"advertiser": creative.advertiser.model_copy(update={"verified": False})})
 
         def replay(existing: Run) -> dict[str, Any]:
             if existing.request_hash != req_hash:
@@ -201,6 +213,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         trace: list[dict[str, Any]] = []
         result: ReviewResult = review(creative, cfg, policy, trace)
         waiting = result.outcome == "REVIEW"
+        if waiting and store.count(submitter=me.identity, state="waiting_input") >= settings.max_waiting_per_submitter:
+            raise Problem(429, "검토 대기 건이 너무 많습니다", "대기 중인 건이 처리된 뒤 다시 제출해 주세요.", {"Retry-After": "300"})
         events: list[tuple[str, dict[str, Any]]] = [("submitted", {"ad_id": creative.ad_id, "category": creative.advertiser.category})]
         events += [("stage", t) for t in trace]
         events.append(("waiting_input" if waiting else "decided", {"outcome": result.outcome, "rules": sorted({f.rule_id for f in result.findings if f.severity != "info"})}))
@@ -225,12 +239,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return view(run, me)
 
     @app.get("/v1/reviews")
-    def list_reviews(me: Me, state: str | None = None, limit: int = 50) -> dict[str, Any]:
+    def list_reviews(
+        me: Me, state: str | None = None, limit: int = 50, offset: int = 0, order: str | None = None,
+    ) -> dict[str, Any]:
         if state is not None and state not in ("completed", "waiting_input", "failed"):
             raise Problem(422, "state 값이 올바르지 않습니다")
-        limit = max(1, min(limit, 200))
-        runs = store.list_runs(submitter=None if me.role == "reviewer" else me.identity, state=state, limit=limit)
-        return {"items": [view(r, me) for r in runs]}
+        if order is not None and order not in ("oldest", "newest"):
+            raise Problem(422, "order 값이 올바르지 않습니다", "oldest 또는 newest")
+        limit, offset = max(1, min(limit, 200)), max(0, offset)
+        # 검토 대기열은 오래된 것부터: 최신순이면 한 광고주가 제출을 쏟아낼 때 먼저 온 건이 묻힌다(독립 리뷰 M7)
+        oldest = order == "oldest" or (order is None and state == "waiting_input")
+        owner = None if me.role == "reviewer" else me.identity
+        runs = store.list_runs(submitter=owner, state=state, limit=limit, offset=offset, oldest_first=oldest)
+        total = store.count(submitter=owner, state=state)
+        return {"items": [view(r, me) for r in runs], "total": total, "offset": offset, "next_offset": offset + len(runs) if offset + len(runs) < total else None}
 
     @app.get("/v1/reviews/{run_id}")
     def get_review(run_id: str, me: Me) -> dict[str, Any]:
@@ -239,7 +261,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/v1/reviews/{run_id}/events")
     def get_events(run_id: str, me: Me) -> dict[str, Any]:
         run = visible(store.get(run_id), me)
-        return {"run_id": run.id, "events": store.events(run.id)}
+        events = store.events(run.id)
+        if me.role != "reviewer":  # 심사자의 신원과 메모는 광고주에게 보이지 않는다(독립 리뷰 L2)
+            for e in events:
+                p = e["payload"]
+                e["payload"] = {k: v for k, v in p.items() if k not in ("reviewer", "reason") and not (k == "by" and v != me.identity)}
+        return {"run_id": run.id, "events": events}
 
     @app.post("/v1/reviews/{run_id}/rewrite")
     def post_rewrite(run_id: str, me: Me) -> RewriteResult:

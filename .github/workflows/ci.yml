@@ -34,7 +34,7 @@ jobs:
       - run: docker build -t adgate:ci .
       - name: 이미지 기동과 헬스체크
         run: |
-          docker run -d --name adgate -e ADGATE_DEV=1 -p 8000:8000 adgate:ci
+          docker run -d --name adgate -e ADGATE_DEV=1 -e ADGATE_DEV_ALLOW_PUBLIC=1 -p 8000:8000 adgate:ci
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/healthz && break || sleep 1; done
           curl -fsS http://127.0.0.1:8000/healthz
           curl -fsS -X POST http://127.0.0.1:8000/v1/reviews -H 'Authorization: Bearer dev-advertiser' -H 'Content-Type: application/json' \

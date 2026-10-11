@@ -105,6 +105,12 @@ def review(
                 grounded = [f.model_copy(update={"severity": "review"}) if f.severity == "reject" else f for f in grounded]
             stats.dropped_ungrounded = dropped
             extra.extend(grounded)
+            if dropped and cfg.escalate_ungrounded:  # 모델이 위반을 의심했지만 근거를 대지 못했다 = 애매하다 → 승인하지 않는다(POLICY 1절)
+                escalations.append("judge_ungrounded")
+                extra.append(Finding(
+                    rule_id="SYS-JUDGE", code="judge_ungrounded", severity=policy.spec("SYS-JUDGE", "judge_ungrounded").severity,
+                    note=f"dropped={dropped}",
+                ))
             log("judge", proposed=len(proposals), kept=len(grounded), dropped_ungrounded=dropped)
         except Exception as exc:  # noqa: BLE001 — 어떤 실패든 fail-closed
             stats.judge_failed = True

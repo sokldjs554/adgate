@@ -24,6 +24,14 @@ common_codes:
     severity: review
     message: "소재에 눈에 보이지 않는 채움 문자나 글자 방향을 바꾸는 제어 문자가 있어, 보이는 문구와 검사한 문구가 다를 수 있으므로 사람이 확인합니다."
     fix: "보이지 않는 문자와 글자 방향 제어 문자를 지우고 다시 제출해 주세요."
+  category_mismatch:
+    severity: review
+    message: "광고 문구가 선언한 업종과 맞지 않아(금융 상품을 다루는데 대출·투자 업종이 아니거나, 질병 효능을 말하는데 건강·화장품·쇼핑·기타 업종이 아님) 사람이 확인합니다."
+    fix: "상품에 맞는 업종으로 다시 제출해 주세요."
+  judge_ungrounded:
+    severity: review
+    message: "의미 기반 검사가 위반을 의심했지만 원문에서 확인되는 인용을 대지 못해 자동 승인하지 않고 사람이 확인합니다."
+    fix: "추가 조치는 필요하지 않습니다. 심사자가 확인한 뒤 결과를 안내합니다."
   judge_unavailable:
     severity: review
     message: "의미 기반 검사를 수행하지 못해 자동 승인하지 않고 사람이 확인합니다."

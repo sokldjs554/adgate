@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -301,9 +302,17 @@ def cmd_serve(args: argparse.Namespace) -> int:
     from .settings import Settings
 
     try:
-        Settings.from_env()  # 토큰이 없으면 시작하지 않는다. 트레이스백 대신 안내를 낸다.
+        settings = Settings.from_env()  # 토큰이 없으면 시작하지 않는다. 트레이스백 대신 안내를 낸다.
     except (RuntimeError, ValueError) as exc:
         print(f"설정 오류: {exc}", file=sys.stderr)
+        return 2
+    loopback = args.host in ("127.0.0.1", "localhost", "::1")
+    if settings.dev and not loopback and os.environ.get("ADGATE_DEV_ALLOW_PUBLIC") != "1":
+        print(
+            f"설정 오류: ADGATE_DEV=1 은 누구나 아는 데모 토큰(심사자 포함)을 켭니다. 루프백이 아닌 주소({args.host})에는 열지 않습니다. "
+            "컨테이너 안에서 일부러 쓰려면 ADGATE_DEV_ALLOW_PUBLIC=1 을 함께 설정하세요.",
+            file=sys.stderr,
+        )
         return 2
     uvicorn.run("adgate.api:create_app", factory=True, host=args.host, port=args.port)
     return 0

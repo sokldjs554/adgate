@@ -44,6 +44,14 @@ function token() {
   const role = $("#role").value;
   return role === "custom" ? $("#token").value.trim() : role;
 }
+// crypto.randomUUID 는 보안 컨텍스트(https, localhost)에서만 있다. 다른 주소로 열면 없으므로 getRandomValues 로 대신한다(독립 리뷰 L3).
+function newKey() {
+  if (globalThis.crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  const b = new Uint8Array(16);
+  (globalThis.crypto || { getRandomValues: (a) => a.map(() => Math.floor(Math.random() * 256)) }).getRandomValues(b);
+  return Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
+}
+
 async function api(path, opts = {}) {
   const res = await fetch(path, {
     ...opts,
@@ -142,7 +150,7 @@ async function loadQueue() {
   const box = $("#queueBox");
   if (state.role !== "reviewer") { box.hidden = true; return; }
   try {
-    const { items } = await api("/v1/reviews?state=waiting_input");
+    const { items } = await api("/v1/reviews?state=waiting_input&limit=200");
     const ul = $("#queue"); clear(ul);
     if (items.length === 0) ul.append(h("li", { class: "muted" }, "대기 중인 건이 없습니다."));
     for (const it of items) {
@@ -216,7 +224,7 @@ async function onSubmit() {
   try {
     const run = await api("/v1/reviews", {
       method: "POST", body: JSON.stringify(readForm()),
-      headers: { "Idempotency-Key": crypto.randomUUID() },
+      headers: { "Idempotency-Key": newKey() },
     });
     renderRun(run);
   } catch (e) { showError(e); } finally { btn.disabled = false; }

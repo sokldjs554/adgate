@@ -99,3 +99,36 @@ def outcome(kwargs):
 @pytest.mark.parametrize(("tag", "kwargs", "expected"), CASES, ids=[f"{t}:{k['headline'][:18]}" for t, k, _ in CASES])
 def test_reviewer_reproduced_cases(tag, kwargs, expected):
     assert outcome(kwargs) == expected, f"{tag} {kwargs}"
+
+
+# --------------------------------------------------------------------------- H6: 업종은 광고주가 적는 값이다
+def _mismatch(r):
+    return [f.note for f in r.findings if f.code == "category_mismatch"]
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "why"),
+    [
+        ({"headline": "직장인 신용대출 간편 신청", "category": "general"}, "finance_cue"),
+        ({"headline": "원금 걱정 없는 코인 투자", "category": "app"}, "finance_cue"),
+        ({"headline": "최저 금리로 갈아타세요", "category": "education"}, "finance_cue"),
+        ({"headline": "암 예방에 도움", "category": "app"}, "health_claim"),
+        ({"headline": "당뇨 완치", "category": "education"}, "health_claim"),
+    ],
+)
+def test_a_declared_category_that_contradicts_the_copy_goes_to_a_person(kwargs, why):
+    r = review(mk(**kwargs), ReviewConfig(challenge=False))
+    assert r.outcome in ("REVIEW", "REJECT") and why in "".join(_mismatch(r))
+
+
+@pytest.mark.parametrize(
+    "kwargs",
+    [
+        {"headline": "모의 투자로 배우는 주식 기초", "body": "가상 자금으로 연습하는 시뮬레이션입니다.", "category": "app"},
+        {"headline": "직장인 신용대출", "category": "loan", "disclosure": LOAN},
+        {"headline": "당뇨 환자는 의사와 상담하세요", "category": "supplement"},
+        {"headline": "하루 10분 투자로 끝내는 영어", "category": "education"},
+    ],
+)
+def test_a_consistent_or_ordinary_ad_is_not_sent_to_a_person_for_its_category(kwargs):
+    assert not _mismatch(review(mk(**kwargs), ReviewConfig(challenge=False)))

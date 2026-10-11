@@ -261,6 +261,24 @@ def _has_warning(rx: re.Pattern[str], text: str) -> bool:
     return False
 
 
+def detect_category_mismatch(scan: Scan) -> list[Finding]:
+    """선언한 업종과 문구가 맞지 않으면 사람에게 넘긴다. 업종(`advertiser.category`)은 광고주가 적는 값이라, 속이면 금융·건강 규칙이 통째로 꺼진다."""
+    category = scan.category
+    why: list[str] = []
+    if category not in ("loan", "invest") and any(
+        lx.FINANCE_CUE.search(nv.tight) for f, nv in scan.views.items() if f in AD_FIELDS
+    ):
+        why.append("finance_cue")
+    if not scan.policy.applies("AD-HLT-01", category) and any(detect_hlt(scan, f, nv) for f, nv in scan.views.items() if f in AD_FIELDS):
+        why.append("health_claim")
+    if not why:
+        return []
+    return [Finding(
+        rule_id="SYS-INPUT", code="category_mismatch", severity=scan.policy.spec("SYS-INPUT", "category_mismatch").severity,
+        note=f"category={category}: {', '.join(why)}",
+    )]
+
+
 def detect_fin(scan: Scan) -> list[Finding]:
     category = scan.category
     if not scan.policy.applies("AD-FIN-01", category):
@@ -352,6 +370,7 @@ def run_rules(scan: Scan) -> list[Finding]:
             if rule_id in LANDING_SCANNED and scan.policy.applies(rule_id, scan.category):
                 findings.extend(fn(scan, "landing_text", landing))
     findings.extend(detect_hidden(scan))
+    findings.extend(detect_category_mismatch(scan))
     findings.extend(detect_meta(scan))
     findings.extend(detect_fin(scan))
     findings.extend(detect_landing(scan))

@@ -84,11 +84,11 @@ def test_responses_that_break_the_schema_are_rejected_like_the_real_adapter_does
     assert review(c, ReviewConfig(judge=j)).outcome == "REVIEW"
 
 
-def test_a_hallucinated_quote_in_a_recording_is_dropped_by_grounding():
+def test_a_hallucinated_quote_in_a_recording_is_dropped_by_grounding_and_sent_to_a_person():
     c = invest()
     fake = {**GUA, "quote": "원금이 보장되는 투자"}
     r = review(c, ReviewConfig(judge=rec(c, [fake])))
-    assert r.outcome == "APPROVE" and r.stats.dropped_ungrounded == 1
+    assert r.outcome == "REVIEW" and r.stats.dropped_ungrounded == 1 and not any(f.source == "llm" for f in r.findings)
 
 
 def test_an_injected_instruction_cannot_remove_a_deterministic_finding():

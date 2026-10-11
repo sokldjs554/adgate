@@ -160,7 +160,9 @@ class Store:
             rows = self._db.execute("SELECT seq, ts, type, payload_json FROM events WHERE run_id=? ORDER BY seq", (run_id,)).fetchall()
         return [{"seq": r["seq"], "ts": r["ts"], "type": r["type"], "payload": json.loads(r["payload_json"])} for r in rows]
 
-    def list_runs(self, *, submitter: str | None = None, state: str | None = None, limit: int = 50) -> list[Run]:
+    def list_runs(
+        self, *, submitter: str | None = None, state: str | None = None, limit: int = 50, offset: int = 0, oldest_first: bool = False,
+    ) -> list[Run]:
         sql = "SELECT * FROM runs"
         args: list[str | int] = []
         where: list[str] = []
@@ -172,11 +174,25 @@ class Store:
             args.append(state)
         if where:
             sql += " WHERE " + " AND ".join(where)
-        sql += " ORDER BY created_at DESC, id DESC LIMIT ?"
-        args.append(limit)
+        direction = "ASC" if oldest_first else "DESC"
+        sql += f" ORDER BY created_at {direction}, id {direction} LIMIT ? OFFSET ?"
+        args += [limit, max(0, offset)]
         with self._lock:
             rows = self._db.execute(sql, args).fetchall()
         return [self._run(r) for r in rows]
+
+    def count(self, *, submitter: str | None = None, state: str | None = None) -> int:
+        sql, args, where = "SELECT COUNT(*) AS n FROM runs", [], []
+        if submitter is not None:
+            where.append("submitter=?")
+            args.append(submitter)
+        if state is not None:
+            where.append("state=?")
+            args.append(state)
+        if where:
+            sql += " WHERE " + " AND ".join(where)
+        with self._lock:
+            return int(self._db.execute(sql, args).fetchone()["n"])
 
     def count_by_state(self) -> dict[str, int]:
         with self._lock:
