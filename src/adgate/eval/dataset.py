@@ -98,5 +98,6 @@ def verify_manifest(manifest: str | Path, base: str | Path | None = None) -> dic
         if not line.strip():
             continue
         digest, name = line.split(None, 1)
-        out[name.strip()] = sha256_file(base / name.strip()) == digest
+        target = base / name.strip()
+        out[name.strip()] = target.exists() and sha256_file(target) == digest  # 없는 파일은 '일치하지 않음'이지 예외가 아니다
     return out

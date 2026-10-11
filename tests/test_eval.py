@@ -254,3 +254,11 @@ def test_gate_exit_codes_follow_required_checks_and_regressions(tmp_path, capsys
     base.write_text(json.dumps(saved), encoding="utf-8")
     assert main(["gate", "--data-dir", str(d), "--baseline", str(base)]) == 1
     assert "R:dev:accuracy" in capsys.readouterr().out
+
+
+def test_manifest_with_a_missing_file_reports_false_instead_of_raising(tmp_path):
+    (tmp_path / "a.jsonl").write_text("x", encoding="utf-8")
+    (tmp_path / "MANIFEST.sha256").write_text(
+        f"{dataset.sha256_file(tmp_path / 'a.jsonl')}  a.jsonl\n{'0' * 64}  gone.jsonl\n", encoding="utf-8"
+    )
+    assert dataset.verify_manifest(tmp_path / "MANIFEST.sha256") == {"a.jsonl": True, "gone.jsonl": False}

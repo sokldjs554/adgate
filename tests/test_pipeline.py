@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+import unicodedata
 
 from conftest import mk
 from hypothesis import HealthCheck, given, settings
@@ -12,8 +13,8 @@ from adgate.pipeline import review
 
 ALPHABET = list(
     "수익보장무조건승인 .-_*​‌１２３０％%abNo!?\n가나다암예방치료최고1위오늘만타사대비의사추천원금손실없는연월일개월원"
-    "😊✨🌿100"
-)
+    "😊✨🌿100선입保障с★"
+) + list(unicodedata.normalize("NFD", "선입금"))  # 분해형 자모 포함
 CATEGORIES = ["loan", "invest", "supplement", "cosmetic", "ecommerce", "app", "education", "general", "adult", "gambling"]
 RANK = {"APPROVE": 0, "REVIEW": 1, "REJECT": 2}
 

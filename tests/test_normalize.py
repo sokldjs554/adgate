@@ -5,7 +5,7 @@ from hypothesis import strategies as st
 
 from adgate.normalize import build
 
-ALPHABET = list("수익보장무조건승인 .-_*​‌１２３００％%abNo!?\n가나다")
+ALPHABET = list("수익보장무조건승인 .-_*​‌１２３００％%abNo!?\n가나다선입保障с★🔥")  # 분해형 자모·한자·키릴·장식 기호 포함
 
 
 def test_quote_roundtrip_with_zero_width():
