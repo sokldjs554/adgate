@@ -1,0 +1,51 @@
+{
+  "normalize": {
+    "caught": true,
+    "failed_checks": [
+      "H1",
+      "H3",
+      "D1",
+      "R:dev:accuracy",
+      "R:dev:unsafe_approve",
+      "R:dev:rule_f1",
+      "R:test:accuracy",
+      "R:test:unsafe_approve",
+      "R:test:rule_f1"
+    ]
+  },
+  "exceptions": {
+    "caught": true,
+    "failed_checks": [
+      "R:dev:accuracy",
+      "R:dev:false_reject",
+      "R:dev:rule_f1",
+      "R:test:accuracy",
+      "R:test:false_reject",
+      "R:test:over_review",
+      "R:test:rule_f1"
+    ]
+  },
+  "challenge": {
+    "caught": true,
+    "failed_checks": [
+      "D1",
+      "R:dev:unsafe_approve",
+      "R:dev:rule_f1"
+    ]
+  },
+  "landing": {
+    "caught": true,
+    "failed_checks": [
+      "H1",
+      "H3",
+      "D1",
+      "R:dev:accuracy",
+      "R:dev:unsafe_approve",
+      "R:dev:rule_f1",
+      "R:test:accuracy",
+      "R:test:unsafe_approve",
+      "R:test:over_review",
+      "R:test:rule_f1"
+    ]
+  }
+}

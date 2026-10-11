@@ -36,8 +36,26 @@ FUZZY_PHRASES: tuple[tuple[str, str, bool], ...] = (
     ("AD-ENDO-01", "전문가추천", False),
     ("AD-ENDO-01", "임상입증", False),
 )
+# 자모 하나 차이 나는 *정상어*. 도전자가 보류하지 않는다(예: 수익보상 ≠ 수익보장).
+FUZZY_BENIGN = frozenset({"수익보상", "원금보상", "손실보상", "수익분장"})
+
+# 표기 변형을 접는다: 쌍자음→평음(껀/건, 깐/간), ㅘ→ㅏ, ㅝ→ㅓ, ㅙ·ㅞ·ㅐ→ㅔ, 쌍자음 받침→평음.
+_FOLD = {
+    0x1101: 0x1100, 0x1104: 0x1103, 0x1108: 0x1107, 0x110A: 0x1109, 0x110D: 0x110C,
+    0x116A: 0x1161, 0x116F: 0x1165, 0x116B: 0x1166, 0x1170: 0x1166, 0x1162: 0x1166,
+    0x11A9: 0x11A8, 0x11BB: 0x11BA,
+}
 CROSS_FIELD_PAIRS = (("headline", "body"), ("body", "cta"))
 CHALLENGE_FIELDS = ("headline", "body", "cta", "image_text", "disclosure")
+
+
+def fold(text: str) -> str:
+    """철자 변형을 접은 문자열. 글자 수는 그대로다(한 글자 → 한 글자)."""
+    out: list[str] = []
+    for ch in text:
+        folded = unicodedata.normalize("NFC", unicodedata.normalize("NFD", ch).translate(_FOLD))
+        out.append(folded if len(folded) == 1 else ch)
+    return "".join(out)
 
 
 def _decompose(tight: str) -> tuple[str, list[int]]:
@@ -81,30 +99,36 @@ def _may_match(phrase: str, tight: str) -> bool:
 
 
 def fuzzy_spans(phrase: str, tight: str) -> list[tuple[int, int]]:
-    """phrase 와 자모 하나 차이나는 구간의 tight 인덱스 [a, b) 목록. 정확히 같은 구간 근처는 제외."""
-    if not _may_match(phrase, tight):
+    """phrase 와 (표기를 접은 뒤) 자모 하나 이하로 다른 구간의 tight 인덱스 [a, b) 목록.
+
+    원문에 phrase 가 정확히 있는 자리와 그 곁은 제외한다(엄격한 규칙의 몫). 정상어 stoplist 도 제외한다.
+    """
+    f_phrase, f_tight = fold(phrase), fold(tight)
+    if not _may_match(f_phrase, f_tight):
         return []
-    jp, _ = _decompose(phrase)
-    jt, owner = _decompose(tight)
-    ends = approx_ends(jp, jt, 1)
-    exact = {j for j, d in ends if d == 0}
+    jp_exact, _ = _decompose(phrase)
+    jt_exact, _ = _decompose(tight)
+    exact = {j for j, d in approx_ends(jp_exact, jt_exact, 0)}
+    jp, _ = _decompose(f_phrase)
+    jt, owner = _decompose(f_tight)
     spans: list[tuple[int, int]] = []
     last_end = -1
-    for j, d in ends:
-        if d != 1 or {j - 1, j, j + 1} & exact:
+    for j, _d in approx_ends(jp, jt, 1):
+        if {j - 1, j, j + 1} & exact:
             continue
         best: tuple[int, int] | None = None
         for length in (len(jp), len(jp) - 1, len(jp) + 1):
             start = j - length
-            if start < 0:
-                continue
-            if _edit_distance(jp, jt[start:j]) == 1:
+            if start >= 0 and _edit_distance(jp, jt[start:j]) <= 1:
                 best = (start, j)
                 break
         if best is None or best[0] < last_end:
             continue
+        a, b = owner[best[0]], owner[best[1] - 1] + 1
+        if tight[a:b] in FUZZY_BENIGN:
+            continue
         last_end = best[1]
-        spans.append((owner[best[0]], owner[best[1] - 1] + 1))
+        spans.append((a, b))
     return spans
 
 

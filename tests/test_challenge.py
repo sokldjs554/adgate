@@ -72,3 +72,23 @@ def test_challenge_never_lowers_severity():
         b = review(c)
         rank = {"APPROVE": 0, "REVIEW": 1, "REJECT": 2}
         assert rank[b.outcome] >= rank[a.outcome]
+
+
+def test_phonetic_folding_catches_respellings_two_jamo_away():
+    # 신용무관 → 신용무깐: ㄱ→ㄲ 와 ㅘ→ㅏ 두 군데가 달라도 접으면 같다.
+    assert fuzzy_spans("신용무관", "비상금대출신용무깐대출")
+    c = mk("비상금 대출", "신용무깐 대출로 오늘 바로 받으세요. 금리는 연 9.0% ~ 18.0%입니다.", category="loan",
+           disclosure="과도한 대출은 개인신용평점 하락의 원인이 될 수 있습니다.")
+    assert review(c, ReviewConfig(challenge=False)).outcome == "APPROVE"
+    r = review(c)
+    assert r.outcome == "REVIEW" and any(f.rule_id == "AD-FRD-01" for f in loose(r))
+
+
+def test_known_benign_near_neighbours_are_not_flagged():
+    assert fuzzy_spans("수익보장", "수익보상절차를안내합니다") == []
+    c = mk("투자 손실 보상 제도 안내", "수익보상 절차를 안내합니다.", category="invest", disclosure="투자 상품은 원금 손실이 발생할 수 있습니다.")
+    assert review(c).outcome == "APPROVE"
+
+
+def test_exact_phrase_is_never_reported_by_the_challenger():
+    assert fuzzy_spans("무조건승인", "오늘무조건승인가능") == []
