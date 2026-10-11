@@ -72,21 +72,41 @@ def detect_gua(scan: Scan, field: str, nv: Normalized) -> list[Finding]:
             if scan.cfg.exceptions:
                 if pat.negatable and lx.negated(nv.tight, m.end()):
                     continue
-                if pat.name == "pct_guarantee" and lx.TXN_BEFORE.search(nv.tight[max(0, m.start() - 10):m.start()]):
+                # '환불 100% 보장' 은 거래 조건의 보장이다. 단 앞 낱말이 *바로* 거래 조건일 때, 그리고 '보장·보증' 꼴일 때만.
+                if (
+                    pat.name == "pct_guarantee" and m.group().endswith(("보장", "보증"))
+                    and lx.TXN_BEFORE.search(nv.tight[max(0, m.start() - 10):m.start()])
+                ):
+                    continue
+                if pat.txn_after and lx.TXN_AFTER.match(nv.tight[m.end():m.end() + 16]):
                     continue
             out.append(_hit(scan, "AD-GUA-01", "guarantee", field, nv, m.start(), m.end(), note=f"pattern:{pat.name}"))
     return out
 
 
 def _is_range_expression(name: str, tight: str, end: int) -> bool:
-    return name in lx.RANGE_PATS and lx.RANGE_AFTER.match(tight[end:end + 3]) is not None
+    return name in lx.RANGE_PATS and lx.RANGE_AFTER.match(tight[end:end + 14]) is not None
 
 
-def _substantiated(nv: Normalized, a: int, b: int) -> bool:
+def _has_source(text: str) -> bool:
+    return bool(lx.SOURCE_MARK.search(text) and lx.YEAR_MARK.search(unicodedata.normalize("NFKC", text)))
+
+
+def _substantiated(scan: Scan, nv: Normalized, a: int, b: int) -> bool:
+    """근거(조사 주체 + 기준 연도)를 같은 문장에서, 아니면 같은 표지(*, ※ …)로 이어지는 각주에서 찾는다(POLICY: 같은 괄호·각주)."""
     sa, sb = nv.soft_span_from_tight(a, b)
     lo, hi = nv.sentence_range(sa)
-    sentence = nv.soft[lo:hi]
-    return bool(lx.SOURCE_MARK.search(sentence) and lx.YEAR_MARK.search(sentence))
+    if _has_source(nv.soft[lo:hi]):
+        return True
+    _, end = nv.orig_span_from_tight(a, b)
+    rest = nv.original[end:end + 3].lstrip()
+    if rest and lx.FOOTNOTE_MARK.match(rest):
+        marker = re.escape(rest[0])
+        for field in AD_FIELDS:
+            for m in re.finditer(rf"{marker}[^\n]{{0,120}}", scan.creative.text(field)):
+                if _has_source(m.group()[1:]):
+                    return True
+    return False
 
 
 def detect_abs(scan: Scan, field: str, nv: Normalized) -> list[Finding]:
@@ -95,7 +115,7 @@ def detect_abs(scan: Scan, field: str, nv: Normalized) -> list[Finding]:
         for m in pat.rx.finditer(nv.tight):
             if scan.cfg.exceptions and _is_range_expression(pat.name, nv.tight, m.end()):
                 continue
-            ok = scan.cfg.exceptions and _substantiated(nv, m.start(), m.end())
+            ok = scan.cfg.exceptions and _substantiated(scan, nv, m.start(), m.end())
             code = "substantiated_needs_check" if ok else "unsubstantiated"
             out.append(_hit(scan, "AD-ABS-01", code, field, nv, m.start(), m.end(), note=f"pattern:{pat.name}"))
     return out
@@ -107,8 +127,10 @@ def detect_hlt(scan: Scan, field: str, nv: Normalized) -> list[Finding]:
         for m in pat.rx.finditer(nv.soft):
             a, b = m.span()
             if scan.cfg.exceptions:
-                lo, hi = nv.sentence_range(a)
-                if lx.HLT_DISCLAIMER.search(nv.soft[lo:hi]) or lx.HLT_NEG_SOFT.match(nv.soft[b:hi]):
+                _, hi = nv.sentence_range(a)
+                stop = lx.HLT_CLAUSE_END.search(nv.soft, b, hi)
+                tail = nv.soft[b:stop.start() if stop else hi]  # 질병 문구 뒤, 같은 절의 끝까지만 본다
+                if lx.HLT_DISCLAIMER.search(tail) or lx.HLT_NEG_SOFT.match(tail):
                     continue
             out.append(_hit(scan, "AD-HLT-01", "disease_claim", field, nv, a, b, view="soft", note=f"pattern:{pat.name}"))
     return out
@@ -136,8 +158,9 @@ def _urgency_corroborated(scan: Scan, matched: str) -> bool:
     if lx.URG_PERIOD.search(landing.soft):
         return True
     digits = re.search(r"\d+", matched)
-    if digits:
-        return re.search(rf"{digits.group()}\s*(?:명|개|세트|장|매|대|벌)", landing.soft) is not None
+    if digits:  # 수량은 '선착순·한정·재고' 같은 희소성 말과 이어진 숫자여야 한다('후기 100명' 은 근거가 아니다)
+        n, unit, scarce = digits.group(), r"(?:명|개|세트|장|매|대|벌)", r"(?:선착순|한정|수량|재고|잔여|남은|마감)"
+        return re.search(rf"{scarce}[^.!?\n]{{0,12}}{n}\s*{unit}|{n}\s*{unit}\s*{scarce}", landing.soft) is not None
     return False
 
 
@@ -167,7 +190,8 @@ def detect_brd_text(scan: Scan, field: str, nv: Normalized) -> list[Finding]:
             if scan.cfg.exceptions:
                 sa, _ = nv.soft_span_from_tight(m.start(), m.end())
                 lo, hi = nv.sentence_range(sa)
-                if lx.BRD_PUBLIC_INTEREST.search(nv.soft[lo:hi]):
+                sentence = nv.soft[lo:hi]
+                if lx.BRD_PUBLIC_INTEREST.search(sentence) and not lx.BRD_SALES.search(sentence):
                     code = "public_interest"
             out.append(_hit(scan, "AD-BRD-01", code, field, nv, m.start(), m.end(), note=f"pattern:{pat.name}"))
     return out
@@ -228,6 +252,15 @@ def detect_hidden(scan: Scan) -> list[Finding]:
     )]
 
 
+def _has_warning(rx: re.Pattern[str], text: str) -> bool:
+    """경고 구절이 있되, 바로 뒤에서 부정되지("손실 가능성이 없는", "하락 걱정 없이") 않은 것이 하나라도 있는가."""
+    for m in rx.finditer(text):
+        tail = re.split(r"[.!?\n]", text[m.end():m.end() + lx.WARNING_DENIAL_WINDOW])[0]
+        if not lx.WARNING_DENIAL.search(tail):
+            return True
+    return False
+
+
 def detect_fin(scan: Scan) -> list[Finding]:
     category = scan.category
     if not scan.policy.applies("AD-FIN-01", category):
@@ -235,12 +268,12 @@ def detect_fin(scan: Scan) -> list[Finding]:
     text = "\n".join(scan.views[f].soft for f in AD_FIELDS if f in scan.views)
     missing: list[str] = []
     if category == "loan":
-        if not lx.FIN_CREDIT_WARNING.search(text):
+        if not _has_warning(lx.FIN_CREDIT_WARNING, text):
             missing.append("credit_warning")
         if not (lx.FIN_RATE_NUMERIC.search(text) or lx.FIN_RATE_PHRASE.search(text)):
             missing.append("rate_info")
     else:
-        if not lx.FIN_PRINCIPAL_LOSS.search(text):
+        if not (_has_warning(lx.FIN_PRINCIPAL_LOSS, text) or lx.FIN_NOT_GUARANTEED.search(text)):
             missing.append("principal_loss_warning")
         if lx.FIN_PAST_CITED.search(text) and not lx.FIN_PAST_NOTICE.search(text):
             missing.append("past_performance_notice")
