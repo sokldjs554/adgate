@@ -132,3 +132,26 @@ def test_a_declared_category_that_contradicts_the_copy_goes_to_a_person(kwargs, 
 )
 def test_a_consistent_or_ordinary_ad_is_not_sent_to_a_person_for_its_category(kwargs):
     assert not _mismatch(review(mk(**kwargs), ReviewConfig(challenge=False)))
+
+
+# --------------------------------------------------------------------------- 부정을 좁히다 정상 유사를 반려한 회귀(레드팀 재측정이 찾았다, R-002)
+@pytest.mark.parametrize(
+    "text",
+    [
+        "표시된 수익률은 확정 수익이 아닙니다.",       # 부정이 '확정' 뒤의 목적어 명사('수익')를 건너뛴 뒤에 온다
+        "확정 수익률이 아닙니다",
+        "이 상품은 수익을 보장하지 않습니다",
+        "원금 보장 상품이 아니며 손실이 발생할 수 있습니다",
+        "승인을 보장하지는 않습니다",
+        "수익이 확정된 것이 아닙니다",
+    ],
+)
+def test_natural_disclaimers_naming_the_object_are_not_guarantees(text):
+    r = review(mk("해외 ETF 적립", "설명입니다.", category="invest", disclosure=f"{INV} {text}"), ReviewConfig(challenge=False))
+    assert not [f for f in r.findings if f.rule_id == "AD-GUA-01"], text
+
+
+@pytest.mark.parametrize("text", ["원금 보장 걱정 없습니다", "수익 확정 문제 없어요", "확정 수익 거절 없음"])
+def test_but_an_unrelated_noun_before_the_negation_is_still_not_a_disclaimer(text):
+    r = review(mk(text, "설명입니다.", category="invest", disclosure=INV), ReviewConfig(challenge=False))
+    assert [f for f in r.findings if f.rule_id == "AD-GUA-01"], text
