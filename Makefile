@@ -1,4 +1,4 @@
-.PHONY: install test lint type check eval gate sensitivity demo docs judge-check eval-llm e2e clean
+.PHONY: install test lint type check eval gate sensitivity demo docs judge-replay judge-export judge-check eval-llm e2e clean
 
 PY ?= python
 VENV ?= .venv
@@ -35,6 +35,17 @@ demo:
 
 docs:
 	adgate docs
+
+# 녹음된 judge 응답을 재생한다(키 불필요, 사전등록: docs/JUDGE_REPLAY.md). 산출물은 var/ 에 써서 커밋된 측정(artifacts/results_judge.json)을 덮지 않는다.
+# test·redteam 이 들어 있어 --measure 로 측정 기록(docs/MEASUREMENTS.md)이 한 줄씩 늘어난다.
+judge-replay:
+	mkdir -p var
+	adgate eval --datasets dev,test,redteam --measure --judge recorded --judge-file data/judge_replay/recording.jsonl \
+	  --out var/results_judge.json --errors-out var/results_judge_errors.json --note "judge 녹음 재생 재실행"
+
+# 모델에게 보낼 프롬프트 조각을 내보낸다(새로 녹음하려면). 탐지기가 바뀌었으면 data/judge_replay/ 의 녹음은 낡았다.
+judge-export:
+	adgate judge-export --datasets dev,test,redteam --out-dir var/judge_prompts --shards 9
 
 # 아래 둘은 ANTHROPIC_API_KEY(또는 ant auth login)가 필요하고 비용이 든다
 judge-check:
