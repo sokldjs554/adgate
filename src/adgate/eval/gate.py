@@ -87,7 +87,7 @@ def regression(m: dict[str, Any], baseline: dict[str, float], label: str = "") -
 def run_gate(
     datasets: dict[str, list[Example]], system: System, baseline: dict[str, dict[str, float]] | None,
 ) -> list[Check]:
-    """datasets 에는 'dev', 'test' 를 넣는다. 합격 기준은 test 에, 회귀 검사는 둘 다에 건다."""
+    """datasets 에는 'dev', 'test', (있으면) 'redteam' 을 넣는다. 합격 기준(H1-H3)은 test 에만, 회귀 검사는 전부에 건다."""
     checks: list[Check] = []
     results = {name: metrics.compute(exs, [system(ex.creative) for ex in exs]) for name, exs in datasets.items()}
     if "test" in results:

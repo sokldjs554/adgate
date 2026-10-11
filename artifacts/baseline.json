@@ -14,5 +14,13 @@
     "over_review": 0.0,
     "auto_rate": 0.6883,
     "rule_f1": 1.0
+  },
+  "redteam": {
+    "accuracy": 0.7778,
+    "unsafe_approve": 0.2745,
+    "false_reject": 0.0,
+    "over_review": 0.0,
+    "auto_rate": 0.8056,
+    "rule_f1": 0.8548
   }
 }

@@ -25,6 +25,9 @@ from .policy import load_policy
 ROOT = Path.cwd()
 FROZEN = ("test", "redteam")
 DATASETS = ("dev", "test", "redteam", "generated")  # 알려진 이름만 받는다('./test' 같은 경로로 --measure 가드를 피하지 못하게)
+# 게이트가 회귀 감시에 쓰는 셋. 합격 기준(H1-H3)은 test 에만 건다. redteam 은 첫 접촉이 history 에 보존돼 있고 이후 수치는 holdout 이 아니므로,
+# 정상 유사를 하나라도 놓치거나 오반려하면 바로 잡는 회귀 감시용으로 쓴다(리뷰 반영 중 R-002 오반려를 게이트가 못 잡았다 — FAILURES F-18).
+GATE_DATASETS = ("dev", "test", "redteam")
 
 
 def _path(name: str, data_dir: Path) -> Path:
@@ -163,8 +166,11 @@ def _print_checks(checks: list[gate.Check]) -> None:
 def cmd_gate(args: argparse.Namespace) -> int:
     """회귀 감시. `test` 를 매번 읽지만 측정으로 세지 않는다(CI 가 기록을 커밋할 수 없다) → test 는 첫 측정 뒤 holdout 이 아니다(docs/DECISIONS.md D-5)."""
     data_dir = Path(args.data_dir)
-    _verify_frozen(data_dir, ["test"], args.allow_modified_frozen)
-    datasets = {n: dataset.load(_path(n, data_dir)) for n in ("dev", "test")}
+    names = [n for n in GATE_DATASETS if _path(n, data_dir).exists()]
+    if "test" not in names or "dev" not in names:
+        raise SystemExit("게이트에는 dev 와 test 가 필요합니다.")
+    _verify_frozen(data_dir, [n for n in names if n in FROZEN], args.allow_modified_frozen)
+    datasets = {n: dataset.load(_path(n, data_dir)) for n in names}
     baseline = json.loads(Path(args.baseline).read_text(encoding="utf-8")) if Path(args.baseline).exists() else None
 
     if args.update_baseline:

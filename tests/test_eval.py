@@ -361,3 +361,22 @@ def test_unknown_git_state_is_logged_as_unknown_not_clean(tmp_path, monkeypatch)
     row = next(ln for ln in (tmp_path / "M.md").read_text(encoding="utf-8").splitlines() if ln.startswith("| 20"))
     assert "unknown" in row and "알 수 없음" in row and "깨끗" not in row
     assert json.loads((tmp_path / "o.json").read_text(encoding="utf-8"))["meta"]["dirty"] is None
+
+
+def test_gate_watches_the_red_team_set_for_regressions_without_applying_acceptance_criteria_to_it(tmp_path, capsys):
+    """리뷰 반영 중 정상 유사 하나가 오반려됐는데 dev·test 게이트는 조용했다(FAILURES F-18). redteam 도 회귀 감시에 넣는다."""
+    d = _copy_data(tmp_path)
+    (d / "redteam.jsonl").write_bytes((DATA / "redteam.jsonl").read_bytes())
+    (d / "MANIFEST.sha256").write_bytes((DATA / "MANIFEST.sha256").read_bytes())
+    base = tmp_path / "b.json"
+    assert main(["gate", "--data-dir", str(d), "--baseline", str(base), "--update-baseline"]) == 0
+    saved = json.loads(base.read_text(encoding="utf-8"))
+    assert set(saved) == {"dev", "test", "redteam"}
+    assert main(["gate", "--data-dir", str(d), "--baseline", str(base)]) == 0
+    out = capsys.readouterr().out
+    assert "R:redteam:accuracy" in out and "H1" in out and "redteam: hard_pass_through" not in out  # 합격 기준은 test 에만
+    saved["redteam"]["false_reject"] = -0.5          # 기준선이 현실보다 좋았다면(= 이후 악화) 게이트가 실패해야 한다
+    saved["redteam"]["accuracy"] = 0.99
+    base.write_text(json.dumps(saved), encoding="utf-8")
+    assert main(["gate", "--data-dir", str(d), "--baseline", str(base)]) == 1
+    assert "FAIL" in capsys.readouterr().out
