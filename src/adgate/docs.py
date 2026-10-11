@@ -76,6 +76,11 @@ def _ci(x: dict[str, Any]) -> str:
 def results_md(src: dict[str, Any]) -> str:
     meta = src["results_meta"]
     res: dict[str, dict[str, Any]] = src["results"]
+    counter = iter(range(1, 20))
+
+    def sec(title: str) -> str:
+        return f"## {next(counter)}. {title}"
+
     out: list[str] = [
         "# 결과 (자동 생성)",
         "",
@@ -84,7 +89,7 @@ def results_md(src: dict[str, Any]) -> str:
         "> 모든 소재는 합성이고 정책은 가상이다. `test` 는 같은 설계자가 쓴 셋이라 순수 holdout 이 아니고(첫 측정 뒤 수정함),",
         "> `generated` 는 생성기와 탐지기가 어휘를 공유해 낙관적이다. 수치를 실제 광고에서의 정확도로 읽지 않는다.",
         "",
-        "## 1. 전체 파이프라인의 핵심 지표",
+        sec("전체 파이프라인의 핵심 지표"),
         "",
         "| 데이터셋 | N | 정확도 | 위험 승인율 (반려·보류 정답을 승인) | 반려 정답을 승인 | 정상 오반려 | 정상 오보류 | 자동 처리율 (상한) | 규칙 F1 | 인용 위치 | 인용 정확 |",
         "|---|---:|---:|---|---|---|---|---|---:|---|---|",
@@ -105,7 +110,7 @@ def results_md(src: dict[str, Any]) -> str:
         "",
         "구간은 Wilson 95%. 자동 처리율의 괄호는 정답이 REVIEW 가 아닌 소재의 비율, 즉 *도달 가능한 상한*이다(사람이 봐야 하는 소재는 자동 처리해서는 안 된다).",
         "",
-        "## 2. 시스템 비교와 어블레이션",
+        sec("시스템 비교와 어블레이션"),
         "",
     ]
     for ds in ("dev", "test", "redteam", "generated"):
@@ -126,7 +131,7 @@ def results_md(src: dict[str, Any]) -> str:
 
     hist = src.get("history", {})
     if hist:
-        out += ["## 3. 사전등록 합격 기준 점검 (docs/EVAL_PLAN.md 4절)", ""]
+        out += [sec("사전등록 합격 기준 점검 (docs/EVAL_PLAN.md 4절)"), ""]
         cols = [(k, v) for k, v in hist.items() if v]
         b1_by = src.get("b1_for", {})
         header = "| 기준 | " + " | ".join(label for label, _ in cols) + " |"
@@ -150,7 +155,7 @@ def results_md(src: dict[str, Any]) -> str:
     sl = res.get("test", {}).get("full", {}).get("slices", {})
     rl = res.get("redteam", {}).get("full", {}).get("slices", {})
     if sl or rl:
-        out += ["## 4. 슬라이스 (태그별)", "", "| 데이터셋 | 태그 | N | 정확도 | 위험 승인율 |", "|---|---|---:|---:|---|"]
+        out += [sec("슬라이스 (태그별)"), "", "| 데이터셋 | 태그 | N | 정확도 | 위험 승인율 |", "|---|---|---:|---:|---|"]
         for label, s in (("test", sl), ("redteam", rl)):
             for tag, v in s.items():
                 out.append(f"| {label} | {tag} | {v['n']} | {v['accuracy']['value'] * 100:.0f}% | {_r(v['unsafe_approve'])} |")
@@ -158,12 +163,12 @@ def results_md(src: dict[str, Any]) -> str:
 
     sens = src.get("sensitivity")
     if sens:
-        out += ["## 5. 열화 대조군 (구성요소를 끄면 게이트가 실패하는가)", "", "| 끈 구성요소 | 게이트가 감지했나 | 실패한 검사 |", "|---|---|---|"]
+        out += [sec("열화 대조군 (구성요소를 끄면 게이트가 실패하는가)"), "", "| 끈 구성요소 | 게이트가 감지했나 | 실패한 검사 |", "|---|---|---|"]
         for comp, info in sens.items():
             out.append(f"| {comp} | {'예' if info['caught'] else '**아니오 (gap)**'} | {', '.join(info['failed_checks']) or '-'} |")
         out.append("")
 
-    out += ["## 6. 혼동 행렬 (정답 → 예측)", ""]
+    out += [sec("혼동 행렬 (정답 → 예측)"), ""]
     for ds in ("dev", "test", "redteam", "generated"):
         if ds not in res or "full" not in res[ds]:
             continue
@@ -175,9 +180,9 @@ def results_md(src: dict[str, Any]) -> str:
 
     spend = meta.get("judge_spend")
     if spend:
-        out += ["## 7. LLM judge 사용량", "", "```json", json.dumps(spend, ensure_ascii=False, indent=2), "```", ""]
+        out += [sec("LLM judge 사용량"), "", "```json", json.dumps(spend, ensure_ascii=False, indent=2), "```", ""]
     else:
-        out += ["## 7. LLM judge", "", "이 저장소의 결과에는 LLM judge 측정이 없다(실호출 미실측). `adgate eval --judge anthropic` 으로 측정한다.", ""]
+        out += [sec("LLM judge"), "", "이 저장소의 결과에는 LLM judge 측정이 없다(실호출 미실측). `adgate eval --judge anthropic` 으로 측정한다.", ""]
     return "\n".join(out)
 
 
