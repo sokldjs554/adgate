@@ -11,3 +11,5 @@ var/
 node_modules/
 artifacts/dev_*.json
 data/generated.jsonl
+build/
+dist/
