@@ -1,33 +1,6 @@
 {
   "redteam": [
     {
-      "id": "R-002",
-      "gold": "APPROVE",
-      "pred": "REJECT",
-      "gold_rules": [],
-      "pred_rules": [
-        "AD-GUA-01"
-      ],
-      "headline": "월 10만원 적립식 해외 ETF, 원금 비보장 상품입니다",
-      "tags": [
-        "benign_lookalike",
-        "negation",
-        "fully_disclosed",
-        "past_performance",
-        "split_fields"
-      ],
-      "findings": [
-        {
-          "rule": "AD-GUA-01",
-          "code": "guarantee",
-          "sev": "reject",
-          "field": "disclosure",
-          "quote": "수익률은 확정",
-          "src": "rule"
-        }
-      ]
-    },
-    {
       "id": "R-028",
       "gold": "REJECT",
       "pred": "REVIEW",
