@@ -173,7 +173,7 @@
     "cta": "지금 신청",
     "disclosure": null,
     "image_text": null,
-    "landing_text": "대출 한도는 심사 결과에 따라 달라집니다."
+    "landing_text": null
   },
   "gold": {
     "decision": "REJECT",
