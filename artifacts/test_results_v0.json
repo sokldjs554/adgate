@@ -1,0 +1,3749 @@
+{
+  "meta": {
+    "git_sha": "b50e4c1",
+    "dirty": true,
+    "created": "2026-10-11 15:31:35Z",
+    "python": "3.13.16",
+    "datasets": {
+      "test": {
+        "n": 77,
+        "sha256": "7f057aae4c947ce5478522f78872f757fac8cc56cb2cfaefc5247ec10c3b3ef8"
+      }
+    }
+  },
+  "results": {
+    "test": {
+      "B0_all_human": {
+        "n": 77,
+        "gold_counts": {
+          "APPROVE": 26,
+          "REVIEW": 24,
+          "REJECT": 27
+        },
+        "pred_counts": {
+          "APPROVE": 0,
+          "REVIEW": 77,
+          "REJECT": 0
+        },
+        "confusion": {
+          "APPROVE": {
+            "APPROVE": 0,
+            "REVIEW": 26,
+            "REJECT": 0
+          },
+          "REVIEW": {
+            "APPROVE": 0,
+            "REVIEW": 24,
+            "REJECT": 0
+          },
+          "REJECT": {
+            "APPROVE": 0,
+            "REVIEW": 27,
+            "REJECT": 0
+          }
+        },
+        "accuracy": {
+          "k": 24,
+          "n": 77,
+          "value": 0.3117,
+          "ci": [
+            0.2193,
+            0.422
+          ]
+        },
+        "macro_f1": 0.1584,
+        "hard_pass_through": {
+          "k": 0,
+          "n": 27,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1246
+          ]
+        },
+        "unsafe_approve": {
+          "k": 0,
+          "n": 51,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.07
+          ]
+        },
+        "false_reject": {
+          "k": 0,
+          "n": 26,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1287
+          ]
+        },
+        "over_review": {
+          "k": 26,
+          "n": 26,
+          "value": 1.0,
+          "ci": [
+            0.8713,
+            1.0
+          ]
+        },
+        "downgrade": {
+          "k": 27,
+          "n": 27,
+          "value": 1.0,
+          "ci": [
+            0.8754,
+            1.0
+          ]
+        },
+        "auto_rate": {
+          "k": 0,
+          "n": 77,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.0475
+          ]
+        },
+        "auto_precision": {
+          "k": 0,
+          "n": 0,
+          "value": null,
+          "ci": [
+            0.0,
+            1.0
+          ]
+        },
+        "rule": {
+          "micro": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 57
+          },
+          "per_rule": {
+            "AD-ABS-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 7
+            },
+            "AD-ADV-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1
+            },
+            "AD-BRD-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 4
+            },
+            "AD-CMP-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 5
+            },
+            "AD-ENDO-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 8
+            },
+            "AD-FIN-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 4
+            },
+            "AD-FRD-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 3
+            },
+            "AD-GUA-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 8
+            },
+            "AD-HLT-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 5
+            },
+            "AD-LND-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 6
+            },
+            "AD-URG-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 6
+            }
+          }
+        },
+        "localization": {
+          "k": 0,
+          "n": 0,
+          "value": null,
+          "ci": [
+            0.0,
+            1.0
+          ]
+        },
+        "fin_missing_exact": {
+          "k": 0,
+          "n": 0,
+          "value": null,
+          "ci": [
+            0.0,
+            1.0
+          ]
+        },
+        "grounding": {
+          "k": 0,
+          "n": 0,
+          "value": null,
+          "ci": [
+            0.0,
+            1.0
+          ]
+        },
+        "latency_ms": {
+          "p50": 0.0,
+          "p95": 0.0
+        },
+        "slices": {
+          "benign_lookalike": {
+            "n": 15,
+            "accuracy": {
+              "k": 0,
+              "n": 15,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2039
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 15,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2039
+              ]
+            }
+          },
+          "clean": {
+            "n": 10,
+            "accuracy": {
+              "k": 0,
+              "n": 10,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2775
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 10,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2775
+              ]
+            }
+          },
+          "endorsement": {
+            "n": 7,
+            "accuracy": {
+              "k": 7,
+              "n": 7,
+              "value": 1.0,
+              "ci": [
+                0.6457,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 7,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3543
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "evasion": {
+            "n": 3,
+            "accuracy": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "image_text": {
+            "n": 3,
+            "accuracy": {
+              "k": 1,
+              "n": 3,
+              "value": 0.3333,
+              "ci": [
+                0.0615,
+                0.7923
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "landing_unverifiable": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "multi_rule": {
+            "n": 5,
+            "accuracy": {
+              "k": 3,
+              "n": 5,
+              "value": 0.6,
+              "ci": [
+                0.2307,
+                0.8824
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "range_expression": {
+            "n": 3,
+            "accuracy": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            }
+          },
+          "substantiated": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "urgency": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "word_overlap": {
+            "n": 4,
+            "accuracy": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            }
+          }
+        }
+      },
+      "B1_blocklist": {
+        "n": 77,
+        "gold_counts": {
+          "APPROVE": 26,
+          "REVIEW": 24,
+          "REJECT": 27
+        },
+        "pred_counts": {
+          "APPROVE": 41,
+          "REVIEW": 0,
+          "REJECT": 36
+        },
+        "confusion": {
+          "APPROVE": {
+            "APPROVE": 22,
+            "REVIEW": 0,
+            "REJECT": 4
+          },
+          "REVIEW": {
+            "APPROVE": 7,
+            "REVIEW": 0,
+            "REJECT": 17
+          },
+          "REJECT": {
+            "APPROVE": 12,
+            "REVIEW": 0,
+            "REJECT": 15
+          }
+        },
+        "accuracy": {
+          "k": 37,
+          "n": 77,
+          "value": 0.4805,
+          "ci": [
+            0.3725,
+            0.5904
+          ]
+        },
+        "macro_f1": 0.3776,
+        "hard_pass_through": {
+          "k": 12,
+          "n": 27,
+          "value": 0.4444,
+          "ci": [
+            0.2759,
+            0.6269
+          ]
+        },
+        "unsafe_approve": {
+          "k": 19,
+          "n": 51,
+          "value": 0.3725,
+          "ci": [
+            0.2532,
+            0.5098
+          ]
+        },
+        "false_reject": {
+          "k": 4,
+          "n": 26,
+          "value": 0.1538,
+          "ci": [
+            0.0615,
+            0.3353
+          ]
+        },
+        "over_review": {
+          "k": 0,
+          "n": 26,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1287
+          ]
+        },
+        "downgrade": {
+          "k": 0,
+          "n": 27,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1246
+          ]
+        },
+        "auto_rate": {
+          "k": 77,
+          "n": 77,
+          "value": 1.0,
+          "ci": [
+            0.9525,
+            1.0
+          ]
+        },
+        "auto_precision": {
+          "k": 37,
+          "n": 77,
+          "value": 0.4805,
+          "ci": [
+            0.3725,
+            0.5904
+          ]
+        },
+        "rule": {
+          "micro": {
+            "precision": 0.875,
+            "recall": 0.614,
+            "f1": 0.7216,
+            "tp": 35,
+            "fp": 5,
+            "fn": 22
+          },
+          "per_rule": {
+            "AD-ABS-01": {
+              "tp": 6,
+              "fp": 2,
+              "fn": 1
+            },
+            "AD-ADV-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1
+            },
+            "AD-BRD-01": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 2
+            },
+            "AD-CMP-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-ENDO-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 3
+            },
+            "AD-FIN-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 4
+            },
+            "AD-FRD-01": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 1
+            },
+            "AD-GUA-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 3
+            },
+            "AD-HLT-01": {
+              "tp": 4,
+              "fp": 2,
+              "fn": 1
+            },
+            "AD-LND-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 6
+            },
+            "AD-URG-01": {
+              "tp": 6,
+              "fp": 1,
+              "fn": 0
+            }
+          }
+        },
+        "localization": {
+          "k": 35,
+          "n": 35,
+          "value": 1.0,
+          "ci": [
+            0.9011,
+            1.0
+          ]
+        },
+        "fin_missing_exact": {
+          "k": 0,
+          "n": 0,
+          "value": null,
+          "ci": [
+            0.0,
+            1.0
+          ]
+        },
+        "grounding": {
+          "k": 44,
+          "n": 44,
+          "value": 1.0,
+          "ci": [
+            0.9197,
+            1.0
+          ]
+        },
+        "latency_ms": {
+          "p50": 0.018,
+          "p95": 0.033
+        },
+        "slices": {
+          "benign_lookalike": {
+            "n": 15,
+            "accuracy": {
+              "k": 11,
+              "n": 15,
+              "value": 0.7333,
+              "ci": [
+                0.4805,
+                0.891
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 4,
+              "n": 15,
+              "value": 0.2667,
+              "ci": [
+                0.109,
+                0.5195
+              ]
+            }
+          },
+          "clean": {
+            "n": 10,
+            "accuracy": {
+              "k": 10,
+              "n": 10,
+              "value": 1.0,
+              "ci": [
+                0.7225,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 10,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2775
+              ]
+            }
+          },
+          "endorsement": {
+            "n": 7,
+            "accuracy": {
+              "k": 0,
+              "n": 7,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3543
+              ]
+            },
+            "unsafe_approve": {
+              "k": 3,
+              "n": 7,
+              "value": 0.4286,
+              "ci": [
+                0.1582,
+                0.7495
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "evasion": {
+            "n": 3,
+            "accuracy": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "unsafe_approve": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "image_text": {
+            "n": 3,
+            "accuracy": {
+              "k": 2,
+              "n": 3,
+              "value": 0.6667,
+              "ci": [
+                0.2077,
+                0.9385
+              ]
+            },
+            "unsafe_approve": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "landing_unverifiable": {
+            "n": 4,
+            "accuracy": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "unsafe_approve": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "multi_rule": {
+            "n": 5,
+            "accuracy": {
+              "k": 2,
+              "n": 5,
+              "value": 0.4,
+              "ci": [
+                0.1176,
+                0.7693
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "range_expression": {
+            "n": 3,
+            "accuracy": {
+              "k": 1,
+              "n": 3,
+              "value": 0.3333,
+              "ci": [
+                0.0615,
+                0.7923
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 2,
+              "n": 3,
+              "value": 0.6667,
+              "ci": [
+                0.2077,
+                0.9385
+              ]
+            }
+          },
+          "substantiated": {
+            "n": 3,
+            "accuracy": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "urgency": {
+            "n": 4,
+            "accuracy": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "word_overlap": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            }
+          }
+        }
+      },
+      "full": {
+        "n": 77,
+        "gold_counts": {
+          "APPROVE": 26,
+          "REVIEW": 24,
+          "REJECT": 27
+        },
+        "pred_counts": {
+          "APPROVE": 27,
+          "REVIEW": 24,
+          "REJECT": 26
+        },
+        "confusion": {
+          "APPROVE": {
+            "APPROVE": 26,
+            "REVIEW": 0,
+            "REJECT": 0
+          },
+          "REVIEW": {
+            "APPROVE": 0,
+            "REVIEW": 24,
+            "REJECT": 0
+          },
+          "REJECT": {
+            "APPROVE": 1,
+            "REVIEW": 0,
+            "REJECT": 26
+          }
+        },
+        "accuracy": {
+          "k": 76,
+          "n": 77,
+          "value": 0.987,
+          "ci": [
+            0.93,
+            0.9977
+          ]
+        },
+        "macro_f1": 0.9874,
+        "hard_pass_through": {
+          "k": 1,
+          "n": 27,
+          "value": 0.037,
+          "ci": [
+            0.0066,
+            0.1828
+          ]
+        },
+        "unsafe_approve": {
+          "k": 1,
+          "n": 51,
+          "value": 0.0196,
+          "ci": [
+            0.0035,
+            0.103
+          ]
+        },
+        "false_reject": {
+          "k": 0,
+          "n": 26,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1287
+          ]
+        },
+        "over_review": {
+          "k": 0,
+          "n": 26,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1287
+          ]
+        },
+        "downgrade": {
+          "k": 0,
+          "n": 27,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1246
+          ]
+        },
+        "auto_rate": {
+          "k": 53,
+          "n": 77,
+          "value": 0.6883,
+          "ci": [
+            0.578,
+            0.7807
+          ]
+        },
+        "auto_precision": {
+          "k": 52,
+          "n": 53,
+          "value": 0.9811,
+          "ci": [
+            0.9006,
+            0.9967
+          ]
+        },
+        "rule": {
+          "micro": {
+            "precision": 1.0,
+            "recall": 0.9825,
+            "f1": 0.9912,
+            "tp": 56,
+            "fp": 0,
+            "fn": 1
+          },
+          "per_rule": {
+            "AD-ABS-01": {
+              "tp": 7,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-ADV-01": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-BRD-01": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-CMP-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-ENDO-01": {
+              "tp": 8,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-FIN-01": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-FRD-01": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-GUA-01": {
+              "tp": 7,
+              "fp": 0,
+              "fn": 1
+            },
+            "AD-HLT-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-LND-01": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-URG-01": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0
+            }
+          }
+        },
+        "localization": {
+          "k": 50,
+          "n": 50,
+          "value": 1.0,
+          "ci": [
+            0.9286,
+            1.0
+          ]
+        },
+        "fin_missing_exact": {
+          "k": 4,
+          "n": 4,
+          "value": 1.0,
+          "ci": [
+            0.5101,
+            1.0
+          ]
+        },
+        "grounding": {
+          "k": 54,
+          "n": 54,
+          "value": 1.0,
+          "ci": [
+            0.9336,
+            1.0
+          ]
+        },
+        "latency_ms": {
+          "p50": 0.779,
+          "p95": 2.196
+        },
+        "slices": {
+          "benign_lookalike": {
+            "n": 15,
+            "accuracy": {
+              "k": 15,
+              "n": 15,
+              "value": 1.0,
+              "ci": [
+                0.7961,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 15,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2039
+              ]
+            }
+          },
+          "clean": {
+            "n": 10,
+            "accuracy": {
+              "k": 10,
+              "n": 10,
+              "value": 1.0,
+              "ci": [
+                0.7225,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 10,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2775
+              ]
+            }
+          },
+          "endorsement": {
+            "n": 7,
+            "accuracy": {
+              "k": 7,
+              "n": 7,
+              "value": 1.0,
+              "ci": [
+                0.6457,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 7,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3543
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "evasion": {
+            "n": 3,
+            "accuracy": {
+              "k": 2,
+              "n": 3,
+              "value": 0.6667,
+              "ci": [
+                0.2077,
+                0.9385
+              ]
+            },
+            "unsafe_approve": {
+              "k": 1,
+              "n": 3,
+              "value": 0.3333,
+              "ci": [
+                0.0615,
+                0.7923
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "image_text": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "landing_unverifiable": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "multi_rule": {
+            "n": 5,
+            "accuracy": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "range_expression": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            }
+          },
+          "substantiated": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "urgency": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "word_overlap": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            }
+          }
+        }
+      },
+      "-normalize": {
+        "n": 77,
+        "gold_counts": {
+          "APPROVE": 26,
+          "REVIEW": 24,
+          "REJECT": 27
+        },
+        "pred_counts": {
+          "APPROVE": 29,
+          "REVIEW": 24,
+          "REJECT": 24
+        },
+        "confusion": {
+          "APPROVE": {
+            "APPROVE": 26,
+            "REVIEW": 0,
+            "REJECT": 0
+          },
+          "REVIEW": {
+            "APPROVE": 0,
+            "REVIEW": 24,
+            "REJECT": 0
+          },
+          "REJECT": {
+            "APPROVE": 3,
+            "REVIEW": 0,
+            "REJECT": 24
+          }
+        },
+        "accuracy": {
+          "k": 74,
+          "n": 77,
+          "value": 0.961,
+          "ci": [
+            0.8916,
+            0.9867
+          ]
+        },
+        "macro_f1": 0.9622,
+        "hard_pass_through": {
+          "k": 3,
+          "n": 27,
+          "value": 0.1111,
+          "ci": [
+            0.0385,
+            0.2806
+          ]
+        },
+        "unsafe_approve": {
+          "k": 3,
+          "n": 51,
+          "value": 0.0588,
+          "ci": [
+            0.0202,
+            0.1592
+          ]
+        },
+        "false_reject": {
+          "k": 0,
+          "n": 26,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1287
+          ]
+        },
+        "over_review": {
+          "k": 0,
+          "n": 26,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1287
+          ]
+        },
+        "downgrade": {
+          "k": 0,
+          "n": 27,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1246
+          ]
+        },
+        "auto_rate": {
+          "k": 53,
+          "n": 77,
+          "value": 0.6883,
+          "ci": [
+            0.578,
+            0.7807
+          ]
+        },
+        "auto_precision": {
+          "k": 50,
+          "n": 53,
+          "value": 0.9434,
+          "ci": [
+            0.8463,
+            0.9806
+          ]
+        },
+        "rule": {
+          "micro": {
+            "precision": 1.0,
+            "recall": 0.9474,
+            "f1": 0.973,
+            "tp": 54,
+            "fp": 0,
+            "fn": 3
+          },
+          "per_rule": {
+            "AD-ABS-01": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 1
+            },
+            "AD-ADV-01": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-BRD-01": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-CMP-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-ENDO-01": {
+              "tp": 8,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-FIN-01": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-FRD-01": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-GUA-01": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 2
+            },
+            "AD-HLT-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-LND-01": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-URG-01": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0
+            }
+          }
+        },
+        "localization": {
+          "k": 48,
+          "n": 48,
+          "value": 1.0,
+          "ci": [
+            0.9259,
+            1.0
+          ]
+        },
+        "fin_missing_exact": {
+          "k": 4,
+          "n": 4,
+          "value": 1.0,
+          "ci": [
+            0.5101,
+            1.0
+          ]
+        },
+        "grounding": {
+          "k": 52,
+          "n": 52,
+          "value": 1.0,
+          "ci": [
+            0.9312,
+            1.0
+          ]
+        },
+        "latency_ms": {
+          "p50": 0.717,
+          "p95": 2.702
+        },
+        "slices": {
+          "benign_lookalike": {
+            "n": 15,
+            "accuracy": {
+              "k": 15,
+              "n": 15,
+              "value": 1.0,
+              "ci": [
+                0.7961,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 15,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2039
+              ]
+            }
+          },
+          "clean": {
+            "n": 10,
+            "accuracy": {
+              "k": 10,
+              "n": 10,
+              "value": 1.0,
+              "ci": [
+                0.7225,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 10,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2775
+              ]
+            }
+          },
+          "endorsement": {
+            "n": 7,
+            "accuracy": {
+              "k": 7,
+              "n": 7,
+              "value": 1.0,
+              "ci": [
+                0.6457,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 7,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3543
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "evasion": {
+            "n": 3,
+            "accuracy": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "unsafe_approve": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "image_text": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "landing_unverifiable": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "multi_rule": {
+            "n": 5,
+            "accuracy": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "range_expression": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            }
+          },
+          "substantiated": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "urgency": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "word_overlap": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            }
+          }
+        }
+      },
+      "-exceptions": {
+        "n": 77,
+        "gold_counts": {
+          "APPROVE": 26,
+          "REVIEW": 24,
+          "REJECT": 27
+        },
+        "pred_counts": {
+          "APPROVE": 19,
+          "REVIEW": 20,
+          "REJECT": 38
+        },
+        "confusion": {
+          "APPROVE": {
+            "APPROVE": 19,
+            "REVIEW": 1,
+            "REJECT": 6
+          },
+          "REVIEW": {
+            "APPROVE": 0,
+            "REVIEW": 19,
+            "REJECT": 5
+          },
+          "REJECT": {
+            "APPROVE": 0,
+            "REVIEW": 0,
+            "REJECT": 27
+          }
+        },
+        "accuracy": {
+          "k": 65,
+          "n": 77,
+          "value": 0.8442,
+          "ci": [
+            0.7471,
+            0.9085
+          ]
+        },
+        "macro_f1": 0.8463,
+        "hard_pass_through": {
+          "k": 0,
+          "n": 27,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1246
+          ]
+        },
+        "unsafe_approve": {
+          "k": 0,
+          "n": 51,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.07
+          ]
+        },
+        "false_reject": {
+          "k": 6,
+          "n": 26,
+          "value": 0.2308,
+          "ci": [
+            0.1103,
+            0.4205
+          ]
+        },
+        "over_review": {
+          "k": 1,
+          "n": 26,
+          "value": 0.0385,
+          "ci": [
+            0.0068,
+            0.1889
+          ]
+        },
+        "downgrade": {
+          "k": 0,
+          "n": 27,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1246
+          ]
+        },
+        "auto_rate": {
+          "k": 57,
+          "n": 77,
+          "value": 0.7403,
+          "ci": [
+            0.6326,
+            0.8251
+          ]
+        },
+        "auto_precision": {
+          "k": 46,
+          "n": 57,
+          "value": 0.807,
+          "ci": [
+            0.6866,
+            0.8887
+          ]
+        },
+        "rule": {
+          "micro": {
+            "precision": 0.8906,
+            "recall": 1.0,
+            "f1": 0.9421,
+            "tp": 57,
+            "fp": 7,
+            "fn": 0
+          },
+          "per_rule": {
+            "AD-ABS-01": {
+              "tp": 7,
+              "fp": 3,
+              "fn": 0
+            },
+            "AD-ADV-01": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-BRD-01": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-CMP-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-ENDO-01": {
+              "tp": 8,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-FIN-01": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-FRD-01": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-GUA-01": {
+              "tp": 8,
+              "fp": 3,
+              "fn": 0
+            },
+            "AD-HLT-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-LND-01": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-URG-01": {
+              "tp": 6,
+              "fp": 1,
+              "fn": 0
+            }
+          }
+        },
+        "localization": {
+          "k": 51,
+          "n": 51,
+          "value": 1.0,
+          "ci": [
+            0.93,
+            1.0
+          ]
+        },
+        "fin_missing_exact": {
+          "k": 4,
+          "n": 4,
+          "value": 1.0,
+          "ci": [
+            0.5101,
+            1.0
+          ]
+        },
+        "grounding": {
+          "k": 63,
+          "n": 63,
+          "value": 1.0,
+          "ci": [
+            0.9425,
+            1.0
+          ]
+        },
+        "latency_ms": {
+          "p50": 0.467,
+          "p95": 1.579
+        },
+        "slices": {
+          "benign_lookalike": {
+            "n": 15,
+            "accuracy": {
+              "k": 8,
+              "n": 15,
+              "value": 0.5333,
+              "ci": [
+                0.3012,
+                0.7519
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 6,
+              "n": 15,
+              "value": 0.4,
+              "ci": [
+                0.1982,
+                0.6425
+              ]
+            }
+          },
+          "clean": {
+            "n": 10,
+            "accuracy": {
+              "k": 10,
+              "n": 10,
+              "value": 1.0,
+              "ci": [
+                0.7225,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 10,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2775
+              ]
+            }
+          },
+          "endorsement": {
+            "n": 7,
+            "accuracy": {
+              "k": 7,
+              "n": 7,
+              "value": 1.0,
+              "ci": [
+                0.6457,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 7,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3543
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "evasion": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "image_text": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "landing_unverifiable": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "multi_rule": {
+            "n": 5,
+            "accuracy": {
+              "k": 4,
+              "n": 5,
+              "value": 0.8,
+              "ci": [
+                0.3755,
+                0.9638
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "range_expression": {
+            "n": 3,
+            "accuracy": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            }
+          },
+          "substantiated": {
+            "n": 3,
+            "accuracy": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "urgency": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "word_overlap": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            }
+          }
+        }
+      },
+      "-challenge": {
+        "n": 77,
+        "gold_counts": {
+          "APPROVE": 26,
+          "REVIEW": 24,
+          "REJECT": 27
+        },
+        "pred_counts": {
+          "APPROVE": 27,
+          "REVIEW": 24,
+          "REJECT": 26
+        },
+        "confusion": {
+          "APPROVE": {
+            "APPROVE": 26,
+            "REVIEW": 0,
+            "REJECT": 0
+          },
+          "REVIEW": {
+            "APPROVE": 0,
+            "REVIEW": 24,
+            "REJECT": 0
+          },
+          "REJECT": {
+            "APPROVE": 1,
+            "REVIEW": 0,
+            "REJECT": 26
+          }
+        },
+        "accuracy": {
+          "k": 76,
+          "n": 77,
+          "value": 0.987,
+          "ci": [
+            0.93,
+            0.9977
+          ]
+        },
+        "macro_f1": 0.9874,
+        "hard_pass_through": {
+          "k": 1,
+          "n": 27,
+          "value": 0.037,
+          "ci": [
+            0.0066,
+            0.1828
+          ]
+        },
+        "unsafe_approve": {
+          "k": 1,
+          "n": 51,
+          "value": 0.0196,
+          "ci": [
+            0.0035,
+            0.103
+          ]
+        },
+        "false_reject": {
+          "k": 0,
+          "n": 26,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1287
+          ]
+        },
+        "over_review": {
+          "k": 0,
+          "n": 26,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1287
+          ]
+        },
+        "downgrade": {
+          "k": 0,
+          "n": 27,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1246
+          ]
+        },
+        "auto_rate": {
+          "k": 53,
+          "n": 77,
+          "value": 0.6883,
+          "ci": [
+            0.578,
+            0.7807
+          ]
+        },
+        "auto_precision": {
+          "k": 52,
+          "n": 53,
+          "value": 0.9811,
+          "ci": [
+            0.9006,
+            0.9967
+          ]
+        },
+        "rule": {
+          "micro": {
+            "precision": 1.0,
+            "recall": 0.9825,
+            "f1": 0.9912,
+            "tp": 56,
+            "fp": 0,
+            "fn": 1
+          },
+          "per_rule": {
+            "AD-ABS-01": {
+              "tp": 7,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-ADV-01": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-BRD-01": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-CMP-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-ENDO-01": {
+              "tp": 8,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-FIN-01": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-FRD-01": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-GUA-01": {
+              "tp": 7,
+              "fp": 0,
+              "fn": 1
+            },
+            "AD-HLT-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-LND-01": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-URG-01": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0
+            }
+          }
+        },
+        "localization": {
+          "k": 50,
+          "n": 50,
+          "value": 1.0,
+          "ci": [
+            0.9286,
+            1.0
+          ]
+        },
+        "fin_missing_exact": {
+          "k": 4,
+          "n": 4,
+          "value": 1.0,
+          "ci": [
+            0.5101,
+            1.0
+          ]
+        },
+        "grounding": {
+          "k": 54,
+          "n": 54,
+          "value": 1.0,
+          "ci": [
+            0.9336,
+            1.0
+          ]
+        },
+        "latency_ms": {
+          "p50": 0.203,
+          "p95": 0.322
+        },
+        "slices": {
+          "benign_lookalike": {
+            "n": 15,
+            "accuracy": {
+              "k": 15,
+              "n": 15,
+              "value": 1.0,
+              "ci": [
+                0.7961,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 15,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2039
+              ]
+            }
+          },
+          "clean": {
+            "n": 10,
+            "accuracy": {
+              "k": 10,
+              "n": 10,
+              "value": 1.0,
+              "ci": [
+                0.7225,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 10,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2775
+              ]
+            }
+          },
+          "endorsement": {
+            "n": 7,
+            "accuracy": {
+              "k": 7,
+              "n": 7,
+              "value": 1.0,
+              "ci": [
+                0.6457,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 7,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3543
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "evasion": {
+            "n": 3,
+            "accuracy": {
+              "k": 2,
+              "n": 3,
+              "value": 0.6667,
+              "ci": [
+                0.2077,
+                0.9385
+              ]
+            },
+            "unsafe_approve": {
+              "k": 1,
+              "n": 3,
+              "value": 0.3333,
+              "ci": [
+                0.0615,
+                0.7923
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "image_text": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "landing_unverifiable": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "multi_rule": {
+            "n": 5,
+            "accuracy": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "range_expression": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            }
+          },
+          "substantiated": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "urgency": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "word_overlap": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            }
+          }
+        }
+      },
+      "-landing": {
+        "n": 77,
+        "gold_counts": {
+          "APPROVE": 26,
+          "REVIEW": 24,
+          "REJECT": 27
+        },
+        "pred_counts": {
+          "APPROVE": 32,
+          "REVIEW": 21,
+          "REJECT": 24
+        },
+        "confusion": {
+          "APPROVE": {
+            "APPROVE": 25,
+            "REVIEW": 1,
+            "REJECT": 0
+          },
+          "REVIEW": {
+            "APPROVE": 4,
+            "REVIEW": 20,
+            "REJECT": 0
+          },
+          "REJECT": {
+            "APPROVE": 3,
+            "REVIEW": 0,
+            "REJECT": 24
+          }
+        },
+        "accuracy": {
+          "k": 69,
+          "n": 77,
+          "value": 0.8961,
+          "ci": [
+            0.8082,
+            0.9464
+          ]
+        },
+        "macro_f1": 0.8974,
+        "hard_pass_through": {
+          "k": 3,
+          "n": 27,
+          "value": 0.1111,
+          "ci": [
+            0.0385,
+            0.2806
+          ]
+        },
+        "unsafe_approve": {
+          "k": 7,
+          "n": 51,
+          "value": 0.1373,
+          "ci": [
+            0.0681,
+            0.2572
+          ]
+        },
+        "false_reject": {
+          "k": 0,
+          "n": 26,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1287
+          ]
+        },
+        "over_review": {
+          "k": 1,
+          "n": 26,
+          "value": 0.0385,
+          "ci": [
+            0.0068,
+            0.1889
+          ]
+        },
+        "downgrade": {
+          "k": 0,
+          "n": 27,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1246
+          ]
+        },
+        "auto_rate": {
+          "k": 56,
+          "n": 77,
+          "value": 0.7273,
+          "ci": [
+            0.6188,
+            0.8142
+          ]
+        },
+        "auto_precision": {
+          "k": 49,
+          "n": 56,
+          "value": 0.875,
+          "ci": [
+            0.7637,
+            0.9381
+          ]
+        },
+        "rule": {
+          "micro": {
+            "precision": 0.9804,
+            "recall": 0.8772,
+            "f1": 0.9259,
+            "tp": 50,
+            "fp": 1,
+            "fn": 7
+          },
+          "per_rule": {
+            "AD-ABS-01": {
+              "tp": 7,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-ADV-01": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-BRD-01": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-CMP-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-ENDO-01": {
+              "tp": 8,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-FIN-01": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-FRD-01": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-GUA-01": {
+              "tp": 7,
+              "fp": 0,
+              "fn": 1
+            },
+            "AD-HLT-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-LND-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 6
+            },
+            "AD-URG-01": {
+              "tp": 6,
+              "fp": 1,
+              "fn": 0
+            }
+          }
+        },
+        "localization": {
+          "k": 44,
+          "n": 44,
+          "value": 1.0,
+          "ci": [
+            0.9197,
+            1.0
+          ]
+        },
+        "fin_missing_exact": {
+          "k": 4,
+          "n": 4,
+          "value": 1.0,
+          "ci": [
+            0.5101,
+            1.0
+          ]
+        },
+        "grounding": {
+          "k": 48,
+          "n": 48,
+          "value": 1.0,
+          "ci": [
+            0.9259,
+            1.0
+          ]
+        },
+        "latency_ms": {
+          "p50": 0.49,
+          "p95": 1.764
+        },
+        "slices": {
+          "benign_lookalike": {
+            "n": 15,
+            "accuracy": {
+              "k": 14,
+              "n": 15,
+              "value": 0.9333,
+              "ci": [
+                0.7018,
+                0.9881
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 15,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2039
+              ]
+            }
+          },
+          "clean": {
+            "n": 10,
+            "accuracy": {
+              "k": 10,
+              "n": 10,
+              "value": 1.0,
+              "ci": [
+                0.7225,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 10,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2775
+              ]
+            }
+          },
+          "endorsement": {
+            "n": 7,
+            "accuracy": {
+              "k": 7,
+              "n": 7,
+              "value": 1.0,
+              "ci": [
+                0.6457,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 7,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3543
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "evasion": {
+            "n": 3,
+            "accuracy": {
+              "k": 2,
+              "n": 3,
+              "value": 0.6667,
+              "ci": [
+                0.2077,
+                0.9385
+              ]
+            },
+            "unsafe_approve": {
+              "k": 1,
+              "n": 3,
+              "value": 0.3333,
+              "ci": [
+                0.0615,
+                0.7923
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "image_text": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "landing_unverifiable": {
+            "n": 4,
+            "accuracy": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "unsafe_approve": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "multi_rule": {
+            "n": 5,
+            "accuracy": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "range_expression": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            }
+          },
+          "substantiated": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "urgency": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "word_overlap": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

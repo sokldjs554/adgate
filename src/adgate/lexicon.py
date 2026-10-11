@@ -150,20 +150,23 @@ FRD: tuple[Pat, ...] = (
 )
 
 # --------------------------------------------------------------------------- 부정 표현
-# 패턴 바로 뒤(같은 절 안, 최대 14자)에 이런 표현이 오면 위반이 아니라 면책·경고 문구다.
-NEG_TAIL = re.compile(
-    r"하지(?:는|도)?않|되지(?:는|도)?않|않(?:습니다|아요|으며|고|는다|음)|아닙니다|아니며|아닌|아님|불가|못합니다|못하"
-    r"|안됩니다|안돼|할수없|수는없|수없|없(?:습니다|음|어요|이)|마세요|말라|말고|금지"
+# 패턴 바로 뒤(같은 절 안, 조사·명사 몇 글자 이내)에 서술어 부정이 오면 위반이 아니라 면책·경고 문구다.
+# '걱정 없이'처럼 멀리 떨어진 부사 '없이'는 부정이 아니다(T-048). '없이'는 FRD 의 '입력 없이'처럼 바로 뒤일 때만 쓴다.
+NEG_NEAR = re.compile(
+    r"^.{0,3}?(?:하지(?:는|도)?않|되지(?:는|도)?않|않(?:습니다|아요|으며|고|는다|음)|아닙니다|아니며|아닌|아님|불가|못합니다|못하"
+    r"|안됩니다|안돼|할수없|수는없|수없|없(?:습니다|음|어요)|마세요|말라|말고|금지)"
 )
+NEG_WITHOUT = re.compile(r"^없이")
 BOUNDARY = re.compile(r"[!?.,;:\n]")
 TAIL_MAX = 14
 
 
-def negated(tight: str, end: int) -> bool:
-    """tight[end:] 의 같은 절 안에 부정 표현이 있는가."""
+def negated(tight: str, end: int, *, without: bool = False) -> bool:
+    """tight[end:] 의 같은 절 안에서, 패턴 바로 뒤에 서술어 부정이 오는가."""
     m = BOUNDARY.search(tight, end, end + TAIL_MAX)
     stop = m.start() if m else min(len(tight), end + TAIL_MAX)
-    return NEG_TAIL.search(tight[end:stop]) is not None
+    tail = tight[end:stop]
+    return NEG_NEAR.match(tail) is not None or (without and NEG_WITHOUT.match(tail) is not None)
 
 
 # --------------------------------------------------------------------------- 금융 고지 (soft 보기)

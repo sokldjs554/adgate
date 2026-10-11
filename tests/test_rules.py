@@ -268,3 +268,20 @@ def test_clean_ad_is_approved():
 
     r = review(mk("가계부 앱", "영수증을 찍으면 자동으로 분류돼요.", category="app"))
     assert r.outcome == "APPROVE" and not r.reasons
+
+
+# --------------------------------------------------------------------------- 회귀: T-048 (부정 표현은 서술어 부정이어야 한다)
+def test_distant_without_is_not_a_negation():
+    # '걱정 없이'는 부사다. 앞의 '수익 보장'을 부정하지 않는다.
+    assert GUA in codes(mk("해외 주식, 수 익 보 장 으로 걱정 없이 시작하세요", category="invest", disclosure=INV_OK))
+    assert GUA in codes(mk("수익 보장 걱정없이 시작", category="invest", disclosure=INV_OK))
+
+
+def test_adjacent_predicate_negation_still_works():
+    for text in ("원금 보장 상품이 아닙니다", "원금 보장은 되지 않습니다", "수익 보장 불가", "수익을 보장하지 않습니다"):
+        assert GUA not in codes(mk(text, category="invest", disclosure=INV_OK)), text
+
+
+def test_without_is_a_negation_only_for_credentials():
+    assert not any(r == "AD-FRD-01" for r, _ in codes(mk("카드번호 입력 없이 결제")))
+    assert ("AD-FRD-01", "deceptive_solicitation") in codes(mk("인증번호를 알려주세요, 걱정 없이"))

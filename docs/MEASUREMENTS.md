@@ -1,0 +1,8 @@
+# 측정 기록
+
+`adgate eval --measure` 가 `test`·`redteam` 을 측정할 때마다 한 줄씩 **자동으로** 덧붙입니다. 손으로 고치지 않습니다.
+`test` 를 본 뒤 코드를 고쳤다면 그 이후 `test` 수치는 순수 holdout 이 아닙니다([EVAL_PLAN.md](EVAL_PLAN.md) 7절).
+
+| 시각(UTC) | 데이터셋 | 시스템 | git | 작업트리 | N | accuracy | unsafe_approve | false_reject | 메모 |
+|---|---|---|---|---|---|---|---|---|---|
+| 2026-10-11 15:31:35Z | test | full | b50e4c1 | 깨끗 | 77 | 98.7% (76/77) | 2.0% (1/51) | 0.0% (0/26) | v0 첫 접촉 (코드 동결 후 첫 측정, 순수 holdout) |

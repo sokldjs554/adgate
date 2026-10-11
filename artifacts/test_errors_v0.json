@@ -1,0 +1,19 @@
+{
+  "test": [
+    {
+      "id": "T-048",
+      "gold": "REJECT",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-GUA-01"
+      ],
+      "pred_rules": [],
+      "headline": "소액 투자 시작하기",
+      "tags": [
+        "evasion",
+        "spaced"
+      ],
+      "findings": []
+    }
+  ]
+}

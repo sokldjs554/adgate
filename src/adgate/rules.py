@@ -177,7 +177,7 @@ def detect_frd(scan: Scan, field: str, nv: Normalized) -> list[Finding]:
     out: list[Finding] = []
     for pat in lx.FRD:
         for m in pat.rx.finditer(nv.tight):
-            if scan.cfg.exceptions and pat.negatable and lx.negated(nv.tight, m.end()):
+            if scan.cfg.exceptions and pat.negatable and lx.negated(nv.tight, m.end(), without=True):
                 continue
             out.append(_hit(scan, "AD-FRD-01", "deceptive_solicitation", field, nv, m.start(), m.end(), note=f"pattern:{pat.name}"))
     return out
