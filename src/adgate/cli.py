@@ -173,6 +173,35 @@ def cmd_agreement(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_validate(args: argparse.Namespace) -> int:
+    """평가셋 파일의 형식과 라벨 일관성을 검사한다. --drop-invalid 면 통과한 줄만 --out 에 쓴다(내용을 고치지는 않는다)."""
+    kept: list[str] = []
+    bad = 0
+    for n, line in enumerate(Path(args.file).read_text(encoding="utf-8").splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            example = dataset.Example.model_validate(json.loads(line))
+            errors = dataset.validate([example])
+        except Exception as exc:  # noqa: BLE001
+            errors = [f"형식 오류: {type(exc).__name__}: {str(exc)[:120]}"]
+        if errors:
+            bad += 1
+            print(f"줄 {n}: " + "; ".join(errors))
+        else:
+            kept.append(line)
+    ids = [json.loads(x)["id"] for x in kept]
+    dup = {i for i in ids if ids.count(i) > 1}
+    if dup:
+        bad += len(dup)
+        print(f"중복 id: {sorted(dup)}")
+    print(f"유효 {len(kept)}건, 문제 {bad}건")
+    if args.drop_invalid and args.out:
+        Path(args.out).write_text("\n".join(kept) + "\n", encoding="utf-8")
+        print(f"→ {args.out}")
+    return 0 if bad == 0 else 1
+
+
 def cmd_docs(args: argparse.Namespace) -> int:
     from . import docs
 
@@ -257,6 +286,12 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--labels", default="data/labeler_test.jsonl")
     s.add_argument("--out", default="artifacts/agreement_test.json")
     s.set_defaults(fn=cmd_agreement)
+
+    s = sub.add_parser("validate", help="평가셋 파일의 형식과 라벨 일관성 검사")
+    s.add_argument("file")
+    s.add_argument("--drop-invalid", action="store_true", help="통과한 줄만 --out 에 쓴다(내용은 고치지 않는다)")
+    s.add_argument("--out", default="")
+    s.set_defaults(fn=cmd_validate)
 
     s = sub.add_parser("docs", help="산출물에서 문서의 수치와 결과 문서를 생성(--check 는 불일치만 검사)")
     s.add_argument("--root", default=".")

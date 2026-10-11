@@ -229,3 +229,15 @@ def test_cli_review_prints_reasons(tmp_path, capsys):
     assert main(["review", str(f)]) == 0
     out = capsys.readouterr().out
     assert "[REJECT]" in out and "AD-GUA-01" in out and "수정:" in out
+
+
+def test_validate_command_reports_and_drops_invalid_lines(tmp_path, capsys):
+    good = ex("G", "APPROVE", headline="앱").model_dump_json()
+    bad_quote = ex("B", "REJECT", [GoldViolation(rule_id="AD-GUA-01", field="headline", quote="없는 인용")], headline="앱").model_dump_json()
+    f = tmp_path / "x.jsonl"
+    f.write_text("\n".join([good, bad_quote, "not json"]) + "\n", encoding="utf-8")
+    out = tmp_path / "ok.jsonl"
+    assert main(["validate", str(f)]) == 1
+    assert main(["validate", str(f), "--drop-invalid", "--out", str(out)]) == 1
+    assert len(out.read_text(encoding="utf-8").splitlines()) == 1 and "\"G\"" in out.read_text(encoding="utf-8")
+    assert main(["validate", str(out)]) == 0
