@@ -241,3 +241,159 @@ def test_summary_would_notice_a_lost_deterministic_finding():
     kept = summarize([ex], [Prediction("REJECT", [det], 0.0)], [Prediction("REJECT", [det, llm], 0.0)], [Prediction("REJECT", [det, llm], 0.0)])
     lost = summarize([ex], [Prediction("REJECT", [det], 0.0)], [Prediction("REVIEW", [llm], 0.0)], [Prediction("REVIEW", [llm], 0.0)])
     assert kept["deterministic_lost"] == 0 and lost["deterministic_lost"] == 1
+
+
+# --------------------------------------------------------------------------- 실호출 녹음(가짜 Judge 로, 네트워크 없이)
+class ScriptedJudge:
+    """소재의 헤드라인으로 응답을 고르는 가짜 Judge. 실호출 도구의 흐름(기록·이어하기·실패·예산)만 시험한다."""
+
+    name = "scripted"
+
+    def __init__(self, script, *, budget_after=None):
+        self.script, self.budget_after, self.calls, self.seen_already = script, budget_after, 0, []
+        self.last_meta = {"latency_ms": 7, "input_tokens": 100, "output_tokens": 20}
+
+    def propose(self, creative, policy, already=()):
+        from adgate.judge import ProposedFinding
+        from adgate.judge_anthropic import BudgetExceeded
+
+        self.calls += 1
+        self.seen_already.append(list(already))
+        if self.budget_after is not None and self.calls > self.budget_after:
+            raise BudgetExceeded("상한")
+        out = self.script[creative.headline]
+        if isinstance(out, Exception):
+            raise out
+        return [ProposedFinding(**f) for f in out]
+
+
+def _creatives(*headlines):
+    cs = [mk(h, "본문", category="invest", disclosure="투자 상품은 원금 손실이 발생할 수 있습니다.") for h in headlines]
+    return {creative_key(c): c for c in cs}
+
+
+def test_record_live_writes_responses_failures_and_a_call_log(tmp_path):
+    from adgate.judge_anthropic import JudgeRefused
+    from adgate.judge_recorded import record_live
+
+    cs = _creatives("가", "나", "다")
+    judge = ScriptedJudge({"가": [GUA], "나": [], "다": JudgeRefused("category=None")})
+    out, log = tmp_path / "rec.jsonl", tmp_path / "calls.jsonl"
+    res = record_live(cs, judge, POLICY, out=out, log=log, workers=1, say=lambda *_: None)
+    assert (res["recorded"], res["ok"], res["failed"], res["skipped_budget"], res["resumed"]) == (3, 2, 1, 0, 0)
+    rows = [json.loads(ln) for ln in out.read_text(encoding="utf-8").splitlines()]
+    assert [r["key"] for r in rows] == list(cs)                               # creatives 의 순서로 다시 쓴다
+    assert rows[0]["response"]["findings"][0]["quote"] == HEAD and rows[1]["response"] == {"findings": []} and rows[2] == {"key": list(cs)[2], "error": "JudgeRefused"}
+    entries = [json.loads(ln) for ln in log.read_text(encoding="utf-8").splitlines()]
+    assert {e["key"] for e in entries} == set(cs)
+    ok = next(e for e in entries if e["ok"] and e["findings"] == 1)
+    assert ok["latency_ms"] == 7 and ok["input_tokens"] == 100 and next(e for e in entries if not e["ok"])["error"] == "JudgeRefused"
+
+
+def test_record_live_passes_the_same_already_found_the_pipeline_would():
+    from adgate.judge_recorded import record_live
+
+    c = mk("무조건 승인", "본문", category="invest", disclosure="투자 상품은 원금 손실이 발생할 수 있습니다.")
+    judge = ScriptedJudge({"무조건 승인": []})
+    import tempfile
+    from pathlib import Path
+
+    with tempfile.TemporaryDirectory() as d:
+        record_live({creative_key(c): c}, judge, POLICY, out=Path(d) / "r.jsonl", log=Path(d) / "l.jsonl", workers=1, say=lambda *_: None)
+    assert {a["rule_id"] for a in judge.seen_already[0]} >= {"AD-GUA-01"}
+
+
+def test_record_live_resumes_without_calling_again_and_stops_cleanly_at_the_budget(tmp_path):
+    from adgate.judge_recorded import record_live
+
+    cs = _creatives("가", "나", "다", "라")
+    out, log = tmp_path / "rec.jsonl", tmp_path / "calls.jsonl"
+    first = ScriptedJudge({"가": [], "나": [], "다": [], "라": []}, budget_after=2)
+    r1 = record_live(cs, first, POLICY, out=out, log=log, workers=1, say=lambda *_: None)
+    assert r1["recorded"] == 2 and r1["skipped_budget"] == 2 and r1["ok"] == 2         # 상한에 닿으면 새 호출을 시작하지 않는다
+    second = ScriptedJudge({"가": [], "나": [], "다": [], "라": []})
+    r2 = record_live(cs, second, POLICY, out=out, log=log, workers=1, say=lambda *_: None)
+    assert r2["resumed"] == 2 and second.calls == 2 and r2["recorded"] == 4              # 이미 녹음한 둘은 다시 부르지 않는다
+    assert [json.loads(ln)["key"] for ln in out.read_text(encoding="utf-8").splitlines()] == list(cs)
+
+
+def test_a_recorded_failure_replays_as_the_same_fail_closed_outcome_and_still_counts_as_covered():
+    c = invest()
+    j = RecordedJudge({}, {creative_key(c): "JudgeRefused"})
+    assert j.has(c)                                                       # 덮인 소재다: 판정 없음으로 사라지지 않는다
+    r = review(c, ReviewConfig(judge=j))
+    assert r.outcome == "REVIEW" and r.escalations == ["judge_unavailable"] and j.misses == 0
+
+
+def test_eval_includes_judge_systems_when_some_live_calls_failed(tmp_path):
+    d, rows = _write_dataset(tmp_path)
+    rec = tmp_path / "rec.jsonl"
+    rec.write_text(
+        json.dumps({"key": creative_key(rows[0].creative), "response": {"findings": [GUA]}}, ensure_ascii=False) + "\n"
+        + json.dumps({"key": creative_key(rows[1].creative), "error": "APITimeoutError"}) + "\n",
+        encoding="utf-8",
+    )
+    out = tmp_path / "o.json"
+    assert main(["eval", "--datasets", "dev", "--data-dir", str(d), "--errors-out", str(tmp_path / "e.json"), "--out", str(out),
+                 "--judge", "recorded", "--judge-file", str(rec)]) == 0
+    res = json.loads(out.read_text(encoding="utf-8"))
+    systems = res["results"]["dev"]
+    assert {"full+judge", "full+judge_cap"} <= set(systems)
+    s = res["meta"]["judge_replay"]["datasets"]["dev"]
+    assert s["judge_unavailable"]["k"] == 1                              # 실패한 호출은 REVIEW(사람)로 센다
+    assert next(x for x in s["changed"] if x["id"] == "X-2")["judge"] == "REVIEW" and res["meta"]["judge_replay"]["errors"] == 1
+
+
+def test_judge_record_cli_dry_run_makes_no_call_and_a_missing_key_is_refused(tmp_path, monkeypatch, capsys):
+    d, _ = _write_dataset(tmp_path)
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("ANTHROPIC_AUTH_TOKEN", raising=False)
+    assert main(["judge-record", "--datasets", "dev", "--data-dir", str(d), "--dry-run"]) == 0
+    assert "추정 비용" in capsys.readouterr().out
+    assert main(["judge-record", "--datasets", "dev", "--data-dir", str(d), "--out", str(tmp_path / "r.jsonl"), "--log", str(tmp_path / "l.jsonl")]) == 2
+    assert "환경에 없습니다" in capsys.readouterr().err and not (tmp_path / "r.jsonl").exists()
+
+
+def test_judge_record_cli_end_to_end_with_a_fake_adapter(tmp_path, monkeypatch):
+    import adgate.judge_anthropic as ja
+
+    d, rows = _write_dataset(tmp_path)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key-not-real")
+
+    class Fake(ScriptedJudge):
+        def __init__(self, **kw):
+            super().__init__({"손해 볼 일 없는 투자": [GUA], "좋은 앱": []})
+            self.model = kw.get("model") or "fake-model"
+            self.spend = ja.Spend(self.model, kw.get("max_usd"))
+
+    monkeypatch.setattr(ja, "AnthropicJudge", Fake)
+    out, log = tmp_path / "r.jsonl", tmp_path / "l.jsonl"
+    assert main(["judge-record", "--datasets", "dev", "--data-dir", str(d), "--out", str(out), "--log", str(log), "--workers", "1"]) == 0
+    summary = json.loads((tmp_path / "summary.json").read_text(encoding="utf-8"))
+    assert summary["ok"] == 2 and summary["failed"] == 0 and summary["datasets"] == ["dev"] and summary["model"] == "fake-model"
+    # 이 녹음을 그대로 재생하면 같은 판정이 나온다(녹음 → 재생이 한 경로다)
+    ev = tmp_path / "ev.json"
+    assert main(["eval", "--datasets", "dev", "--data-dir", str(d), "--errors-out", str(tmp_path / "e.json"), "--out", str(ev),
+                 "--judge", "recorded", "--judge-file", str(out)]) == 0
+    assert json.loads(ev.read_text(encoding="utf-8"))["results"]["dev"]["full+judge"]["unsafe_approve"]["k"] == 0
+
+
+def test_compare_recordings_counts_agreement_failures_and_rule_sets(tmp_path, capsys):
+    from adgate.eval.judge_replay import compare_recordings
+
+    f1 = {"rule_id": "AD-GUA-01"}
+    f2 = {"rule_id": "AD-HLT-01"}
+    a = {"k1": {"response": {"findings": []}}, "k2": {"response": {"findings": [f1]}}, "k3": {"response": {"findings": [f1]}},
+         "k4": {"response": {"findings": []}}, "k5": {"response": {"findings": [f1]}}, "only_a": {"response": {"findings": []}}}
+    b = {"k1": {"response": {"findings": []}}, "k2": {"response": {"findings": [f2]}}, "k3": {"response": {"findings": []}},
+         "k4": {"response": {"findings": [f1]}}, "k5": {"error": "APITimeoutError"}, "only_b": {"response": {"findings": []}}}
+    r = compare_recordings(a, b)
+    assert (r["n"], r["compared"]) == (5, 4) and r["agree_empty"] == 1 and r["agree_nonempty"] == 1 and r["only_a"] == 1 and r["only_b"] == 1
+    assert r["error_b"] == 1 and r["error_a"] == 0 and r["rule_sets_equal"] == 0 and r["only_in_a"] == 1 and r["only_in_b"] == 1
+    assert (r["agreement"]["k"], r["agreement"]["n"]) == (2, 4)                  # 실패한 소재는 분모에서 뺀다(일치로도 불일치로도 세지 않는다)
+    pa, pb = tmp_path / "a.jsonl", tmp_path / "b.jsonl"
+    pa.write_text("".join(json.dumps({"key": k, **v}) + "\n" for k, v in a.items()), encoding="utf-8")
+    pb.write_text("".join(json.dumps({"key": k, **v}) + "\n" for k, v in b.items()), encoding="utf-8")
+    out = tmp_path / "cmp.json"
+    assert main(["judge-compare", "--a", str(pa), "--b", str(pb), "--out", str(out)]) == 0
+    assert json.loads(out.read_text(encoding="utf-8"))["agreement"]["k"] == 2 and "일치 2/4" in capsys.readouterr().out

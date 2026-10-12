@@ -292,3 +292,35 @@ def test_invisible_tag_characters_are_made_visible_to_the_model():
     assert "\\u3164" in msg and "\\u200b" in msg
     payload = json.loads(msg.split("<creative>\n")[1].split("\n</creative>")[0])
     assert payload["headline"] == c.headline  # 이스케이프는 값을 바꾸지 않는다(JSON 으로 되돌리면 같다)
+
+
+# --------------------------------------------------------------------------- 호출별 정보(녹음 도구가 쓴다)
+def test_last_meta_has_latency_tokens_and_stop_reason_per_call_and_is_empty_when_budget_blocks():
+    rec = Recorder([message(findings_text(FINDING), usage={"input_tokens": 3000, "output_tokens": 700, "cache_creation_input_tokens": 0, "cache_read_input_tokens": 12})])
+    j = judge(rec)
+    assert j.last_meta == {}
+    j.propose(mk("간식", "모두가 인정한 맛", category="app"), POLICY)
+    m = j.last_meta
+    assert m["stop_reason"] == "end_turn" and m["input_tokens"] == 3000 and m["output_tokens"] == 700 and m["cache_read_tokens"] == 12
+    assert isinstance(m["latency_ms"], int) and m["latency_ms"] >= 0
+    tight = judge(Recorder([message(findings_text())]), max_usd=0.0001)
+    with pytest.raises(BudgetExceeded):
+        tight.propose(mk("간식", "맛있다", category="app"), POLICY)
+    assert tight.last_meta == {}  # 호출하지 않았으니 지난 호출의 정보가 남아 있으면 안 된다
+
+
+def test_last_meta_is_per_thread():
+    import threading
+
+    rec = Recorder([message(findings_text(), usage={"input_tokens": 111, "output_tokens": 5, "cache_creation_input_tokens": 0, "cache_read_input_tokens": 0})])
+    j = judge(rec)
+    seen: dict[str, Any] = {}
+
+    def work() -> None:
+        j.propose(mk("간식", "맛있다", category="app"), POLICY)
+        seen["thread"] = j.last_meta
+
+    t = threading.Thread(target=work)
+    t.start()
+    t.join()
+    assert seen["thread"]["input_tokens"] == 111 and j.last_meta == {}  # 이 스레드는 호출하지 않았다

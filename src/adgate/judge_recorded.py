@@ -54,25 +54,31 @@ class CapturingJudge:
 class RecordedJudge:
     name = "recorded"
 
-    def __init__(self, responses: Mapping[str, Any]) -> None:
+    def __init__(self, responses: Mapping[str, Any], errors: Mapping[str, str] | None = None) -> None:
         self.responses = dict(responses)
+        self.errors = dict(errors or {})  # 실호출이 실패한 소재 → 실패 종류. 재생하면 같은 소재에서 같이 실패한다(fail-closed)
         self.calls = 0
         self.misses = 0
 
     @classmethod
     def from_file(cls, path: str | Path) -> RecordedJudge:
+        """행은 ``{"key", "response"}``(성공) 또는 ``{"key", "error"}``(실호출 실패)."""
         rows = [json.loads(ln) for ln in Path(path).read_text(encoding="utf-8").splitlines() if ln.strip()]
         keys = [r["key"] for r in rows]
         if len(keys) != len(set(keys)):
             raise ValueError("녹음 파일에 같은 열쇠가 두 번 있습니다")
-        return cls({r["key"]: r["response"] for r in rows})
+        return cls({r["key"]: r["response"] for r in rows if "response" in r}, {r["key"]: str(r["error"]) for r in rows if "error" in r})
 
     def has(self, creative: Creative) -> bool:
-        return creative_key(creative) in self.responses
+        key = creative_key(creative)
+        return key in self.responses or key in self.errors
 
     def propose(self, creative: Creative, policy: Policy, already: Sequence[dict[str, Any]] = ()) -> list[ProposedFinding]:
         self.calls += 1
-        rec = self.responses.get(creative_key(creative))
+        key = creative_key(creative)
+        if key in self.errors:
+            raise JudgeError(f"녹음된 호출이 실패했다: {self.errors[key]}")
+        rec = self.responses.get(key)
         if rec is None:
             self.misses += 1
             raise JudgeError("이 소재의 녹음된 응답이 없습니다")
@@ -100,3 +106,81 @@ def prompt_bundle(policy: Policy) -> dict[str, str]:
         "system.txt": system_prompt(policy),
         "schema.json": json.dumps(build_schema(policy), ensure_ascii=False, indent=2),
     }
+
+
+def record_live(
+    creatives: Mapping[str, Creative], judge: Any, policy: Policy, *, out: Path, log: Path, workers: int = 4,
+    limit: int | None = None, cfg_factory: Any = None, say: Any = print,
+) -> dict[str, Any]:
+    """Judge 를 소재마다 한 번씩 실제로 호출해 응답을 ``out`` 에, 호출별 기록을 ``log`` 에 남긴다. 이미 녹음된 소재는 다시 부르지 않는다(이어하기).
+
+    * 성공은 ``{"key", "response"}``, 실패(거절·잘림·형식 오류·시간 초과·예산)는 ``{"key", "error"}`` 로 남긴다.
+      ``RecordedJudge`` 가 실패도 재생하므로 라이브 측정과 같은 fail-closed 동작이 재현된다(실패한 소재가 '판정 없음'으로 사라지지 않는다).
+    * ``already_found`` 는 파이프라인이 실제로 Judge 에게 넘기는 것과 같다(``CapturingJudge``).
+    * 예산 상한에 닿으면 새 호출을 시작하지 않고 멈춘다. 지금까지의 녹음은 보존된다.
+    * 녹음 파일은 마지막에 ``creatives`` 의 순서로 다시 쓴다(동시 호출의 완료 순서가 결과에 새지 않게).
+    """
+    import concurrent.futures
+    import threading
+
+    from .config import ReviewConfig
+    from .judge_anthropic import BudgetExceeded
+    from .pipeline import review
+
+    cfg_factory = cfg_factory or (lambda j: ReviewConfig(judge=j))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    log.parent.mkdir(parents=True, exist_ok=True)
+    done: dict[str, dict[str, Any]] = {}
+    if out.exists():
+        for ln in out.read_text(encoding="utf-8").splitlines():
+            if ln.strip():
+                row = json.loads(ln)
+                done[row["key"]] = row
+    resumed = sum(1 for k in creatives if k in done)
+    todo = [k for k in creatives if k not in done]
+    if limit:
+        todo = todo[:limit]
+    lock = threading.Lock()
+    stop = threading.Event()
+    counts = {"ok": 0, "failed": 0, "skipped_budget": 0}
+
+    def one(key: str) -> None:
+        if stop.is_set():
+            with lock:
+                counts["skipped_budget"] += 1
+            return
+        creative = creatives[key]
+        cap = CapturingJudge()
+        review(creative, cfg_factory(cap), policy)
+        row: dict[str, Any]
+        entry: dict[str, Any] = {"key": key}
+        try:
+            proposals = judge.propose(creative, policy, cap.already)
+            row = {"key": key, "response": {"findings": [p.model_dump() for p in proposals]}}
+            entry.update(ok=True, findings=len(proposals))
+        except BudgetExceeded as exc:
+            stop.set()
+            with lock:
+                counts["skipped_budget"] += 1
+            say(f"예산 상한에 닿아 멈춥니다: {exc}")
+            return
+        except Exception as exc:  # noqa: BLE001 — 어떤 실패든 기록하고 계속한다(재생하면 fail-closed)
+            row = {"key": key, "error": type(exc).__name__}
+            entry.update(ok=False, error=type(exc).__name__, detail=str(exc)[:200])
+        entry.update(getattr(judge, "last_meta", {}) or {})
+        with lock:
+            done[key] = row
+            counts["ok" if entry["ok"] else "failed"] += 1
+            with out.open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+            with log.open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
+            n = counts["ok"] + counts["failed"]
+            if n % 10 == 0:
+                say(f"  {n}/{len(todo)} 호출 (실패 {counts['failed']})")
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
+        list(pool.map(one, todo))
+    ordered = [done[k] for k in creatives if k in done]
+    out.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in ordered), encoding="utf-8")
+    return {"requested": len(creatives), "resumed": resumed, "recorded": len(ordered), **counts}

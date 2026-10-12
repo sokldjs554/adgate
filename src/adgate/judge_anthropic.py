@@ -19,6 +19,7 @@ import json
 import os
 import re
 import threading
+import time
 from collections.abc import Sequence
 from typing import Any
 
@@ -236,6 +237,12 @@ class AnthropicJudge:
             client = anthropic.Anthropic(timeout=timeout, max_retries=max_retries)
         self.client = client
         self._schema: dict[str, Any] | None = None
+        self._tls = threading.local()
+
+    @property
+    def last_meta(self) -> dict[str, Any]:
+        """이 스레드의 마지막 ``propose`` 호출 정보(지연, 토큰, 종료 사유). 호출 전에 실패했으면 비어 있다. 녹음 도구가 호출별 기록을 남기는 데 쓴다."""
+        return dict(getattr(self._tls, "meta", {}))
 
     def request(self, creative: Creative, policy: Policy, already: Sequence[dict[str, Any]] = ()) -> dict[str, Any]:
         """messages.create 에 넘길 인자. 부수 효과가 없어서 테스트가 형태를 직접 검사한다."""
@@ -256,17 +263,28 @@ class AnthropicJudge:
         return kwargs
 
     def propose(self, creative: Creative, policy: Policy, already: Sequence[dict[str, Any]] = ()) -> list[ProposedFinding]:
+        meta: dict[str, Any] = {}
+        self._tls.meta = meta  # 이 호출의 정보. 예산 검사에서 막히면 비어 있다
         kwargs = self.request(creative, policy, already)
         est = self.spend.estimate(len(kwargs["system"][0]["text"]) + len(kwargs["messages"][0]["content"]))
         self.spend.reserve(est)
+        t0 = time.perf_counter()
         try:
             api = self.client.beta.messages if self.fallbacks else self.client.messages
             message = api.create(**kwargs)
         except Exception:
+            meta["latency_ms"] = round((time.perf_counter() - t0) * 1000)
             self.spend.settle(est, None)
             self.spend.failures += 1
             raise
-        self.spend.settle(est, getattr(message, "usage", None))
+        usage = getattr(message, "usage", None)
+        meta.update(
+            latency_ms=round((time.perf_counter() - t0) * 1000), stop_reason=getattr(message, "stop_reason", None),
+            input_tokens=int(getattr(usage, "input_tokens", 0) or 0), output_tokens=int(getattr(usage, "output_tokens", 0) or 0),
+            cache_write_tokens=int(getattr(usage, "cache_creation_input_tokens", 0) or 0),
+            cache_read_tokens=int(getattr(usage, "cache_read_input_tokens", 0) or 0),
+        )
+        self.spend.settle(est, usage)
         try:
             return parse_message(message)
         except JudgeRefused:

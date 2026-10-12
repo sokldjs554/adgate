@@ -17,7 +17,7 @@ from .eval.dataset import Example
 from .eval.runner import errors as eval_errors
 from .eval.runner import run_system
 from .eval.systems import Prediction, ablations, all_to_human, naive_blocklist, pipeline_system
-from .judge_recorded import RecordedJudge, creative_key, export_prompts, prompt_bundle
+from .judge_recorded import RecordedJudge, creative_key, export_prompts, prompt_bundle, record_live
 from .models import Creative
 from .pipeline import review
 from .policy import load_policy
@@ -146,6 +146,7 @@ def cmd_eval(args: argparse.Namespace) -> int:
             "responses": len(recorded.responses),
             "file_sha256": dataset.sha256_file(args.judge_file),
             "misses": recorded.misses,
+            "errors": len(recorded.errors),
             "datasets": {
                 name: judge_replay.summarize(replay_examples[name], t["full"], t["full+judge"], t["full+judge_cap"])
                 for name, t in replay_preds.items()
@@ -266,7 +267,10 @@ def cmd_judge_check(args: argparse.Namespace) -> int:
     from .judge_anthropic import AnthropicJudge
     from .models import Advertiser
 
-    judge = AnthropicJudge(max_usd=args.max_usd, model=args.model or None)
+    if not _has_api_key():
+        print(NO_KEY_MESSAGE, file=sys.stderr)
+        return 2
+    judge = AnthropicJudge(max_usd=args.max_usd, model=args.model or None, timeout=args.timeout)
     creative = Creative(
         ad_id="judge-check", advertiser=Advertiser(name="점검용", category="invest", verified=True),
         headline="손해 볼 일 없는 투자", body="누구나 안심하고 시작하세요.", cta="가입하기",
@@ -278,8 +282,85 @@ def cmd_judge_check(args: argparse.Namespace) -> int:
     for f in result.findings:
         if f.source == "llm":
             print(f"  LLM 후보 {f.rule_id}/{f.code} [{f.field}] “{f.quote}” confidence={f.confidence} — {f.note}")
+    print("호출 정보:", json.dumps(judge.last_meta, ensure_ascii=False))
     print("사용량:", json.dumps(judge.spend.summary(), ensure_ascii=False))
     return 0 if not result.stats.judge_failed else 1
+
+
+NO_KEY_MESSAGE = (
+    "ANTHROPIC_API_KEY(또는 ANTHROPIC_AUTH_TOKEN)가 환경에 없습니다. 이 명령은 실제로 API 를 호출하고 비용이 듭니다. "
+    "키를 채팅에 붙여 넣지 말고 환경 변수나 저장소 비밀값(Actions secrets)으로 넣으세요."
+)
+
+
+def _has_api_key() -> bool:
+    return bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
+
+
+def cmd_judge_record(args: argparse.Namespace) -> int:
+    """Judge 를 소재마다 한 번씩 *실제로* 호출해 응답을 녹음한다(키 필요, 비용 발생). 녹음은 ``eval --judge recorded`` 로 재생·집계한다."""
+    from .judge_anthropic import AnthropicJudge, system_prompt
+
+    data_dir = Path(args.data_dir)
+    names = [n for n in args.datasets.split(",") if n]
+    _check_dataset_names(names)
+    _verify_frozen(data_dir, [n for n in names if n in FROZEN], False)
+    policy = load_policy()
+    creatives: dict[str, Creative] = {}
+    for name in names:
+        for ex in load_dataset(name, data_dir):
+            creatives.setdefault(creative_key(ex.creative), ex.creative)
+    if args.limit:
+        creatives = dict(list(creatives.items())[: args.limit])
+
+    if args.dry_run:  # 호출하지 않는다. 어댑터의 비용 추정식(보수적)으로 총액을 미리 본다.
+        probe = AnthropicJudge(model=args.model or None, client=object(), max_usd=None)
+        sys_chars = len(system_prompt(policy))
+        prompts = export_prompts(list(creatives.values()), policy, lambda j: ReviewConfig(judge=j))
+        total = sum(probe.spend.estimate(sys_chars + len(p["user"])) for p in prompts)
+        print(f"[dry-run] 모델 {probe.model} · 소재 {len(prompts)}건 · 호출 {len(prompts)}회 · 추정 비용 ${total:.2f} (입력은 글자당 토큰 1개, 출력은 호출당 800토큰으로 본 보수적 추정)")
+        print(f"          상한 --max-usd {args.max_usd:.2f}. 실제 비용은 생각(thinking) 토큰 때문에 달라질 수 있어, 상한에 닿으면 멈추고 지금까지의 녹음을 보존한다.")
+        return 0
+    if not _has_api_key():
+        print(NO_KEY_MESSAGE, file=sys.stderr)
+        return 2
+
+    judge = AnthropicJudge(max_usd=args.max_usd, model=args.model or None, effort=args.effort, timeout=args.timeout)
+    print(f"모델 {judge.model} · effort {args.effort} · 소재 {len(creatives)}건 · 동시 {args.workers} · 상한 ${args.max_usd:.2f}")
+    result = record_live(creatives, judge, policy, out=Path(args.out), log=Path(args.log), workers=args.workers)
+    sha, dirty = report.git_state(ROOT)
+    summary = {
+        **judge.spend.summary(), "effort": args.effort, "timeout_s": args.timeout, "workers": args.workers, "datasets": names,
+        "git_sha": sha, "dirty": dirty, **result,
+    }
+    summary_path = Path(args.log).with_name("summary.json")
+    summary_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(json.dumps(summary, ensure_ascii=False))
+    print(f"→ {args.out} (녹음) · {args.log} (호출별 기록) · {summary_path}")
+    return 0 if result["failed"] == 0 and result["skipped_budget"] == 0 else 1
+
+
+def _load_recording_rows(path: str) -> dict[str, Any]:
+    rows: dict[str, Any] = {}
+    for ln in Path(path).read_text(encoding="utf-8").splitlines():
+        if ln.strip():
+            row = json.loads(ln)
+            rows[row["key"]] = row
+    return rows
+
+
+def cmd_judge_compare(args: argparse.Namespace) -> int:
+    """두 녹음(예: 대역 대 실호출)을 소재별로 견준다. 후보를 냈는가, 낸 규칙이 같은가."""
+    res = judge_replay.compare_recordings(_load_recording_rows(args.a), _load_recording_rows(args.b))
+    ag = res["agreement"]
+    print(
+        f"같은 소재 {res['n']}건 중 비교 {res['compared']}건: 둘 다 없음 {res['agree_empty']} · 둘 다 있음 {res['agree_nonempty']}(규칙 집합 같음 {res['rule_sets_equal']}) · "
+        f"a 만 {res['only_a']} · b 만 {res['only_b']} · 실패 a {res['error_a']} / b {res['error_b']} → 일치 {ag['k']}/{ag['n']}"
+    )
+    if args.out:
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(json.dumps(res, ensure_ascii=False, indent=2), encoding="utf-8")
+    return 0
 
 
 def cmd_judge_export(args: argparse.Namespace) -> int:
@@ -398,7 +479,28 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("judge-check", help="LLM judge 를 한 건 실제로 호출해 확인(키 필요, 비용 발생)")
     s.add_argument("--max-usd", type=float, default=0.5)
     s.add_argument("--model", default="")
+    s.add_argument("--timeout", type=float, default=60.0, help="호출 시간 제한(초). 생각하는 모델은 20초를 넘길 수 있다")
     s.set_defaults(fn=cmd_judge_check)
+
+    s = sub.add_parser("judge-record", help="Judge 를 소재마다 실제로 호출해 응답을 녹음(키 필요, 비용 발생). 이어하기 지원")
+    s.add_argument("--datasets", default="dev,test,redteam")
+    s.add_argument("--data-dir", default="data")
+    s.add_argument("--out", default="data/judge_live/recording.jsonl")
+    s.add_argument("--log", default="data/judge_live/calls.jsonl")
+    s.add_argument("--max-usd", type=float, default=12.0)
+    s.add_argument("--model", default="")
+    s.add_argument("--effort", default="medium", choices=["low", "medium", "high", "xhigh", "max"])
+    s.add_argument("--timeout", type=float, default=60.0)
+    s.add_argument("--workers", type=int, default=4)
+    s.add_argument("--limit", type=int, default=0, help="앞에서 N건만(0 이면 전부)")
+    s.add_argument("--dry-run", action="store_true", help="호출하지 않고 추정 비용만 낸다")
+    s.set_defaults(fn=cmd_judge_record)
+
+    s = sub.add_parser("judge-compare", help="두 녹음(대역 대 실호출)을 소재별로 견준다")
+    s.add_argument("--a", default="data/judge_replay/recording.jsonl", help="기준(대역)")
+    s.add_argument("--b", default="data/judge_live/recording.jsonl", help="견줄 것(실호출)")
+    s.add_argument("--out", default="")
+    s.set_defaults(fn=cmd_judge_compare)
 
     s = sub.add_parser("judge-export", help="Judge 프롬프트 내보내기(녹음용)")
     s.add_argument("--datasets", default="dev,test,redteam")

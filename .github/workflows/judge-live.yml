@@ -1,0 +1,67 @@
+name: judge-live
+
+# LLM judge 실호출 측정(docs/JUDGE_LIVE.md). 손으로만 실행한다(workflow_dispatch). 모드에 따라 비용이 든다.
+# 저장소 비밀값 ANTHROPIC_API_KEY 가 필요하다: Settings → Secrets and variables → Actions → New repository secret.
+# 키는 환경 변수로만 전달되고 출력하지 않는다. 이 워크플로는 pull_request 같은 다른 트리거로 돌지 않는다.
+#
+# 이 워크플로는 *녹음까지만* 한다. 재생(eval)과 집계는 키가 필요 없으니, 받은 녹음을 커밋한 뒤 깨끗한 작업트리에서 한 번 돌린다:
+#   adgate eval --datasets dev,test,redteam --measure --judge recorded --judge-file data/judge_live/recording.jsonl \
+#     --out artifacts/results_judge_live.json --errors-out artifacts/results_judge_live_errors.json
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "check = 한 건 점검(상한 $0.5) · dry-run = 추정 비용만(호출 없음) · record = 209건 녹음(비용 발생)"
+        type: choice
+        options: [check, dry-run, record]
+        default: check
+      max_usd:
+        description: "record 의 비용 상한(USD)"
+        type: string
+        default: "12"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: judge-live
+  cancel-in-progress: false
+
+jobs:
+  judge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: 추정 비용(호출 없음)
+        if: inputs.mode == 'dry-run'
+        env:
+          MAX_USD: ${{ inputs.max_usd }}
+        run: adgate judge-record --dry-run --max-usd "$MAX_USD"
+
+      - name: 한 건 점검(실호출)
+        if: inputs.mode == 'check' || inputs.mode == 'record'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: adgate judge-check --max-usd 0.5
+
+      - name: 녹음(실호출, 비용 발생)
+        if: inputs.mode == 'record'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          MAX_USD: ${{ inputs.max_usd }}
+        run: adgate judge-record --max-usd "$MAX_USD"
+
+      - name: 녹음·호출 기록 올리기
+        if: always() && inputs.mode == 'record'
+        uses: actions/upload-artifact@v4
+        with:
+          name: judge-live
+          path: data/judge_live/
+          if-no-files-found: warn

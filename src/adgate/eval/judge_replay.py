@@ -87,3 +87,37 @@ def summarize(
         "approve_gold_to_reject": [x["id"] for x in approve if x["judge"] == "REJECT"],
         "unsafe_fixed": [x["id"] for x in changed if x["gold"] != "APPROVE" and x["full"] == "APPROVE" and x["judge"] != "APPROVE"],
     }
+
+
+def compare_recordings(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
+    """두 녹음(열쇠 → ``{"response"}`` 또는 ``{"error"}`` 행)을 같은 소재끼리 견준다. a 는 대역, b 는 실호출처럼 쓴다.
+
+    * ``agree_empty`` / ``agree_nonempty``: 둘 다 후보를 내지 않았다 / 둘 다 냈다.
+    * ``only_a`` / ``only_b``: 한쪽만 후보를 냈다.
+    * ``error_a`` / ``error_b``: 그쪽 호출이 실패했다(후보 없음으로 세지 않는다).
+    * ``rule_sets_equal``: 둘 다 후보를 낸 소재 중 낸 규칙 집합이 같은 수.
+    """
+    keys = sorted(set(a) & set(b))
+    out: dict[str, Any] = {"n": len(keys), "agree_empty": 0, "agree_nonempty": 0, "only_a": 0, "only_b": 0, "error_a": 0, "error_b": 0,
+           "both_nonempty": 0, "rule_sets_equal": 0, "only_in_a": len(set(a) - set(b)), "only_in_b": len(set(b) - set(a))}
+    for k in keys:
+        ra, rb = a[k], b[k]
+        if "error" in ra or "error" in rb:
+            out["error_a"] += "error" in ra
+            out["error_b"] += "error" in rb
+            continue
+        fa, fb = ra["response"]["findings"], rb["response"]["findings"]
+        if not fa and not fb:
+            out["agree_empty"] += 1
+        elif fa and fb:
+            out["agree_nonempty"] += 1
+            out["both_nonempty"] += 1
+            out["rule_sets_equal"] += {f["rule_id"] for f in fa} == {f["rule_id"] for f in fb}
+        elif fa:
+            out["only_a"] += 1
+        else:
+            out["only_b"] += 1
+    compared = out["agree_empty"] + out["agree_nonempty"] + out["only_a"] + out["only_b"]
+    out["compared"] = compared
+    out["agreement"] = ratio(out["agree_empty"] + out["agree_nonempty"], compared)
+    return out
