@@ -101,3 +101,69 @@
 
 실제 광고 계정에서의 정확도(잡음·요일 패턴·사건이 모두 모델 안에 있다), 사건 둘 이상이 서로 *상호작용*하는 경우, 시뮬레이터에 없는 원인(경쟁사 입찰 급증, 정책 변경, 추적 지연). 작성자·진단기·모델이 같은 모델 계열이라 낙관 편향이 남는다.
 전환이 하루 몇 건뿐인 소규모 캠페인에서 부분적 측정 손실은 통계적으로 구별되지 않는다 — 개발용 시뮬레이션의 검출력 곡선(`artifacts/insight_power.json`)이 그 한계를 수치로 보여 준다.
+
+---
+
+> 아래는 **측정 뒤에 덧붙인 결과**다. 1–6절(사전등록)은 고치지 않았다(`adgate prereg` 가 해시를 검사한다). 예상이 틀린 곳은 '빗나감'이라 적는다.
+
+## 9. 결과 (1): 결정론 팔 — 첫 접촉 (`artifacts/history/insight_first_contact.json`)
+
+탐지기·진단기는 사전등록 커밋 이전 상태 그대로다(`d84e4c2`). 60건을 팔마다 한 번 쟀다.
+
+| 팔 | 재현율(43) | 지연 중앙값 | 오경보 구간 | 이상 없음 20건 중 경보 | 1순위 원인 정확(단일) | 해로운 경보 |
+|---|---|---|---|---|---|---|
+| system | <!-- num:hist.insight_first_contact.results.arms.system.detection.detected|rpct1 -->81.4% (35/43)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.system.detection.delay_median|f2 -->2.00<!-- /num -->일 | <!-- num:hist.insight_first_contact.results.arms.system.false_alarms.episodes|int -->0<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.system.false_alarms.null_scenarios_with_alert|rpct1 -->0.0% (0/20)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.system.diagnosis_alert3.single_top_in_set|rpct1 -->100.0% (23/23)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.system.actions.harmful|rpct1 -->0.0% (0/43)<!-- /num --> |
+| no_history | <!-- num:hist.insight_first_contact.results.arms.no_history.detection.detected|rpct1 -->81.4% (35/43)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.no_history.detection.delay_median|f2 -->2.00<!-- /num -->일 | <!-- num:hist.insight_first_contact.results.arms.no_history.false_alarms.episodes|int -->0<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.no_history.false_alarms.null_scenarios_with_alert|rpct1 -->0.0% (0/20)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.no_history.diagnosis_alert3.single_top_in_set|rpct1 -->100.0% (23/23)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.no_history.actions.harmful|rpct1 -->0.0% (0/43)<!-- /num --> |
+| no_alignment | <!-- num:hist.insight_first_contact.results.arms.no_alignment.detection.detected|rpct1 -->86.1% (37/43)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.no_alignment.detection.delay_median|f2 -->2.00<!-- /num -->일 | <!-- num:hist.insight_first_contact.results.arms.no_alignment.false_alarms.episodes|int -->21<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.no_alignment.false_alarms.null_scenarios_with_alert|rpct1 -->35.0% (7/20)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.no_alignment.diagnosis_alert3.single_top_in_set|rpct1 -->92.0% (23/25)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.no_alignment.actions.harmful|rpct1 -->4.4% (3/68)<!-- /num --> |
+| no_persistence | <!-- num:hist.insight_first_contact.results.arms.no_persistence.detection.detected|rpct1 -->81.4% (35/43)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.no_persistence.detection.delay_median|f2 -->2.00<!-- /num -->일 | <!-- num:hist.insight_first_contact.results.arms.no_persistence.false_alarms.episodes|int -->5<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.no_persistence.false_alarms.null_scenarios_with_alert|rpct1 -->15.0% (3/20)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.no_persistence.diagnosis_alert3.single_top_in_set|rpct1 -->95.7% (22/23)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.no_persistence.actions.harmful|rpct1 -->2.1% (1/48)<!-- /num --> |
+| naive | <!-- num:hist.insight_first_contact.results.arms.naive.detection.detected|rpct1 -->81.4% (35/43)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.naive.detection.delay_median|f2 -->2.00<!-- /num -->일 | <!-- num:hist.insight_first_contact.results.arms.naive.false_alarms.episodes|int -->104<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.naive.false_alarms.null_scenarios_with_alert|rpct1 -->100.0% (20/20)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.naive.diagnosis_alert3.single_top_in_set|rpct1 -->20.8% (5/24)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.naive.actions.harmful|rpct1 -->42.7% (91/213)<!-- /num --> |
+| history_only | <!-- num:hist.insight_first_contact.results.arms.history_only.detection.detected|rpct1 -->67.4% (29/43)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.history_only.detection.delay_median|f2 -->-1.00<!-- /num -->일 | <!-- num:hist.insight_first_contact.results.arms.history_only.false_alarms.episodes|int -->26<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.history_only.false_alarms.null_scenarios_with_alert|rpct1 -->90.0% (18/20)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.history_only.diagnosis_alert3.single_top_in_set|rpct1 -->27.8% (5/18)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.history_only.actions.harmful|rpct1 -->53.0% (35/66)<!-- /num --> |
+
+### 9.1 사전 예상과 견줌
+
+| # | 예상 | 측정 | 판정 |
+|---|---|---|---|
+| P1 | system 재현율 0.62–0.88, 지연 중앙값 ≤ 4일, 7일 안 ≥ 0.6 | 재현율 <!-- num:hist.insight_first_contact.results.arms.system.detection.detected|rpct1 -->81.4% (35/43)<!-- /num -->, 중앙값 <!-- num:hist.insight_first_contact.results.arms.system.detection.delay_median|f2 -->2.00<!-- /num -->일, 7일 안 <!-- num:hist.insight_first_contact.results.arms.system.detection.within7|rpct1 -->76.7% (33/43)<!-- /num --> | 충족 |
+| P2 | 이상 없음 20건 중 경보 ≤ 4건, 100일당 오경보 ≤ 0.8 | <!-- num:hist.insight_first_contact.results.arms.system.false_alarms.null_scenarios_with_alert|rpct1 -->0.0% (0/20)<!-- /num -->, <!-- num:hist.insight_first_contact.results.arms.system.false_alarms.per_100_days|f2 -->0.00<!-- /num --> | 충족(오경보 0) |
+| P3 | 단일 원인 1순위 0.70–0.92; 복합에서 1순위 = primary 0.35–0.75, 모두 찾음 ≤ 0.45 | 단일 <!-- num:hist.insight_first_contact.results.arms.system.diagnosis_alert3.single_top_in_set|rpct1 -->100.0% (23/23)<!-- /num -->; 복합 primary <!-- num:hist.insight_first_contact.results.arms.system.diagnosis_alert3.multi_top_is_primary|rpct1 -->66.7% (8/12)<!-- /num -->, 모두 <!-- num:hist.insight_first_contact.results.arms.system.diagnosis_alert3.multi_all_found|rpct1 -->0.0% (0/12)<!-- /num --> | 단일은 **빗나감**(예상보다 좋다), 복합 primary 는 범위 안, 모두 찾음은 범위 안이나 0 |
+| P4 | 해로운 경보 ≤ 6%, 해로운 액션이 있는 시나리오 ≤ 4건 | <!-- num:hist.insight_first_contact.results.arms.system.actions.harmful|rpct1 -->0.0% (0/43)<!-- /num -->; 시나리오 <!-- num:hist.insight_first_contact.results.arms.system.actions.scenarios_with_harmful_action|rpct1 -->0.0% (0/60)<!-- /num --> | 충족(0) |
+| P5 | naive: 이상 없음 중 경보 ≥ 70%, 해로운 경보 ≥ 25%, 정확도 ≤ 0.45 | <!-- num:hist.insight_first_contact.results.arms.naive.false_alarms.null_scenarios_with_alert|rpct1 -->100.0% (20/20)<!-- /num -->; <!-- num:hist.insight_first_contact.results.arms.naive.actions.harmful|rpct1 -->42.7% (91/213)<!-- /num -->; <!-- num:hist.insight_first_contact.results.arms.naive.diagnosis_alert3.all_top_in_set|rpct1 -->25.7% (9/35)<!-- /num --> | 충족 |
+| P6 | history_only: 재현율 ≤ 0.45, 해로운 경보 ≥ 30% | 재현율 <!-- num:hist.insight_first_contact.results.arms.history_only.detection.detected|rpct1 -->67.4% (29/43)<!-- /num -->; 해로운 경보 <!-- num:hist.insight_first_contact.results.arms.history_only.actions.harmful|rpct1 -->53.0% (35/66)<!-- /num --> | 재현율은 **빗나감**(아래), 해로운 경보는 충족 |
+| P7 | no_alignment 오경보 ≥ 3×, no_persistence ≥ 2×, no_history ±0.04 | <!-- num:hist.insight_first_contact.results.arms.no_alignment.false_alarms.episodes|int -->21<!-- /num -->건 / <!-- num:hist.insight_first_contact.results.arms.no_persistence.false_alarms.episodes|int -->5<!-- /num -->건 (system 0); no_history 는 모든 지표가 system 과 같다 | 충족(system 의 오경보가 0 이라 배수는 형식적) |
+| P10 | 시작일 추정 오차 중앙값 ≤ 3일 | <!-- num:hist.insight_first_contact.results.arms.system.detection.onset_error_median|f2 -->0.00<!-- /num -->일 | 충족 |
+
+- **P6 가 빗나간 이유**: 틀린 방향의 방해 이력(33건)이 진짜 사건이 시작되는 날 바로 앞뒤에 찍히는 일이 많아, 이력만 보는 방식이 '정답 구간 근처에서 경보를 울린 것'으로 세어졌다(잡은 구간의 정의가 `[시작−1, 끝+7]` 이다). 재현율은 부풀려졌지만 *원인은 거의 못 맞혔고*(<!-- num:hist.insight_first_contact.results.arms.history_only.diagnosis_alert3.all_top_in_set|rpct1 -->44.8% (13/29)<!-- /num -->) 그 경보의 절반 이상이 해로운 권고였다.
+- **R2 발동**: `no_history` 는 재현율·오경보·진단·액션이 system 과 *완전히 같다*. 변경 이력은 이 60건에서 측정 가능한 이득이 없다. 기본값에서 뺄 후보로 적는다 — 이력은 판정을 바꾸지 못하고(틀린 이력 33건에도 속지 않았다) 리포트의 *설명 단서*로만 남는다. 기본값 변경은 새 사전등록이 필요하다.
+- **복합 사건의 '모두 찾음' 0/12**: 진단기는 두 원인을 함께 맞춘 모형이 단일 원인보다 χ² 를 12 이상 줄일 때만 복합으로 본다. 이 문턱에서 12건 모두 한 원인만 냈다(데이터를 더 모은 `final` 진단에서도 <!-- num:hist.insight_first_contact.results.arms.system.diagnosis_final.multi_all_found|rpct1 -->8.3% (1/12)<!-- /num -->). 복합 사건의 *주원인*은 맞혔지만(8/12) 부원인은 못 찾는다 — 알려진 한계다.
+
+### 9.2 놓친 8개 구간 (system, 알려진 실패 부류)
+
+| 부류 | 구간 | 상황 |
+|---|---|---|
+| **랜딩 악화 4** | I-A03, I-D01, I-D09, I-F06 | 전환율 −18%~−45% + 이탈률 상승. 이탈률은 *진단용 지원 지표*일 뿐 경보 트리거가 아니라서, 전환 수가 적으면 전환율 z 검정만으로는 못 잡는다 |
+| 소규모 전환 측정 장애 1 | I-F05 (일 4만 원, m=0.7) | 하루 전환 3–4건 — [검출력 곡선](#10-검출력-곡선)의 한계 안 |
+| 작은 효과 3 | I-F08(포화 16%), I-F07(5일 CPM +12%, 일 500만 원), I-E09(9%+9% 겹침) | 10%를 겨우 넘는 효과가 잡음 속에 묻힘 |
+
+- 놓친 구간의 *부류*(특히 랜딩 4건)는 구조적 결함이다: 이탈률처럼 잡음이 아주 작은 보조 지표를 트리거로 쓰지 않는다. 개선 후보는 '이탈률 트리거'(v2). **같은 60건으로 다시 재지 않는다(R5)** — v2 는 개발용 시나리오에서 먼저 확인하고 새 사전등록과 새 독립 시나리오로 잰다.
+- 시스템이 잡은 구간 35개에서는 1순위 원인이 항상 정답 원인 중 하나였다(오진 0). 이상 없음 20건(사건 없음 15 + 미세한 사건 5)에서 경보는 한 번도 울리지 않았다.
+
+### 9.3 층화(system)
+
+잡음별 재현율: low <!-- num:hist.insight_first_contact.results.arms.system.by.noise.low.detected|rpct1 -->83.3% (10/12)<!-- /num --> · mid <!-- num:hist.insight_first_contact.results.arms.system.by.noise.mid.detected|rpct1 -->82.6% (19/23)<!-- /num --> · high <!-- num:hist.insight_first_contact.results.arms.system.by.noise.high.detected|rpct1 -->75.0% (6/8)<!-- /num -->.
+볼륨별: 소규모(일 ≤10만) <!-- num:hist.insight_first_contact.results.arms.system.by.volume.small(<=100k).detected|rpct1 -->66.7% (4/6)<!-- /num --> · 중간 <!-- num:hist.insight_first_contact.results.arms.system.by.volume.mid.detected|rpct1 -->90.6% (29/32)<!-- /num --> · 대규모(≥100만) <!-- num:hist.insight_first_contact.results.arms.system.by.volume.large(>=1M).detected|rpct1 -->X<!-- /num -->.
+원인별 잡은 구간: 랜딩 <!-- num:hist.insight_first_contact.results.arms.system.by_cause.landing_degradation.detected|rpct1 -->50.0% (4/8)<!-- /num --> · 외부 CPM <!-- num:hist.insight_first_contact.results.arms.system.by_cause.seasonal_cpm_spike.detected|rpct1 -->80.0% (8/10)<!-- /num --> · 전환 측정 <!-- num:hist.insight_first_contact.results.arms.system.by_cause.tracking_outage.detected|rpct1 -->85.7% (6/7)<!-- /num --> · 반려 <!-- num:hist.insight_first_contact.results.arms.system.by_cause.ad_rejected.detected|rpct1 -->100.0% (4/4)<!-- /num -->.
+
+## 10. 검출력 곡선
+
+전환 측정 장애·랜딩 악화는 *전환율*로만 보이므로 하루 전환 수가 적으면 구별하기 어렵다. 개발용 시뮬레이션(동결 셋과 무관, 시드 9개, 잡음 low·mid·high 순환, 사건은 20일차에 시작)에서 전환 측정 장애를 알아챈 비율(사건 시작 후 14일 안, 괄호는 경보 지연 중앙값)이다.
+랜딩 악화도 거의 같다(`artifacts/insight_power.json`).
+
+| 일 예산 | 하루 전환 수 | 30% 손실 | 50% 손실 | 90% 손실 |
+|---|---|---|---|---|
+| 10만 원 | ≈ 8건 | <!-- num:res.insight_power.results.tracking_outage.b100000_m30.detected|rpct1 -->11.1% (1/9)<!-- /num --> (지연 <!-- num:res.insight_power.results.tracking_outage.b100000_m30.delay_median|f2 -->9.00<!-- /num -->일) | <!-- num:res.insight_power.results.tracking_outage.b100000_m50.detected|rpct1 -->22.2% (2/9)<!-- /num --> (지연 <!-- num:res.insight_power.results.tracking_outage.b100000_m50.delay_median|f2 -->9.00<!-- /num -->일) | <!-- num:res.insight_power.results.tracking_outage.b100000_m90.detected|rpct1 -->100.0% (9/9)<!-- /num --> (지연 <!-- num:res.insight_power.results.tracking_outage.b100000_m90.delay_median|f2 -->5.00<!-- /num -->일) |
+| 50만 원 | ≈ 39건 | <!-- num:res.insight_power.results.tracking_outage.b500000_m30.detected|rpct1 -->22.2% (2/9)<!-- /num --> (지연 <!-- num:res.insight_power.results.tracking_outage.b500000_m30.delay_median|f2 -->6.50<!-- /num -->일) | <!-- num:res.insight_power.results.tracking_outage.b500000_m50.detected|rpct1 -->100.0% (9/9)<!-- /num --> (지연 <!-- num:res.insight_power.results.tracking_outage.b500000_m50.delay_median|f2 -->3.00<!-- /num -->일) | <!-- num:res.insight_power.results.tracking_outage.b500000_m90.detected|rpct1 -->100.0% (9/9)<!-- /num --> (지연 <!-- num:res.insight_power.results.tracking_outage.b500000_m90.delay_median|f2 -->1.00<!-- /num -->일) |
+| 200만 원 | ≈ 155건 | <!-- num:res.insight_power.results.tracking_outage.b2000000_m30.detected|rpct1 -->100.0% (9/9)<!-- /num --> (지연 <!-- num:res.insight_power.results.tracking_outage.b2000000_m30.delay_median|f2 -->2.00<!-- /num -->일) | <!-- num:res.insight_power.results.tracking_outage.b2000000_m50.detected|rpct1 -->100.0% (9/9)<!-- /num --> (지연 <!-- num:res.insight_power.results.tracking_outage.b2000000_m50.delay_median|f2 -->1.00<!-- /num -->일) | <!-- num:res.insight_power.results.tracking_outage.b2000000_m90.detected|rpct1 -->100.0% (9/9)<!-- /num --> (지연 <!-- num:res.insight_power.results.tracking_outage.b2000000_m90.delay_median|f2 -->0.00<!-- /num -->일) |
+
+- 하루 전환이 8건 안팎인 캠페인에서는 전환의 절반이 새도 3주 안에는 알아채지 못한다 — 통계적으로 구별되지 않는다(전환 수가 늘수록 같은 크기의 손실을 더 빨리 알아챈다). 이것은 탐지기의 '버그'가 아니라 표본 크기의 한계이며, 알아채지 못하는 것이 *오경보보다 낫다*고 판단했다.
+- 알아챘을 때는 원인(측정 장애 vs 랜딩 악화)을 거의 항상 맞혔다. 이탈률(측정 장애에서는 그대로, 랜딩 악화에서는 오름)이 가르는 신호다.
+

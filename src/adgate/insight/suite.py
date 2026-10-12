@@ -171,7 +171,14 @@ def insight() -> Suite:
 
     def offline() -> dict[str, Any]:
         scs = load_frozen()
-        return {"counts": counts(scs), "arms": evaluate(scs), "power": power_curve()}
+        return {"counts": counts(scs), "arms": evaluate(scs)}
 
     return Suite("insight", "성과 인사이트: 결정론 탐지·진단·액션(팔 6개)", "docs/EVAL_INSIGHT.md", {}, lambda v: [], lambda v: (lambda p, c: None), lambda p: ScriptedClient(lambda t, p2: {}),
                  lambda v, o: {}, offline=offline)
+
+
+@register("insight_power")
+def insight_power() -> Suite:
+    """검출력 곡선: 일 예산(=전환 수) × 크기별로 전환 측정 장애·랜딩 악화를 얼마나 알아채는가. 개발용 시뮬레이션이며 동결 셋과 무관하다."""
+    return Suite("insight_power", "성과 인사이트: 전환 수에 따른 검출력 곡선(개발용 시뮬레이션)", "docs/EVAL_INSIGHT.md", {}, lambda v: [], lambda v: (lambda p, c: None),
+                 lambda p: ScriptedClient(lambda t, p2: {}), lambda v, o: {}, offline=lambda: power_curve())

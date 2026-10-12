@@ -330,7 +330,7 @@ def power_curve(
                         det += 1
                         dl.append(hit[0].alert_day - 20)
                         right += diagnose(obs, full, hit[0]).top == cause
-                out[cause][f"{budget}|{mag}"] = {
+                out[cause][f"b{budget}_m{round(mag * 100)}"] = {
                     "budget": budget, "magnitude": mag, "n": len(seeds), "detected": ratio(det, len(seeds)),
                     "delay_median": statistics.median(dl) if dl else None, "cause_ok": ratio(right, det) if det else None,
                     "conversions_per_day_approx": round(budget * 0.97 / 4500 * 1000 * 0.012 * 0.03, 1),

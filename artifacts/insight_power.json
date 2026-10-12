@@ -1,0 +1,464 @@
+{
+  "meta": {
+    "suite": "insight_power",
+    "git": "d84e4c2",
+    "dirty": true,
+    "prereg": "docs/EVAL_INSIGHT.md"
+  },
+  "results": {
+    "tracking_outage": {
+      "b100000_m30": {
+        "budget": 100000,
+        "magnitude": 0.3,
+        "n": 9,
+        "detected": {
+          "k": 1,
+          "n": 9,
+          "value": 0.1111,
+          "ci": [
+            0.0199,
+            0.435
+          ]
+        },
+        "delay_median": 9,
+        "cause_ok": {
+          "k": 0,
+          "n": 1,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.7935
+          ]
+        },
+        "conversions_per_day_approx": 7.8
+      },
+      "b100000_m50": {
+        "budget": 100000,
+        "magnitude": 0.5,
+        "n": 9,
+        "detected": {
+          "k": 2,
+          "n": 9,
+          "value": 0.2222,
+          "ci": [
+            0.0632,
+            0.5474
+          ]
+        },
+        "delay_median": 9.0,
+        "cause_ok": {
+          "k": 0,
+          "n": 2,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.6576
+          ]
+        },
+        "conversions_per_day_approx": 7.8
+      },
+      "b100000_m90": {
+        "budget": 100000,
+        "magnitude": 0.9,
+        "n": 9,
+        "detected": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "delay_median": 5,
+        "cause_ok": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 7.8
+      },
+      "b500000_m30": {
+        "budget": 500000,
+        "magnitude": 0.3,
+        "n": 9,
+        "detected": {
+          "k": 2,
+          "n": 9,
+          "value": 0.2222,
+          "ci": [
+            0.0632,
+            0.5474
+          ]
+        },
+        "delay_median": 6.5,
+        "cause_ok": {
+          "k": 1,
+          "n": 2,
+          "value": 0.5,
+          "ci": [
+            0.0945,
+            0.9055
+          ]
+        },
+        "conversions_per_day_approx": 38.8
+      },
+      "b500000_m50": {
+        "budget": 500000,
+        "magnitude": 0.5,
+        "n": 9,
+        "detected": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "delay_median": 3,
+        "cause_ok": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 38.8
+      },
+      "b500000_m90": {
+        "budget": 500000,
+        "magnitude": 0.9,
+        "n": 9,
+        "detected": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "delay_median": 1,
+        "cause_ok": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 38.8
+      },
+      "b2000000_m30": {
+        "budget": 2000000,
+        "magnitude": 0.3,
+        "n": 9,
+        "detected": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "delay_median": 2,
+        "cause_ok": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 155.2
+      },
+      "b2000000_m50": {
+        "budget": 2000000,
+        "magnitude": 0.5,
+        "n": 9,
+        "detected": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "delay_median": 1,
+        "cause_ok": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 155.2
+      },
+      "b2000000_m90": {
+        "budget": 2000000,
+        "magnitude": 0.9,
+        "n": 9,
+        "detected": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "delay_median": 0,
+        "cause_ok": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 155.2
+      }
+    },
+    "landing_degradation": {
+      "b100000_m30": {
+        "budget": 100000,
+        "magnitude": 0.3,
+        "n": 9,
+        "detected": {
+          "k": 1,
+          "n": 9,
+          "value": 0.1111,
+          "ci": [
+            0.0199,
+            0.435
+          ]
+        },
+        "delay_median": 9,
+        "cause_ok": {
+          "k": 1,
+          "n": 1,
+          "value": 1.0,
+          "ci": [
+            0.2065,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 7.8
+      },
+      "b100000_m50": {
+        "budget": 100000,
+        "magnitude": 0.5,
+        "n": 9,
+        "detected": {
+          "k": 2,
+          "n": 9,
+          "value": 0.2222,
+          "ci": [
+            0.0632,
+            0.5474
+          ]
+        },
+        "delay_median": 9.0,
+        "cause_ok": {
+          "k": 2,
+          "n": 2,
+          "value": 1.0,
+          "ci": [
+            0.3424,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 7.8
+      },
+      "b100000_m90": {
+        "budget": 100000,
+        "magnitude": 0.9,
+        "n": 9,
+        "detected": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "delay_median": 5,
+        "cause_ok": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 7.8
+      },
+      "b500000_m30": {
+        "budget": 500000,
+        "magnitude": 0.3,
+        "n": 9,
+        "detected": {
+          "k": 2,
+          "n": 9,
+          "value": 0.2222,
+          "ci": [
+            0.0632,
+            0.5474
+          ]
+        },
+        "delay_median": 6.5,
+        "cause_ok": {
+          "k": 2,
+          "n": 2,
+          "value": 1.0,
+          "ci": [
+            0.3424,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 38.8
+      },
+      "b500000_m50": {
+        "budget": 500000,
+        "magnitude": 0.5,
+        "n": 9,
+        "detected": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "delay_median": 3,
+        "cause_ok": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 38.8
+      },
+      "b500000_m90": {
+        "budget": 500000,
+        "magnitude": 0.9,
+        "n": 9,
+        "detected": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "delay_median": 1,
+        "cause_ok": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 38.8
+      },
+      "b2000000_m30": {
+        "budget": 2000000,
+        "magnitude": 0.3,
+        "n": 9,
+        "detected": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "delay_median": 2,
+        "cause_ok": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 155.2
+      },
+      "b2000000_m50": {
+        "budget": 2000000,
+        "magnitude": 0.5,
+        "n": 9,
+        "detected": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "delay_median": 1,
+        "cause_ok": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 155.2
+      },
+      "b2000000_m90": {
+        "budget": 2000000,
+        "magnitude": 0.9,
+        "n": 9,
+        "detected": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "delay_median": 0,
+        "cause_ok": {
+          "k": 9,
+          "n": 9,
+          "value": 1.0,
+          "ci": [
+            0.7008,
+            1.0
+          ]
+        },
+        "conversions_per_day_approx": 155.2
+      }
+    }
+  }
+}
