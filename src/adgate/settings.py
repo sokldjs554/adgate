@@ -36,6 +36,10 @@ class Settings:
     max_waiting_per_submitter: int = 50  # 한 광고주가 검토 대기열을 가득 채우지 못하게
     max_body_bytes: int = 128 * 1024
     judge: Judge | None = None
+    judge_timeout_s: float = 8.0       # judge 호출 하나를 기다리는 한도(초). 넘으면 포기하고 사람에게 넘긴다(ops/guard.py)
+    judge_max_concurrent: int = 8      # 진행 중인 judge 호출 상한(벌크헤드)
+    judge_failure_threshold: int = 5   # 연속 실패가 이만큼이면 회로를 연다
+    judge_reset_s: float = 30.0        # 회로가 열린 뒤 시험 호출까지의 시간
     dev: bool = False
 
     def authenticate(self, token: str) -> Principal | None:

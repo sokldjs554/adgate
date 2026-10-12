@@ -46,5 +46,13 @@
     "sha256": "09de17b9a862bf72269c346339d37852f679f3b68f59fa819542ccb355dbb5de",
     "registered": "2026-10-12",
     "note": ""
+  },
+  {
+    "doc": "docs/EVAL_OPS.md",
+    "start": "## 1.",
+    "end": "## 7.",
+    "sha256": "29efb2c24b03fbc0d420f34b1d0b4f3332969b38dcc7ed57f22186e9ac07136c",
+    "registered": "2026-10-12",
+    "note": ""
   }
 ]

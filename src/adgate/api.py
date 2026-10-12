@@ -25,6 +25,7 @@ from . import __version__
 from .config import ReviewConfig
 from .models import Creative, ReviewResult
 from .observability import Registry
+from .ops.guard import GuardedJudge
 from .pipeline import review
 from .policy import load_policy
 from .rewrite import RewriteResult, rewrite
@@ -87,7 +88,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     registry.describe("adgate_findings_total", "발견 건수(규칙별)")
     registry.describe("adgate_resumes_total", "사람 결정 건수")
     registry.describe("adgate_review_latency_ms", "심사 처리 시간(ms)")
-    cfg = ReviewConfig(judge=settings.judge)
+    guard = (
+        GuardedJudge(
+            settings.judge, timeout_s=settings.judge_timeout_s, max_concurrent=settings.judge_max_concurrent,
+            failure_threshold=settings.judge_failure_threshold, reset_s=settings.judge_reset_s,
+        )
+        if settings.judge is not None and not isinstance(settings.judge, GuardedJudge) else settings.judge
+    )
+    cfg = ReviewConfig(judge=guard)
     policy = load_policy()
     limiter = RateLimiter(settings.rate_per_min)
 
@@ -170,7 +178,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/metrics", response_class=PlainTextResponse)
     def metrics(me: Me) -> str:  # 규칙별 건수를 담으므로 인증된 호출자만(Prometheus 는 Authorization 헤더를 보낼 수 있다)
         waiting = float(store.count_by_state().get("waiting_input", 0))
-        return registry.render({"adgate_waiting_input": {(): waiting}})
+        gauges: dict[str, dict[tuple[tuple[str, str], ...], float]] = {"adgate_waiting_input": {(): waiting}}
+        if isinstance(guard, GuardedJudge):  # judge 장애 격리 상태: 0 닫힘 · 1 반열림 · 2 열림
+            gauges["adgate_judge_circuit"] = {(): float({"closed": 0, "half_open": 1, "open": 2}[guard.state])}
+            gauges["adgate_judge_guard_events"] = {(("event", k),): float(v) for k, v in guard.counts.items()}
+        return registry.render(gauges)
 
     @app.get("/v1/policy")
     def get_policy() -> dict[str, Any]:
