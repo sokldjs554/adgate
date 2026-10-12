@@ -85,6 +85,7 @@ def _raw_arm(sc: IncidentScenario, client: LLMClient) -> dict[str, Any]:
     causes = ({out["cause"], *out["other_causes"]} - {"none", "unknown"})
     first_ep = g["episodes"][0] if g["episodes"] else None
     gold_causes = set(episode_causes(sc, g, first_ep)) if first_ep else set()
+    all_causes = {c for ep in g["episodes"] for c in episode_causes(sc, g, ep)}         # 시나리오의 모든 구간의 원인(분석용 — 채점은 첫 구간 기준이다)
     acts = set(out["actions"])
     harmful = bool(acts & (set(CHANGE_ACTIONS) if g["null"] else set(g["harmful_actions"])))
     return {
@@ -94,7 +95,7 @@ def _raw_arm(sc: IncidentScenario, client: LLMClient) -> dict[str, Any]:
         # 실패 분석용(채점에는 쓰지 않는다): 모델이 낸 것과 정답
         "detail": {
             "model": {"cause": out["cause"], "other_causes": sorted(out["other_causes"]), "actions": sorted(acts), "start_day": out["start_day"]},
-            "gold": {"primary": g["primary_cause"], "causes": sorted(gold_causes), "harmful": sorted(set(CHANGE_ACTIONS) if g["null"] else g["harmful_actions"]), "onset": g["onset"]},
+            "gold": {"primary": g["primary_cause"], "causes": sorted(gold_causes), "all_causes": sorted(all_causes), "harmful": sorted(set(CHANGE_ACTIONS) if g["null"] else g["harmful_actions"]), "onset": g["onset"]},
         },
     }
 
@@ -141,7 +142,11 @@ def _analyze(variant: str, outcomes: list[CaseOutcome]) -> dict[str, Any]:
     harmful = {i: r for i, r in raws.items() if r["harmful"]}
     false_alarm = {i: r for i, r in raws.items() if r["null"] and r["anomaly"]}
     system_missed = {m["id"] for m in evaluate(load_frozen())["system"]["misses"]}
+    flagged = {i: r for i, r in raws.items() if not r["null"] and r["anomaly"]}
     return {
+        # 채점기(top_in_set)는 *첫 구간*의 원인만 정답으로 본다. 구간이 여럿인 시나리오에서는 시나리오의 다른 구간 원인을 말해도 틀린 것으로 센다 — 같은 비교를 시나리오 전체 기준으로도 적는다
+        "raw_top_in_any_episode": ratio(sum(r["detail"]["model"]["cause"] in r["detail"]["gold"]["all_causes"] for r in flagged.values()), len(flagged)),
+        "raw_wrong_cause_but_scenario_primary": sorted(i for i, r in wrong_cause.items() if r["detail"]["model"]["cause"] == r["detail"]["gold"]["primary"]),
         "raw_missed": {i: pick(r) for i, r in sorted(missed.items())},
         "raw_wrong_cause": {i: pick(r) for i, r in sorted(wrong_cause.items())},
         "raw_harmful": {i: pick(r) for i, r in sorted(harmful.items())},

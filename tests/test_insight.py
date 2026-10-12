@@ -308,6 +308,27 @@ def test_insight_llm_failure_analysis_names_the_scenarios_where_the_model_only_b
     assert a["raw_missed"][pos_sc.id]["model"]["cause"] == "none" and a["raw_missed"][pos_sc.id]["gold"]["primary"]   # 모델이 낸 것과 정답이 같이 남는다
     assert set(a["both_missed"]) | set(a["raw_only_missed"]) == {pos_sc.id}
     assert a["writer_unverified"] == []
+    assert set(a["raw_top_in_any_episode"]) == {"k", "n", "value", "ci"} and a["raw_top_in_any_episode"]["n"] == 0   # 이상을 잡았다고 한 시나리오가 없다
+
+
+def test_a_cause_from_a_later_episode_is_wrong_for_the_scorer_but_right_for_the_scenario():
+    """채점기는 첫 구간의 원인만 정답으로 본다. 구간이 여럿이면 시나리오의 다른 구간 원인을 말한 모델이 틀린 것으로 세어진다 — 분석이 그 차이를 따로 적는다."""
+    from adgate.insight.evaluate import episode_causes
+    from adgate.insight.suite import _analyze, _raw_arm, load_frozen
+    from adgate.llm import CaseOutcome, ScriptedClient
+
+    for sc in load_frozen():
+        g = gold(simulate(sc))
+        causes = [set(episode_causes(sc, g, e)) for e in g["episodes"]]
+        later_only = (set().union(*causes[1:]) - causes[0]) if len(causes) > 1 else set()
+        if later_only:
+            reply = {"anomaly": True, "start_day": g["onset"], "cause": sorted(later_only)[0], "other_causes": [], "actions": ["wait_and_monitor"], "report": "x"}
+            row = _raw_arm(sc, ScriptedClient(lambda task, parts, reply=reply: reply))
+            assert row["top_in_set"] is False                                       # 채점기: 첫 구간 원인이 아니므로 틀림
+            a = _analyze("opus", [CaseOutcome(sc.id, {"raw": row})])
+            assert a["raw_top_in_any_episode"]["k"] == 1                            # 시나리오 전체로는 맞는 원인
+            return
+    pytest.skip("구간이 여럿이고 원인이 다른 동결 시나리오가 없다")
 
 
 def test_the_failure_analysis_runs_on_a_partial_recording_without_inventing_cases():
