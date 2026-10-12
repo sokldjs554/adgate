@@ -3,7 +3,7 @@
     "suite": "campaign",
     "variant": "haiku",
     "model": "claude-haiku-5-5",
-    "git_sha": "8ebec59",
+    "git_sha": "65f154e",
     "dirty": false,
     "recording_sha256": "29648389eccb6cb6be25463e7fe0358d4fc7777348649a775df0e751ec81f920",
     "prereg": "docs/EVAL_SETUP.md"
@@ -758,6 +758,23 @@
       "question→off_topic": 1,
       "off_topic→injection": 1,
       "injection→provide": 1
+    },
+    "diff_by_path": {
+      "test": {
+        "missing": {
+          "conversion_event": 7,
+          "ad_category": 1,
+          "objective": 1,
+          "bid_strategy": 1
+        },
+        "wrong": {
+          "audience.regions": 1,
+          "ad_category": 1
+        },
+        "extra": {
+          "conversion_event": 1
+        }
+      }
     },
     "failed_cases": []
   }

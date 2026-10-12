@@ -3,8 +3,8 @@
     "suite": "campaign",
     "variant": "sonnet",
     "model": "claude-sonnet-5-5",
-    "git_sha": "9db503a",
-    "dirty": false,
+    "git_sha": "65f154e",
+    "dirty": true,
     "recording_sha256": "79f3101dcfe7a760ff467bb39285b2e73644bd30a445d4eeedc9f8d2f1acdca7",
     "prereg": "docs/EVAL_SETUP.md"
   },
@@ -647,6 +647,26 @@
       "provide→correction": 4,
       "provide→question": 2,
       "question→off_topic": 1
+    },
+    "diff_by_path": {
+      "dev": {
+        "missing": {
+          "conversion_event": 1
+        }
+      },
+      "test": {
+        "missing": {
+          "conversion_event": 6,
+          "bid_strategy": 1
+        },
+        "wrong": {
+          "objective": 1,
+          "audience.regions": 1
+        },
+        "extra": {
+          "conversion_event": 1
+        }
+      }
     },
     "failed_cases": []
   }
