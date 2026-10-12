@@ -1,0 +1,109 @@
+{
+  "meta": {
+    "suite": "insight_llm",
+    "variant": "sonnet",
+    "model": "claude-sonnet-5-5",
+    "git_sha": "8c7c86c",
+    "dirty": false,
+    "recording_sha256": "644b974c194aea56fe738d53b33bca9a2bb6ab726a8345d3f2f3381c184d0f90",
+    "recorded_rows": 103,
+    "recorded_failures": {},
+    "cases": 60,
+    "case_errors": {},
+    "misses": 0,
+    "prereg": "docs/EVAL_INSIGHT.md"
+  },
+  "results": {
+    "cases": 60,
+    "failed": [],
+    "writer": {
+      "episodes": 43,
+      "verified": {
+        "k": 43,
+        "n": 43,
+        "value": 1.0,
+        "ci": [
+          0.918,
+          1.0
+        ]
+      },
+      "steps_subset_of_recs": {
+        "k": 43,
+        "n": 43,
+        "value": 1.0,
+        "ci": [
+          0.918,
+          1.0
+        ]
+      },
+      "template_verified": {
+        "k": 43,
+        "n": 43,
+        "value": 1.0,
+        "ci": [
+          0.918,
+          1.0
+        ]
+      },
+      "problem_kinds": {}
+    },
+    "raw": {
+      "scenarios": 60,
+      "anomaly_recall": {
+        "k": 32,
+        "n": 40,
+        "value": 0.8,
+        "ci": [
+          0.6524,
+          0.895
+        ]
+      },
+      "null_false_alarm": {
+        "k": 0,
+        "n": 20,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.1611
+        ]
+      },
+      "top_in_set": {
+        "k": 28,
+        "n": 32,
+        "value": 0.875,
+        "ci": [
+          0.7193,
+          0.9503
+        ]
+      },
+      "primary_ok": {
+        "k": 29,
+        "n": 32,
+        "value": 0.9062,
+        "ci": [
+          0.7578,
+          0.9676
+        ]
+      },
+      "harmful_actions": {
+        "k": 3,
+        "n": 60,
+        "value": 0.05,
+        "ci": [
+          0.0171,
+          0.137
+        ]
+      },
+      "useful_actions": {
+        "k": 50,
+        "n": 60,
+        "value": 0.8333,
+        "ci": [
+          0.7197,
+          0.9069
+        ]
+      },
+      "start_error_median": 0.0
+    }
+  }
+}
