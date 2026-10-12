@@ -309,7 +309,26 @@ def cmd_llm(args: argparse.Namespace) -> int:
             suites.dump(res, out)
             m = res["meta"]
             print(f"[{suite.name}/{v}] 재생 → {out}  (사례 {m['cases']}, 오류 {len(m['case_errors'])}, 녹음 없음 {m['misses']})")
+            if m["recorded_failures"]:       # 녹음에 실패 행이 있다: 모델이 낸 실패인지 환경이 낸 실패인지 *집계 전에* 호출 기록(.calls.jsonl)의 detail 로 확인한다
+                print(f"  ! 녹음의 실패 행 {sum(m['recorded_failures'].values())}건: {m['recorded_failures']} — 환경 오류(크레딧·인증·시간 초과)면 측정이 아니다(F-28)")
     return rc
+
+
+def cmd_demo(args: argparse.Namespace) -> int:
+    """통합 데모: 셋업 대화 → 소재 생성 → 심사 → 성과 진단 → 고리 닫기(docs/DEMO.md). 데모이지 측정이 아니다."""
+    from . import demo
+
+    res = demo.run_demo(args.mode, variant=args.variant or None, scenario_id=args.scenario, product_id=args.product)
+    if args.out:
+        demo.dump(res, Path(args.out))
+        print(f"전사 → {args.out}")
+    if args.print:
+        print(demo.transcript(res))
+    bad = [c["name"] for c in res["checks"] if not c["ok"]]
+    print(f"이음새 검사 {len(res['checks']) - len(bad)}/{len(res['checks'])} 통과" + (f"; 실패: {bad}" if bad else ""))
+    for step, why in res["errors"].items():
+        print(f"단계 {step} 를 돌리지 못했습니다: {why}")
+    return 1 if bad or res["errors"] else 0
 
 
 def cmd_prereg(args: argparse.Namespace) -> int:
@@ -572,6 +591,14 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--retry-technical", action="store_true")
     s.add_argument("--out", default="")
     s.set_defaults(fn=cmd_llm)
+    s = sub.add_parser("demo", help="통합 데모: 셋업 대화 → 소재 생성 → 심사 → 성과 진단 → 고리 닫기(측정이 아니다)")
+    s.add_argument("--mode", choices=["offline", "recorded"], default="offline", help="offline = 모델 없이 결정론(오라클·대역), recorded = 실호출 녹음 재생")
+    s.add_argument("--variant", default="", help="recorded 모드의 변형(예: haiku, sonnet)")
+    s.add_argument("--scenario", default="S-B05")
+    s.add_argument("--product", default="P-A05")
+    s.add_argument("--out", default="")
+    s.add_argument("--print", action="store_true", help="사람이 읽는 전사를 출력")
+    s.set_defaults(fn=cmd_demo)
     s = sub.add_parser("prereg", help="사전등록 절의 해시를 등록(--register)하거나 그대로인지 검사")
     s.add_argument("--register", help="등록할 문서 경로(예: docs/EVAL_GRAY.md)")
     s.add_argument("--start", default="## 1.", help="사전등록 시작 제목의 앞부분")

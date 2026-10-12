@@ -169,10 +169,14 @@ def replay(suite: Suite, variant: str, *, root: Path = Path(".")) -> dict[str, A
     rows = load_rows(rows_path)
     outcomes = replay_cases(suite.cases(variant), suite.driver(variant), rows)
     sha, dirty = _git_state()
+    failures: dict[str, int] = {}
+    for r in rows.values():
+        if "error" in r:
+            failures[str(r["error"])] = failures.get(str(r["error"]), 0) + 1
     return {
         "meta": {
             "suite": suite.name, "variant": variant, "model": suite.variants[variant].model, "git_sha": sha, "dirty": dirty,
-            "recording_sha256": hashlib.sha256(rows_path.read_bytes()).hexdigest(), "recorded_rows": len(rows),
+            "recording_sha256": hashlib.sha256(rows_path.read_bytes()).hexdigest(), "recorded_rows": len(rows), "recorded_failures": failures,
             "cases": len(outcomes), "case_errors": {o.case: o.error for o in outcomes if o.error}, "misses": sum(o.misses for o in outcomes),
             "prereg": suite.prereg,
         },

@@ -499,6 +499,11 @@ def build(root: Path) -> dict[Path, str]:
         files[root / "docs/RESULTS.md"] = results_md(src)
     if "agreement" in src or "agreement_redteam" in src:
         files[root / "docs/LABELER_AGREEMENT.md"] = agreement_md(src.get("agreement"), src.get("agreement_redteam"))
+    from . import demo
+
+    demo_md = demo.markdown(root)
+    if demo_md is not None:
+        files[root / "docs/DEMO.md"] = demo_md
     tree = lookup_sources(src)
     # 표식이 있는 문서는 모두 채운다(통째로 생성하는 RESULTS.md·LABELER_AGREEMENT.md 는 제외).
     candidates = [root / "README.md", *sorted((root / "docs").glob("*.md"))]

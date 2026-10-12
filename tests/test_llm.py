@@ -363,3 +363,26 @@ def test_an_account_error_is_not_recorded_as_a_failure_and_the_run_resumes_after
     live = ScriptedClient(handler)
     s2 = record_cases(cs, lambda p, c: c.call(TASK, p), live=live, out=out, log=log, workers=1, say=lambda *_: None)
     assert len(live.calls) == 2 and s2["completed"] == 4 and len(load_rows(out)) == 4      # 남은 둘만 부른다
+
+
+def test_replay_meta_lists_failure_rows_so_environment_errors_are_seen_before_aggregating(tmp_path):
+    """녹음에 실패 행이 있으면 재생 결과의 meta 에 이름별 건수가 남고 CLI 가 경고한다(F-28: 크레딧 소진 51건을 모델 실패로 셀 뻔했다)."""
+    from adgate import suites
+
+    def driver(payload: Any, client: Any) -> Any:
+        try:
+            return client.call(TASK, payload).response
+        except LLMRecordedFailure:
+            return None
+
+    cs = cases("정상", "실패")
+    suite = suites.Suite("toy", "장난감", "docs/x.md", {"v": suites.Variant("v", "claude-haiku-5-5")}, lambda v: cs, lambda v: driver, lambda p: ScriptedClient(echo),
+                         lambda v, outcomes: {"ok": [o.case for o in outcomes if o.result is not None]})
+    rec = tmp_path / "data" / "llm" / "toy"
+    rec.mkdir(parents=True)
+    rows = [{"key": task_key(TASK, "정상"), "task": "t.echo", "case": "정상", "seq": 1, "response": {"x": 1}},
+            {"key": task_key(TASK, "실패"), "task": "t.echo", "case": "실패", "seq": 1, "error": "BadRequestError"}]
+    (rec / "v.jsonl").write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows), encoding="utf-8")
+    res = suites.replay(suite, "v", root=tmp_path)
+    assert res["meta"]["recorded_failures"] == {"BadRequestError": 1} and res["meta"]["recorded_rows"] == 2
+    assert res["results"] == {"ok": ["정상"]}

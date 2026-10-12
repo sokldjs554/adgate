@@ -139,6 +139,9 @@ def _standin(payload: dict[str, Any]) -> ScriptedClient:
     return ScriptedClient(handler)
 
 
+standin_client = _standin    # 공개 이름: 통합 데모(adgate demo)가 모델 없이 같은 파이프라인을 돌릴 때 쓴다
+
+
 def _score(variant: str, outcomes: list[CaseOutcome]) -> dict[str, Any]:
     dev, test = load_all()
     policy = load_policy()
