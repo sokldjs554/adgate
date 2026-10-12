@@ -1,0 +1,30 @@
+{
+  "model": "claude-opus-5-5",
+  "calls": 209,
+  "input_tokens": 47319,
+  "output_tokens": 39443,
+  "cache_write_tokens": 0,
+  "cache_read_tokens": 547789,
+  "refusals": 0,
+  "failures": 0,
+  "estimated_usd": 1.197252,
+  "max_usd": 6.0,
+  "failed_usd": 0.0,
+  "effort": "medium",
+  "timeout_s": 60.0,
+  "workers": 4,
+  "datasets": [
+    "dev",
+    "test",
+    "redteam"
+  ],
+  "git_sha": "42466a3",
+  "dirty": true,
+  "requested": 209,
+  "resumed": 0,
+  "retried": 0,
+  "recorded": 209,
+  "ok": 209,
+  "failed": 0,
+  "skipped_budget": 0
+}
