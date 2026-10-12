@@ -108,15 +108,20 @@ def prompt_bundle(policy: Policy) -> dict[str, str]:
     }
 
 
+# 기술적 실패(일시적이라 다시 불러도 되는 것). 거절·잘림·형식 오류는 모델의 응답이므로 다시 부르지 않는다(docs/JUDGE_LIVE.md D2).
+TECHNICAL_ERRORS = frozenset({"APITimeoutError", "APIConnectionError", "RateLimitError", "InternalServerError", "OverloadedError"})
+
+
 def record_live(
     creatives: Mapping[str, Creative], judge: Any, policy: Policy, *, out: Path, log: Path, workers: int = 4,
-    limit: int | None = None, cfg_factory: Any = None, say: Any = print,
+    limit: int | None = None, cfg_factory: Any = None, say: Any = print, retry_technical: bool = False,
 ) -> dict[str, Any]:
     """Judge 를 소재마다 한 번씩 실제로 호출해 응답을 ``out`` 에, 호출별 기록을 ``log`` 에 남긴다. 이미 녹음된 소재는 다시 부르지 않는다(이어하기).
 
     * 성공은 ``{"key", "response"}``, 실패(거절·잘림·형식 오류·시간 초과·예산)는 ``{"key", "error"}`` 로 남긴다.
       ``RecordedJudge`` 가 실패도 재생하므로 라이브 측정과 같은 fail-closed 동작이 재현된다(실패한 소재가 '판정 없음'으로 사라지지 않는다).
     * ``already_found`` 는 파이프라인이 실제로 Judge 에게 넘기는 것과 같다(``CapturingJudge``).
+    * ``retry_technical`` 이면 기술적 실패 행(``TECHNICAL_ERRORS``)만 지우고 다시 부른다. 성공한 응답과 모델이 낸 거절·형식 오류는 그대로 둔다.
     * 예산 상한에 닿으면 새 호출을 시작하지 않고 멈춘다. 지금까지의 녹음은 보존된다.
     * 녹음 파일은 마지막에 ``creatives`` 의 순서로 다시 쓴다(동시 호출의 완료 순서가 결과에 새지 않게).
     """
@@ -136,6 +141,12 @@ def record_live(
             if ln.strip():
                 row = json.loads(ln)
                 done[row["key"]] = row
+    retried = 0
+    if retry_technical:
+        stale = [k for k, r in done.items() if r.get("error") in TECHNICAL_ERRORS]
+        for k in stale:
+            del done[k]
+        retried = len(stale)
     resumed = sum(1 for k in creatives if k in done)
     todo = [k for k in creatives if k not in done]
     if limit:
@@ -183,4 +194,4 @@ def record_live(
         list(pool.map(one, todo))
     ordered = [done[k] for k in creatives if k in done]
     out.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in ordered), encoding="utf-8")
-    return {"requested": len(creatives), "resumed": resumed, "recorded": len(ordered), **counts}
+    return {"requested": len(creatives), "resumed": resumed, "retried": retried, "recorded": len(ordered), **counts}

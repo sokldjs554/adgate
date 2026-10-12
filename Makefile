@@ -49,6 +49,7 @@ judge-export:
 
 # --- 실호출 측정(사전등록: docs/JUDGE_LIVE.md). 아래는 ANTHROPIC_API_KEY 가 필요하고 judge-live-dry 만 빼고 비용이 든다.
 # 순서: judge-live-dry(추정 비용) → judge-check(한 건) → judge-record(209건 녹음) → 녹음을 커밋 → 깨끗한 작업트리에서 judge-live-eval 한 번.
+# 키를 GitHub 비밀값으로 둔 경우: Actions 의 judge-live 워크플로(mode=record)가 녹음해 judge-live-results 브랜치에 올린다 → 그 브랜치의 data/judge_live/ 를 커밋.
 judge-live-dry:
 	adgate judge-record --dry-run
 

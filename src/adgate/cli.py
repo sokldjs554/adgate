@@ -327,7 +327,9 @@ def cmd_judge_record(args: argparse.Namespace) -> int:
 
     judge = AnthropicJudge(max_usd=args.max_usd, model=args.model or None, effort=args.effort, timeout=args.timeout)
     print(f"모델 {judge.model} · effort {args.effort} · 소재 {len(creatives)}건 · 동시 {args.workers} · 상한 ${args.max_usd:.2f}")
-    result = record_live(creatives, judge, policy, out=Path(args.out), log=Path(args.log), workers=args.workers)
+    result = record_live(
+        creatives, judge, policy, out=Path(args.out), log=Path(args.log), workers=args.workers, retry_technical=args.retry_technical,
+    )
     sha, dirty = report.git_state(ROOT)
     summary = {
         **judge.spend.summary(), "effort": args.effort, "timeout_s": args.timeout, "workers": args.workers, "datasets": names,
@@ -494,6 +496,7 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--workers", type=int, default=4)
     s.add_argument("--limit", type=int, default=0, help="앞에서 N건만(0 이면 전부)")
     s.add_argument("--dry-run", action="store_true", help="호출하지 않고 추정 비용만 낸다")
+    s.add_argument("--retry-technical", action="store_true", help="이어하기: 기록된 기술적 실패(시간 초과·연결·속도 제한·5xx)만 다시 부른다")
     s.set_defaults(fn=cmd_judge_record)
 
     s = sub.add_parser("judge-compare", help="두 녹음(대역 대 실호출)을 소재별로 견준다")

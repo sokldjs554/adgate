@@ -4,9 +4,9 @@ name: judge-live
 # 저장소 비밀값 ANTHROPIC_API_KEY 가 필요하다: Settings → Secrets and variables → Actions → New repository secret.
 # 키는 환경 변수로만 전달되고 출력하지 않는다. 이 워크플로는 pull_request 같은 다른 트리거로 돌지 않는다.
 #
-# 이 워크플로는 *녹음까지만* 한다. 재생(eval)과 집계는 키가 필요 없으니, 받은 녹음을 커밋한 뒤 깨끗한 작업트리에서 한 번 돌린다:
-#   adgate eval --datasets dev,test,redteam --measure --judge recorded --judge-file data/judge_live/recording.jsonl \
-#     --out artifacts/results_judge_live.json --errors-out artifacts/results_judge_live_errors.json
+# 이 워크플로는 *녹음까지만* 한다. 비용이 드는 `judge` 작업만 키를 쓰고 읽기 권한뿐이다.
+# `publish` 작업은 키가 없고 쓰기 권한이 있어서, 녹음 결과(data/judge_live/)를 `judge-live-results` 브랜치에 올릴 뿐이다.
+# 재생(eval)과 집계는 키가 필요 없으니, 그 브랜치의 녹음을 main 에 커밋한 뒤 깨끗한 작업트리에서 한 번 돌린다(Makefile 의 judge-live-eval).
 on:
   workflow_dispatch:
     inputs:
@@ -19,6 +19,10 @@ on:
         description: "record 의 비용 상한(USD)"
         type: string
         default: "12"
+      retry_technical:
+        description: "이어하기(record): judge-live-results 브랜치의 녹음을 가져와 기술적 실패(시간 초과·연결·속도 제한·5xx)만 다시 부른다(docs/JUDGE_LIVE.md D2)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -51,12 +55,19 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: adgate judge-check --max-usd 0.5
 
+      - name: 직전 녹음 가져오기(이어하기)
+        if: inputs.mode == 'record' && inputs.retry_technical
+        run: |
+          git fetch --depth=1 origin judge-live-results
+          git checkout FETCH_HEAD -- data/judge_live
+
       - name: 녹음(실호출, 비용 발생)
         if: inputs.mode == 'record'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           MAX_USD: ${{ inputs.max_usd }}
-        run: adgate judge-record --max-usd "$MAX_USD"
+          RETRY: ${{ inputs.retry_technical && '--retry-technical' || '' }}
+        run: adgate judge-record --max-usd "$MAX_USD" $RETRY
 
       - name: 녹음·호출 기록 올리기
         if: always() && inputs.mode == 'record'
@@ -65,3 +76,30 @@ jobs:
           name: judge-live
           path: data/judge_live/
           if-no-files-found: warn
+
+  publish:
+    needs: judge
+    if: always() && inputs.mode == 'record'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: judge-live
+          path: judge-live
+      - name: 결과 브랜치에 올리기
+        env:
+          RUN_ID: ${{ github.run_id }}
+          CODE_SHA: ${{ github.sha }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan judge-live-results
+          git rm -rf --quiet .
+          mkdir -p data/judge_live
+          cp judge-live/* data/judge_live/
+          git add data/judge_live
+          git commit -q -m "judge-live 녹음 (run ${RUN_ID}, 코드 ${CODE_SHA})"
+          git push --force origin judge-live-results

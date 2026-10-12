@@ -397,3 +397,26 @@ def test_compare_recordings_counts_agreement_failures_and_rule_sets(tmp_path, ca
     out = tmp_path / "cmp.json"
     assert main(["judge-compare", "--a", str(pa), "--b", str(pb), "--out", str(out)]) == 0
     assert json.loads(out.read_text(encoding="utf-8"))["agreement"]["k"] == 2 and "일치 2/4" in capsys.readouterr().out
+
+
+def test_retry_technical_calls_again_only_transient_failures_and_keeps_model_refusals(tmp_path):
+    from adgate.judge_anthropic import JudgeRefused
+    from adgate.judge_recorded import record_live
+
+    class APITimeoutError(Exception):  # SDK 예외와 이름이 같으면 기술적 실패로 센다
+        pass
+
+    cs = _creatives("가", "나", "다")
+    out, log = tmp_path / "rec.jsonl", tmp_path / "calls.jsonl"
+    first = ScriptedJudge({"가": [GUA], "나": APITimeoutError("t"), "다": JudgeRefused("category=None")})
+    r1 = record_live(cs, first, POLICY, out=out, log=log, workers=1, say=lambda *_: None)
+    assert (r1["ok"], r1["failed"]) == (1, 2)
+    again = ScriptedJudge({"가": [], "나": [], "다": []})
+    r2 = record_live(cs, again, POLICY, out=out, log=log, workers=1, say=lambda *_: None, retry_technical=True)
+    assert again.calls == 1 and (r2["retried"], r2["resumed"], r2["ok"], r2["failed"]) == (1, 2, 1, 0)   # 시간 초과 하나만 다시 불렀다
+    rows = {json.loads(ln)["key"]: json.loads(ln) for ln in out.read_text(encoding="utf-8").splitlines()}
+    keys = list(cs)
+    assert "response" in rows[keys[1]] and rows[keys[2]] == {"key": keys[2], "error": "JudgeRefused"}      # 거절은 모델의 응답이라 그대로 둔다
+    plain = ScriptedJudge({"가": [], "나": [], "다": []})
+    r3 = record_live(cs, plain, POLICY, out=out, log=log, workers=1, say=lambda *_: None)                 # 옵션이 없으면 아무것도 다시 부르지 않는다
+    assert plain.calls == 0 and r3["retried"] == 0

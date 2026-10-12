@@ -31,11 +31,10 @@ adgate docs --check                             # 문서의 수치가 artifacts/
 
 ## 지금 상태와 다음 할 일 (실호출 측정이 끝나면 이 절을 지운다)
 
-- GitHub `sokldjs554/adgate`(공개)에 `main` 이 올라가 있다. 태그(`detector-pre-redteam`, `detector-v0`)는 세션의 푸시 권한으로 403 이라 올리지 못했다 → 문서에는 커밋 해시(`f97cc05`, `b50e4c1`)를 함께 적었다.
-- **실호출 측정은 아직 하지 않았다.** 사전등록은 끝났다(`docs/JUDGE_LIVE.md`). 순서:
-  1. `make judge-live-dry` — 호출 없음, 추정 약 $5.6.
-  2. `make judge-check` — 한 건 실호출(≤ $0.5). 요청이 받아들여지는지, 지연이 얼마인지 본다. 어댑터는 한 번도 실행된 적이 없다.
-  3. 사용자에게 비용 상한($12 기본)을 확인한다. 확인 없이 209건을 부르지 않는다.
-  4. `make judge-record` → `data/judge_live/` 의 녹음을 커밋 → **깨끗한 작업트리에서** `make judge-live-eval` 을 한 번.
-  5. 결과를 `docs/JUDGE_LIVE.md` 5절 이후에 덧붙인다(예상 L1–L7 대 관측, 대역과의 견줌, 비용·지연). `docs.py` 에 실호출 절 렌더링을 더하고 `adgate docs`. 1–4절은 고치지 않는다.
-- 키는 환경 변수 `ANTHROPIC_API_KEY`(세션 시작 때 주입된다)나 Actions secret 으로만 받는다. 없으면 채팅에 붙여 달라고 하지 말고 환경 설정을 안내한다.
+- GitHub `sokldjs554/adgate`(공개)에 `main` 이 올라가 있고 CI 는 통과한다. 태그(`detector-pre-redteam`, `detector-v0`)는 세션의 푸시 권한으로 403 이라 올리지 못했다 → 문서에는 커밋 해시(`f97cc05`, `b50e4c1`)를 함께 적었다.
+- **API 키는 GitHub 저장소 비밀값 `ANTHROPIC_API_KEY` 에 있다**(세션 환경에는 없다). 실호출은 Actions 의 `judge-live` 워크플로(수동)로 한다. **첫 호출 점검은 끝났다**(`docs/JUDGE_LIVE.md` 5절): 어댑터가 실제로 동작하고 한 건 5.7초·$0.02.
+- **본 측정(209건 녹음)은 아직이다.** 사용자의 비용 승인을 받은 뒤에 한다(상한 $12, 한 건 기준 재추정 $2–5). 순서:
+  1. 워크플로 `judge-live` 를 mode=`record`, max_usd=`12` 로 실행한다(`mcp__github__actions_run_trigger`, ref=main). `judge` 작업이 녹음하고 `publish` 작업이 결과를 `judge-live-results` 브랜치에 올린다.
+  2. 기술적 실패(시간 초과·연결·속도 제한·5xx)가 있으면 D2 에 따라 한 번만 `retry_technical=true` 로 이어한다. 거절·형식 오류는 다시 부르지 않는다.
+  3. `git fetch origin judge-live-results` 로 `data/judge_live/` 를 가져와 main 에 커밋한다. **깨끗한 작업트리에서** `make judge-live-eval` 을 한 번.
+  4. 결과를 `docs/JUDGE_LIVE.md` 6절 이후에 덧붙인다(예상 L1–L7 대 관측, 대역과의 견줌, 비용·지연). `docs.py` 에 실호출 절 렌더링을 더하고 `adgate docs`. 1–4절은 고치지 않는다.

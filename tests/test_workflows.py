@@ -30,19 +30,23 @@ def test_ci_never_touches_the_api_key():
     assert "ANTHROPIC" not in text and "secrets." not in text
 
 
-def test_the_paid_workflow_runs_only_by_hand_with_read_only_permissions():
+def test_the_paid_workflow_runs_only_by_hand_and_only_the_keyless_job_can_write():
     wf = load("judge-live.yml")
     assert set(wf["on"]) == {"workflow_dispatch"}                      # push·pull_request·schedule 로는 돌지 않는다
-    assert wf["permissions"] == {"contents": "read"}
+    assert wf["permissions"] == {"contents": "read"}                   # 기본은 읽기뿐
     text = (ROOT / ".github" / "workflows" / "judge-live.yml").read_text(encoding="utf-8")
     assert text.count("secrets.ANTHROPIC_API_KEY") == 2                # 호출하는 두 단계에서만
     paid = 0
-    for job in wf["jobs"].values():
+    for name, job in wf["jobs"].items():
         for step in job["steps"]:
             run = step.get("run", "")
             assert "${{" not in run, f"입력·비밀값을 셸 명령에 직접 끼우지 않는다(환경 변수로): {run}"
             assert "echo" not in run and "ANTHROPIC_API_KEY" not in run  # 키를 출력하지 않는다
             if "secrets.ANTHROPIC_API_KEY" in str(step.get("env", {})):
                 paid += 1
-                assert step["if"] in ("inputs.mode == 'check' || inputs.mode == 'record'", "inputs.mode == 'record'")
+                assert name == "judge" and step["if"] in ("inputs.mode == 'check' || inputs.mode == 'record'", "inputs.mode == 'record'")
     assert paid == 2
+    # 쓰기 권한이 있는 작업에는 키가 없고, 키가 있는 작업에는 쓰기 권한이 없다(최소 권한)
+    assert "permissions" not in wf["jobs"]["judge"]
+    assert wf["jobs"]["publish"]["permissions"] == {"contents": "write"} and "secrets." not in str(wf["jobs"]["publish"]["steps"]).replace("github.token", "")
+    assert wf["jobs"]["publish"]["needs"] == "judge"
