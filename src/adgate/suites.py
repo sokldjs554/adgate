@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from .llm import CaseOutcome, LLMClient, LLMResult, LLMTask, load_rows, record_cases, replay_cases
-from .llm.core import Part, parts_of
+from .llm.core import Part, parts_of, task_key
 from .llm.spend import Spend
 
 Driver = Callable[[Any, LLMClient], Any]
@@ -72,7 +72,7 @@ def names() -> list[str]:
     return sorted(REGISTRY)
 
 
-SUITE_MODULES = ("adgate.campaign.suite", "adgate.insight.suite", "adgate.creative.suite", "adgate.vision.suite")
+SUITE_MODULES = ("adgate.campaign.suite", "adgate.insight.suite", "adgate.creative.suite", "adgate.vision.suite", "adgate.judge_suite")
 
 
 def _load_all() -> None:
@@ -96,8 +96,13 @@ class DryClient:
         self.calls = 0
         self.est_usd = 0.0
         self.by_task: dict[str, list[float]] = {}
+        self.seen: set[str] = set()
 
     def call(self, task: LLMTask, user: str | Sequence[Part]) -> LLMResult:
+        key = task_key(task, user)
+        if key in self.seen:     # 같은 호출을 사례 안에서 되풀이하면 실제 녹음에서는 첫 번째 응답이 재생된다 — 비용이 없다
+            return self.inner.call(task, user)
+        self.seen.add(key)
         chars = len(task.system) + sum(len(p) if isinstance(p, str) else IMAGE_CHARS for p in parts_of(user))
         usd = self.spend.estimate(chars, expected_output_tokens=task.expected_output_tokens)
         self.calls += 1

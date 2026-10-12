@@ -75,10 +75,14 @@ def test_llm_live_is_manual_only_keyed_steps_are_the_two_calling_ones_and_publis
 
 
 def test_every_suite_the_workflow_can_run_is_registered_and_dry_runs_without_a_key():
+    import json
+
     from adgate import suites
 
-    assert {"campaign", "campaign_reply", "insight", "insight_llm"} <= set(suites.names())
+    reg = json.loads((ROOT / "docs" / "PREREGISTRATIONS.json").read_text(encoding="utf-8"))
+    prereg_docs = {e["doc"] for e in reg} if isinstance(reg, list) else set(reg.get("docs", reg))
+    assert {"campaign", "campaign_reply", "insight", "insight_llm", "creative", "vision", "judge_gray"} <= set(suites.names())
     for n in suites.names():
         s = suites.get(n)
-        assert s.prereg.startswith("docs/EVAL_") and (ROOT / s.prereg).exists()
+        assert (ROOT / s.prereg).exists() and s.prereg in prereg_docs, f"{n}: 사전등록 문서가 없거나 해시 등록(adgate prereg)이 안 됐다: {s.prereg}"
         assert s.variants or s.offline is not None, "모델 변형이 없으면 오프라인 팔이 있어야 한다"

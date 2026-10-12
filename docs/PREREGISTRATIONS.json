@@ -38,5 +38,13 @@
     "sha256": "943492f7dc4dd47dc5474890dc30e00dc9b1c47efca0ad4460b45249047e44c7",
     "registered": "2026-10-12",
     "note": ""
+  },
+  {
+    "doc": "docs/JUDGE_GRAY.md",
+    "start": "## 1.",
+    "end": "## 6.",
+    "sha256": "09de17b9a862bf72269c346339d37852f679f3b68f59fa819542ccb355dbb5de",
+    "registered": "2026-10-12",
+    "note": ""
   }
 ]
