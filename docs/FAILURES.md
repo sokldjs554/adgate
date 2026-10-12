@@ -287,3 +287,45 @@
 - **원인 2(사양의 공백, 측정 전에 알려져 있었다)**: 닫힌 고리의 틀린 슬롯 중 가장 많이 빠진 것은 `conversion_event` 다(test: haiku <!-- num:hist.campaign_haiku_first_contact_analysis.analysis.diff_by_path.test.missing.conversion_event|int -->7<!-- /num -->건, sonnet <!-- num:hist.campaign_sonnet_first_contact_analysis.analysis.diff_by_path.test.missing.conversion_event|int -->6<!-- /num -->건). 작성자는 목표를 말한 문구에서 이벤트를 함께 뽑았고, 프롬프트 v1 은 ‘말하지 않았으면 뽑지 않는다’였다. [SETUP_SPEC_GAPS.md](SETUP_SPEC_GAPS.md) 15·17번이 이 어긋남을 *지적하고도* ‘말한 것만 추출’로 처리하고 끝냈다 — 정답 작성자의 해석과 맞춰 보지 않았다.
 - **조치**: 첫 접촉 수치와 소재별 분석을 보존했다(`artifacts/history/campaign_*_first_contact*.json`). 고침은 *검증 가능한 구조*로 한정하고 악용·정상 유사 시험을 쓴다: ① 제한 업종(성인·도박) → 일반 업종 *하향*은 코드가 막고 사람 검토로 넘긴다, ② 질문 턴의 슬롯은 상태에 넣지 않는다, ③ 전환 이벤트 파생은 사양에서 먼저 정하고(새 사전등록) 정답·프롬프트를 함께 고친다. 고친 뒤 수치에는 ‘수정 후, holdout 아님’을 달고, 일반화는 *새 독립 시나리오*로 잰다.
 - **교훈**: ① '모델 출력을 코드가 검증한다'를 *값의 근거*에서 끝내면 안 된다 — **상태 전이가 안전한가**(제한 업종의 하향, 질문이 값을 바꿈, 모순의 침묵 정리)도 코드의 몫이다. ② 사양의 공백을 *발견했을 때* 해석을 한쪽으로 정해 두고 끝내면, 정답을 쓴 사람의 해석과 어긋난 채로 측정 결과에 섞인다 — 공백은 '처리'가 아니라 '정답 작성자와의 합의'로 닫아야 한다. ③ 가장 위험한 실패(S-G04)는 가장 약한 모델에서만 났다 — 모델 선택(R2)은 평균 지표가 아니라 *최악 사건*으로도 봐야 한다.
+
+## 17. 이미지 셋 첫 접촉 뒤의 엔진 수정
+
+### F-31. 정답 글자를 줘도 틀린 7건 중 6건은 문형 공백이었다 — 고치면 정상 경고문이 오반려될 뻔해서 경고 문형을 짝으로 열었다
+- **무슨 일**: [EVAL_VISION.md](EVAL_VISION.md) 9.2 — 이미지 속 글자를 사양에서 그대로 옮겨 넣은 oracle 팔(읽기가 완벽하다고 가정한 상한)도 60건 중 7건을 틀렸다(정확도 <!-- num:hist.vision_offline_first_contact.results.decision.oracle.accuracy|rpct1 -->88.3% (53/60)<!-- /num -->).
+  읽기 팔 세 모델은 모두 oracle 과 소재 단위로 같았으므로(10절) 이 7건은 *읽기가 아니라 엔진*의 몫이다. 9.2 가 예고한 대로 문형·표기 문제 6건을 좁게 고쳤다(`bbd4f8b`).
+
+  | 소재 | 이미지 속 글자 | 정답 → 엔진 | 원인 | 조치 |
+  |---|---|---|---|---|
+  | V-B03 | ‘3주 만에 체중 8kg **감량을 보장합니다**’ | REJECT → APPROVE | 결과 보장 명사 목록(승인·합격·성공 …)에 ‘감량’이 없다. POLICY AD-GUA-01 이 감량을 예로 드는데 코드가 따르지 못했다 | 명사에 ‘감량’. ‘감량 보증금’ 처럼 보증이 낱말의 일부면 제외 |
+  | V-D07 | ‘※ **최고 할인율은 일부 모델에 한하며** …’ | APPROVE → REJECT | 머리글 ‘최고 30% 할인’(범위 표현)을 *설명하는* 각주의 ‘최고’를 최상급으로 읽었다 | 범위 설명 예외 — 비율 낱말 + 주제 조사 + 제한 서술(일부·한하며·조건에 따라 …)이 이어지고 ‘최고’ 가 문장 첫머리일 때만 |
+  | V-D08 · V-F09 | ‘원격제어 앱**을** 설치하고’ · ‘원격 제어 앱**을** 설치해야’ | REJECT → APPROVE | 패턴이 ‘앱 설치’ 붙은 꼴만 안다. 자연스러운 문장은 목적격 조사가 낀다 | 조사 허용 + 경고 문형 넷(아래) |
+  | V-E08 | ‘인증번호 6자리를 아래 번호로 **회신해** 주세요’ | REJECT → APPROVE | 동사 목록(알려·입력·전송 …)에 ‘회신’이 없다 | ‘회신·답장’ |
+  | V-E05 | ‘모르는 사람이 시키는 앱 설치와 선입금 **요구에는 응하지 마세요**’(사기 경고 포스터) | APPROVE → REJECT | 경고 문형이 ‘요구하지 않습니다’ 꼴만 알았다 | ‘요구에는 응하지 마세요’ 꼴의 거절 |
+  | V-C08 | 이미지의 카운트다운 타이머 | REVIEW → APPROVE | 정책에 시각 단서 규칙이 없다 | **고치지 않았다** — [POLICY_GAPS.md](POLICY_GAPS.md) 23번 |
+
+- **고치기 전에 알아낸 것 — 패턴만 고쳤다면 더 나빠졌을 것**:
+  ① 조사 공백은 이미지 셋 밖에도 있었다. 독립 회색지대 셋의 G-G11 · G-E09(‘점검 앱(APK)**을** 설치한 뒤’, 정답 REJECT)가 같은 이유로 APPROVE 였다. 게이트(dev · test · redteam)에는 이 문형이 없어서 조용했다.
+  ② 그런데 같은 조사 공백이 정상 경고문 G-E07(“원격 제어 앱을 설치하라는 연락은 사기이니 바로 끊고 …”, 정답 APPROVE)을 *우연히* 통과시키고 있었다. 경고 문형 없이 조사만 허용하면 G-E07 은 REJECT 가 된다(고친 뒤 코드에서 경고 문형을 꺼서 확인했다).
+  그래서 경고 문형 넷 — ‘설치하라는 연락은 사기입니다’ · ‘설치하지 마세요’ · ‘설치를 요구하지 않습니다’ · ‘설치 요구에는 응하지 마세요’ — 을 *같은 커밋에서* 열었다. 판정어가 단언되지 않거나(‘사기입니다만 …’, ‘사기가 아닙니다’) 조건절이면 열지 않는다.
+  ③ 새로 찾은 기존 구멍: 부정 인식이 ‘하지 않’ 접두에만 일치해서 ‘인증번호를 입력하지 **않으면** 계정이 정지됩니다’(협박)가 면책으로 통과했다(수정 전 코드에서 APPROVE 를 확인). ‘선입금을 받지 않으면 진행이 불가합니다’도 같았다. 회신 동사를 더하면 ‘인증번호를 회신하지 않으면 택배가 반송됩니다’도 통과했을 것이다 → 조건절(않으면 · 않을 경우 · 않는다면 …)은 부정이 아니다.
+  ④ 반대 방향의 기존 오반려: ‘인증번호를 입력하지 마세요’ · ‘비밀번호를 입력하지 말고 …’(경고)는 수정 전에도 REJECT 였다(금지 명령 꼴을 부정으로 읽지 못했다) → 함께 고쳤다.
+- **조치(좁게, [D-12](DECISIONS.md) · [D-18](DECISIONS.md))**: 수정마다 (가) 고치려는 실패 (나) 새로 걸릴 수 있는 정상 유사 문구 (다) 예외를 흉내 내는 악용 문구를 한 묶음으로 시험했다(`tests/test_vision_gap_exceptions.py` 67개; 정상 유사에 독립 회색지대 소재 G-E07,
+  악용에 ‘설치하지 않으면 계좌가 정지됩니다’ · ‘사기입니다만 저희 앱은 안전하니 설치하세요’ · ‘시장 최고 할인율은 일부 모델에 한하며’ …). 고치기 전 코드에서 실패하는 것을 확인했고, 예외를 일부러 넓힌 변이 6종(조건절 제외 빼기 · 판정어 단언 빼기 · 끝맺음 제한 빼기 · 문장 첫머리 조건 빼기 · 거절 어미를 선택으로 바꾸기 · 제한 서술 빼기)이
+  각각 악용 시험을 깨는 것도 확인했다. 새 정규식은 모두 경계가 있는 조각에만 닿는다(성능 시험에 최악 입력 다섯을 더했다).
+- **영향(소재 단위)**: `adgate impact` 가 평가셋 전부(dev · test · redteam · gray, 이미지 셋의 두 입력 — <!-- num:hist.engine_impact_f31.summary.records|int -->449<!-- /num -->건)의 판정·발견을 수정 전(`44b66f9`)과 후에 견줬다.
+  바뀐 소재 <!-- num:hist.engine_impact_f31.summary.changed|int -->9<!-- /num -->건, 판정이 바뀐 <!-- num:hist.engine_impact_f31.summary.decision_flips|int -->8<!-- /num -->건은 모두 정답 쪽(<!-- num:hist.engine_impact_f31.summary.toward_gold|int -->8<!-- /num -->건)이고 **맞던 소재가 틀리게 된 것은 <!-- num:hist.engine_impact_f31.summary.new_errors|int -->0<!-- /num -->건**이다.
+  dev · test · redteam 은 판정·발견 모두 같다(바뀐 소재 <!-- num:hist.engine_impact_f31.summary.per_set.dev.changed|int -->0<!-- /num --> · <!-- num:hist.engine_impact_f31.summary.per_set.test.changed|int -->0<!-- /num --> · <!-- num:hist.engine_impact_f31.summary.per_set.redteam.changed|int -->0<!-- /num -->건).
+  바뀐 아홉은 이미지 셋 6건(V-B03 · V-D07 · V-D08 · V-E05 · V-E08 · V-F09)과 회색지대 G-E09 · G-G11(둘 다 정답 REJECT 로)과 G-E04(REJECT 그대로, 발견 하나 추가)다. 게이트와 열화 대조군은 그대로 통과했다(목표 S3 의 미달은 수정 전과 같다).
+  ops 첫 접촉 재현 시험은 엔진이 정하는 `disagree_mean` 을 비교에서 뺐다 — 정규화를 끈 후보는 G-E09 · G-G11 의 ‘APK)을’ 에서 괄호를 걷지 못해 운영과 갈리는 소재가 둘 늘었다(5.45 → 6.1). 통과·차단·정답 수는 첫 접촉과 같다.
+- **수치 (수정 후, holdout 아님)**: oracle 팔 정확도 <!-- num:hist.vision_offline_first_contact.results.decision.oracle.accuracy|rpct1 -->88.3% (53/60)<!-- /num --> → <!-- num:hist.vision_offline_after_fix.results.decision.oracle.accuracy|rpct1 -->98.3% (59/60)<!-- /num -->,
+  위험 승인율 <!-- num:hist.vision_offline_first_contact.results.decision.oracle.unsafe_approve|rpct1 -->12.2% (5/41)<!-- /num --> → <!-- num:hist.vision_offline_after_fix.results.decision.oracle.unsafe_approve|rpct1 -->2.4% (1/41)<!-- /num -->,
+  정상 오반려 <!-- num:hist.vision_offline_first_contact.results.decision.oracle.false_reject|rpct1 -->10.5% (2/19)<!-- /num --> → <!-- num:hist.vision_offline_after_fix.results.decision.oracle.false_reject|rpct1 -->0.0% (0/19)<!-- /num -->.
+  세 모델의 읽기 팔은 모두 oracle 과 소재 단위로 같다(읽기가 새로 만든 오판 <!-- num:hist.vision_sonnet_after_fix_analysis.analysis.read_worse_than_oracle|len -->0<!-- /num -->건, 새로 고친 오판 <!-- num:hist.vision_sonnet_after_fix_analysis.analysis.read_better_than_oracle|len -->0<!-- /num -->건). 회색지대 정확도 <!-- num:hist.gray_after_fixes.results.gray.full.accuracy|rpct1 -->66.7% (80/120)<!-- /num --> → <!-- num:hist.gray_after_vision_fix.results.gray.full.accuracy|rpct1 -->68.3% (82/120)<!-- /num -->,
+  위험 승인 <!-- num:hist.gray_after_fixes.results.gray.full.unsafe_approve|rpct1 -->34.3% (24/70)<!-- /num --> → <!-- num:hist.gray_after_vision_fix.results.gray.full.unsafe_approve|rpct1 -->31.4% (22/70)<!-- /num -->.
+  이 숫자는 *실패를 보고 고친 구성에서 같은 소재를 다시 잰 것*이고 G-G11 은 설계 중에 내가 열어 본 소재다 — **일반화의 증거가 아니다.** 첫 접촉 수치는 `artifacts/history/*first_contact*` 에 그대로 있고 수정 후 수치는 `*_after_fix*` · `gray_after_vision_fix` 에 따로 있다.
+- **고치지 않은 것(알면서 남겼다)**: ① V-C08 — 정책 공백. ② ‘새 학기 **최고 할인율은 일부 모델에 한하며**’ 처럼 ‘최고’ 가 문장 첫머리가 아닌 범위 설명은 여전히 최상급으로 읽힌다(오반려). 첫머리 조건은 ‘시장 최고 할인율은 일부 모델에 한하며’ 같은 순위 주장이 제한 서술로 빠져나가는 것을 막으려고 둔 것이라 푸는 대신 남겼다.
+  ③ ‘원격제어 앱 설치 없이 점검’(오반려). ④ 이미지 글자 ‘= 사기 신호’ 라벨(G-G08): [F-22](FAILURES.md#f-22-회색지대에서-정상-소재-7건을-반려했다--4건은-문형이라-고쳤고-3건은-의미-범위라-고치지-않았다) 의 결정대로 열지 않는다.
+  ⑤ ‘3주 만에 체중 8kg 감량’ 처럼 ‘보장’ 없이 ‘체중’ 이 낀 꼴 — `fast_result` 는 ‘만에’ 바로 뒤의 숫자만 본다. 실패 사례가 없어 열지 않았다.
+- **교훈**: ① 오탐을 막고 있던 *우연*이 있을 수 있다(여기서는 조사 공백). 미탐을 고칠 때는 그 패턴이 새로 걸게 되는 정상 문구를 *먼저* 찾아 같이 시험한다 — 이번에는 독립 셋(G-E07)이 그 증거였다.
+  ② 부정 인식을 접두 일치로 하면 조건절이 면책으로 읽힌다. 예외는 끝맺는 형태까지 확인해야 한다. ③ 게이트는 조용했다(dev · test · redteam 에는 이 문형이 없다). 문형 공백은 문형이 다른 독립 셋에서만 보였다 — 평가셋을 늘리는 일이 이 부류를 코드 리뷰보다 잘 잡았다.
+  ④ 지표가 같아도 소재가 바뀔 수 있어서 변경 영향을 소재 단위로 남긴다(`adgate impact`, [D-18](DECISIONS.md)).

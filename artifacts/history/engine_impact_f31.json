@@ -1,0 +1,228 @@
+{
+ "changed": [
+  {
+   "added": [
+    [
+     "AD-FRD-01",
+     "deceptive_solicitation",
+     "body",
+     "원격 지원 앱을 설치"
+    ]
+   ],
+   "after": "REJECT",
+   "before": "REJECT",
+   "direction": "same_decision",
+   "gold": "REJECT",
+   "key": "gray:G-E04",
+   "removed": []
+  },
+  {
+   "added": [
+    [
+     "AD-FRD-01",
+     "deceptive_solicitation",
+     "body",
+     "APK)을 설치"
+    ]
+   ],
+   "after": "REJECT",
+   "before": "APPROVE",
+   "direction": "toward",
+   "gold": "REJECT",
+   "key": "gray:G-E09",
+   "removed": []
+  },
+  {
+   "added": [
+    [
+     "AD-FRD-01",
+     "deceptive_solicitation",
+     "body",
+     "APK)을 설치"
+    ]
+   ],
+   "after": "REJECT",
+   "before": "APPROVE",
+   "direction": "toward",
+   "gold": "REJECT",
+   "key": "gray:G-G11",
+   "removed": []
+  },
+  {
+   "added": [
+    [
+     "AD-GUA-01",
+     "guarantee",
+     "image_text",
+     "감량을 보장"
+    ]
+   ],
+   "after": "REJECT",
+   "before": "APPROVE",
+   "direction": "toward",
+   "gold": "REJECT",
+   "key": "vision_oracle:V-B03",
+   "removed": []
+  },
+  {
+   "added": [],
+   "after": "APPROVE",
+   "before": "REJECT",
+   "direction": "toward",
+   "gold": "APPROVE",
+   "key": "vision_oracle:V-D07",
+   "removed": [
+    [
+     "AD-ABS-01",
+     "unsubstantiated",
+     "image_text",
+     "최고"
+    ]
+   ]
+  },
+  {
+   "added": [
+    [
+     "AD-FRD-01",
+     "deceptive_solicitation",
+     "image_text",
+     "원격제어 앱을 설치"
+    ]
+   ],
+   "after": "REJECT",
+   "before": "APPROVE",
+   "direction": "toward",
+   "gold": "REJECT",
+   "key": "vision_oracle:V-D08",
+   "removed": []
+  },
+  {
+   "added": [],
+   "after": "APPROVE",
+   "before": "REJECT",
+   "direction": "toward",
+   "gold": "APPROVE",
+   "key": "vision_oracle:V-E05",
+   "removed": [
+    [
+     "AD-FRD-01",
+     "deceptive_solicitation",
+     "image_text",
+     "선입금"
+    ]
+   ]
+  },
+  {
+   "added": [
+    [
+     "AD-FRD-01",
+     "deceptive_solicitation",
+     "image_text",
+     "인증번호 6자리를 아래 번호로 회신"
+    ]
+   ],
+   "after": "REJECT",
+   "before": "APPROVE",
+   "direction": "toward",
+   "gold": "REJECT",
+   "key": "vision_oracle:V-E08",
+   "removed": []
+  },
+  {
+   "added": [
+    [
+     "AD-FRD-01",
+     "deceptive_solicitation",
+     "image_text",
+     "원격 제어 앱을 설치"
+    ]
+   ],
+   "after": "REJECT",
+   "before": "APPROVE",
+   "direction": "toward",
+   "gold": "REJECT",
+   "key": "vision_oracle:V-F09",
+   "removed": []
+  }
+ ],
+ "meta": {
+  "after": {
+   "created": "2026-10-12 08:47:33Z",
+   "dirty": false,
+   "git_sha": "cd04ec7",
+   "sets": {
+    "dev": 60,
+    "gray": 120,
+    "redteam": 72,
+    "test": 77,
+    "vision": 60
+   }
+  },
+  "before": {
+   "created": "2026-10-12 08:47:24Z",
+   "dirty": true,
+   "git_sha": "44b66f9",
+   "note": "변경 전 리비전(44b66f9)의 작업트리에서 현재 impact.py 로 떴다. dirty 는 그 작업트리에 impact.py 를 복사해 넣은 것 하나 때문이다(엔진·데이터는 44b66f9 그대로).",
+   "sets": {
+    "dev": 60,
+    "gray": 120,
+    "redteam": 72,
+    "test": 77,
+    "vision": 60
+   }
+  }
+ },
+ "summary": {
+  "away_from_gold": 0,
+  "changed": 9,
+  "decision_flips": 8,
+  "fixed": 8,
+  "new_errors": 0,
+  "per_set": {
+   "dev": {
+    "away": 0,
+    "changed": 0,
+    "decision_flips": 0,
+    "records": 60,
+    "toward": 0
+   },
+   "gray": {
+    "away": 0,
+    "changed": 3,
+    "decision_flips": 2,
+    "records": 120,
+    "toward": 2
+   },
+   "redteam": {
+    "away": 0,
+    "changed": 0,
+    "decision_flips": 0,
+    "records": 72,
+    "toward": 0
+   },
+   "test": {
+    "away": 0,
+    "changed": 0,
+    "decision_flips": 0,
+    "records": 77,
+    "toward": 0
+   },
+   "vision_noimage": {
+    "away": 0,
+    "changed": 0,
+    "decision_flips": 0,
+    "records": 60,
+    "toward": 0
+   },
+   "vision_oracle": {
+    "away": 0,
+    "changed": 6,
+    "decision_flips": 6,
+    "records": 60,
+    "toward": 6
+   }
+  },
+  "records": 449,
+  "toward_gold": 8
+ }
+}
