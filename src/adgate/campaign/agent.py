@@ -65,6 +65,10 @@ _CAMPAIGN_INJECTION = re.compile(
     re.IGNORECASE,
 )
 _SENT = re.compile(r"[^.!?\n]+[.!?]?")
+# 값이 *결정*이 아니라 *물음*이나 *가정*인 문장: 물음표, 물음 어미("되나여", "있을까요"), 조건 연결어미("방문으로 하면"). 질문 턴에서만 본다(Agent.guard).
+_SENT_Q = re.compile(r"[^.!?？\n]+[.!?？]?")
+_ASKING = re.compile(r"[?？]|(?:나요|나여|까요|까여|인가요|ㄴ가요|있을까|될까|되나|안돼요|안되나|가능한가|가능할까)\s*[.]?\s*$")
+_CONDITIONAL = re.compile(r"[가-힣]면(?=\s|$)")
 _HAS_NUMBER = re.compile(r"[0-9]|[만천백억]")
 _HAS_AGE = re.compile(r"[0-9]|대|세")
 FORBIDDEN_REPLY = re.compile(r"보장합니다|무조건\s*(?:통과|승인)|100%\s*승인|반드시\s*통과")
@@ -166,6 +170,17 @@ def _find(utterance: str, quote: str) -> int:
     if sq and sq in su:
         return max(0, utterance.find(quote.strip()[:3])) if quote.strip()[:3] in utterance else 0
     return -1
+
+
+def hypothetical(utterance: str, quote: str) -> bool:
+    """인용이 든 *문장*이 물음이거나 가정인가. 질문 턴이라도 같은 발화의 평서문 값("목표 CPA는 1만2천원으로 잡을 거구요")은 결정이다."""
+    pos = _find(utterance, quote)
+    sentence = utterance
+    for m in _SENT_Q.finditer(utterance):
+        if m.start() <= max(pos, 0) < m.end():
+            sentence = m.group()
+            break
+    return _ASKING.search(sentence.strip()) is not None or _CONDITIONAL.search(sentence) is not None
 
 
 def parse_value(raw: str, path: str) -> Any:
@@ -309,17 +324,20 @@ class Agent:
 
     # ---- 상태 전이의 안전(F-30)
     @staticmethod
-    def guard(s: Session, intent: str, accepted: list[dict[str, Any]], retract: list[str]) -> tuple[list[dict[str, Any]], list[str], list[Rejected]]:
+    def guard(s: Session, intent: str, accepted: list[dict[str, Any]], retract: list[str], utterance: str) -> tuple[list[dict[str, Any]], list[str], list[Rejected]]:
         """근거 검사는 '값이 발화에 있는가'만 본다. '이 발화가 값을 바꾸라는 것인가'와 '그 값으로 바꿔도 되는가'는 여기서 코드가 정한다.
 
-        ① 질문 턴("방문으로 하면 만원도 되나요?")의 값은 가정이지 결정이 아니다 — 상태에 넣지 않는다. ② 제한 업종(성인·도박)은 대화로 일반 업종으로 *내릴* 수 없다
-        (정정·철회 모두). 의도 표지(intent)는 모델이 정하므로 ②는 의도와 무관하게 막는다. 막은 것은 ``Rejected`` 로 남기고 ``s.notices`` 로 답변이 알린다."""
+        ① 질문 턴에서는 *물음·가정 문장*의 값("방문으로 하면 만원도 되나요?")을 상태에 넣지 않는다 — 가정이지 결정이 아니다. 같은 발화의 평서문 값
+        ("…알아서 잡아주세요. 목표 CPA는 1만2천원으로 잡을 거구요")은 결정이라 받는다(첫 가드가 이것까지 버려 S-H05 에서 정상 값을 잃었다). 철회는 질문 턴에서 받지 않는다.
+        ② 제한 업종(성인·도박)은 대화로 일반 업종으로 *내릴* 수 없다(정정·철회 모두). 의도 표지(intent)는 모델이 정하므로 ②는 의도와 무관하게 막는다.
+        막은 것은 ``Rejected`` 로 남기고 ``s.notices`` 로 답변이 알린다."""
         blocked: list[Rejected] = []
         if intent == "question":
-            blocked += [Rejected(a["path"], a["quote"], "question_turn") for a in accepted] + [Rejected(p, "", "question_turn") for p in retract]
+            kept = [a for a in accepted if not hypothetical(utterance, a["quote"])]
+            blocked += [Rejected(a["path"], a["quote"], "question_turn") for a in accepted if a not in kept] + [Rejected(p, "", "question_turn") for p in retract]
             if blocked:
                 s.notices.append("question_not_applied")
-            return [], [], blocked
+            accepted, retract = kept, []
         cur = s.slots.get("ad_category")
         locked = cur is not None and cur.value in RESTRICTED_CATEGORIES
         keep: list[dict[str, Any]] = []
@@ -343,7 +361,7 @@ class Agent:
         s.turn += 1
         s.notices = []
         intent, accepted, retract, rejected, proposed, err = self.understand(s, utterance)
-        accepted, retract, blocked = self.guard(s, intent, accepted, retract)
+        accepted, retract, blocked = self.guard(s, intent, accepted, retract, utterance)
         changed = False
         for a in accepted:
             old = s.slots.get(a["path"])
@@ -536,4 +554,4 @@ def verify_reply(message: str, plan: dict[str, Any], draft: str) -> bool:
     return reply_problem(message, plan, draft) is None
 
 
-__all__ = ["Agent", "Session", "SlotValue", "TurnResult", "Rejected", "ground", "injection_spans", "template_message", "verify_reply", "reply_problem", "ADSET_MIN_DAILY"]
+__all__ = ["Agent", "Session", "SlotValue", "TurnResult", "Rejected", "ground", "hypothetical", "injection_spans", "template_message", "verify_reply", "reply_problem", "ADSET_MIN_DAILY"]

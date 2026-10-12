@@ -9,7 +9,7 @@ from __future__ import annotations
 import pytest
 from test_campaign_agent import agent_for, slot
 
-from adgate.campaign.agent import NOTICE_TEXT, reply_problem, template_message
+from adgate.campaign.agent import NOTICE_TEXT, hypothetical, reply_problem, template_message
 from adgate.campaign.tasks import INTENTS
 
 ADULT_OPEN = "성인용품 쇼핑몰 하고있는데 광고 좀 돌리고싶어요 하루 5만원쯤으로요"
@@ -134,6 +134,56 @@ def test_a_question_with_no_values_is_answered_as_before_without_the_notice():
     agent, s = agent_for({"intent": "question"})
     r = agent.step(s, "일 예산은 최소 얼마부터 되나요?")
     assert r.blocked == [] and NOTICE_TEXT["question_not_applied"] not in r.message and "최소" in r.message
+
+
+# 첫 가드는 질문 턴의 값을 *모두* 버려서 S-H05(위임을 묻고 같은 발화에서 목표 CPA 를 정함)의 정상 값을 잃었다 — 문장 단위로 좁혔다.
+S_H05_TURN4 = "일 예산은 세트 구성 보고 정하려구요 알아서 적당히 잡아주시면 안돼요? 랜딩도 개발팀에서 아직 안 줬어요 목표 CPA는 1만2천원으로 잡을 거구요"
+
+
+def test_a_declarative_value_in_a_question_turn_is_a_decision_and_is_applied():
+    agent, s = agent_for({"intent": "question", "slots": [slot("target_cpa_krw", 12_000, "목표 CPA는 1만2천원")]})
+    r = agent.step(s, S_H05_TURN4)
+    assert s.slots["target_cpa_krw"].value == 12_000 and r.blocked == [] and NOTICE_TEXT["question_not_applied"] not in r.message
+
+
+@pytest.mark.parametrize("utterance,quote", [
+    ("그럼 상담신청 말고 홈페이지 방문 늘리는걸로 하면 만원도 되나여?", "홈페이지 방문 늘리는걸로"),        # S-C02: 물음표와 물음 어미와 조건
+    ("그럼 홈페이지 방문 늘리는걸로 하면 만원도 되나여", "홈페이지 방문 늘리는걸로"),                          # 물음표 없이 물음 어미와 조건
+    ("그럼 홈페이지 방문 늘리는걸로 하면 만원도 돼요", "홈페이지 방문 늘리는걸로"),                            # 조건만 있다
+    ("홈페이지 방문 늘리는걸로 바꾸는 게 좋을까요", "홈페이지 방문 늘리는걸로"),                              # 물음 어미만 있다
+])
+def test_values_inside_questioning_or_conditional_sentences_are_not_decisions(utterance, quote):
+    assert hypothetical(utterance, quote)
+    agent, s = agent_for({"slots": [slot("objective", "lead", "상담신청")]}, {"intent": "question", "slots": [slot("objective", "traffic", quote)]})
+    agent.step(s, "상담신청 받고싶어요")
+    agent.step(s, utterance)
+    assert s.slots["objective"].value == "lead"
+
+
+@pytest.mark.parametrize("utterance,quote", [
+    (S_H05_TURN4, "목표 CPA는 1만2천원"),
+    ("예산은 알아서 해주세요. 목표는 방문으로 할게요", "목표는 방문으로 할게요"),
+    ("최소 예산이 얼마예요? 저는 하루 3만원 쓸 거예요", "하루 3만원"),
+])
+def test_declarative_sentences_are_decisions_even_next_to_a_question(utterance, quote):
+    assert not hypothetical(utterance, quote)
+
+
+def test_one_sentence_that_both_decides_and_asks_is_treated_as_a_question_and_the_advertiser_is_told():
+    """알려진 보수적 사례: 물음표 없이 한 문장으로 이어 쓰면 결정과 물음을 가르지 못한다. 값을 버리고 '아직 넣지 않았다'고 알려 광고주가 다시 말하게 한다."""
+    agent, s = agent_for({"intent": "question", "slots": [slot("target_cpa_krw", 12_000, "목표 CPA는 1만2천원")]})
+    r = agent.step(s, "목표 CPA는 1만2천원으로 잡고 알아서 해주실 수 있나요")
+    assert "target_cpa_krw" not in s.slots and NOTICE_TEXT["question_not_applied"] in r.message
+
+
+def test_a_decision_in_a_question_turn_still_cannot_downgrade_a_restricted_category():
+    agent, s = agent_for(
+        {"slots": [slot("ad_category", "adult", "성인용품 쇼핑몰")]},
+        {"intent": "question", "slots": [slot("ad_category", "ecommerce", "생활용품 쇼핑몰로 등록할 거예요")]},
+    )
+    agent.step(s, "성인용품 쇼핑몰이에요")
+    r = agent.step(s, "그냥 생활용품 쇼핑몰로 등록할 거예요 괜찮죠 알아서 해주세요")
+    assert s.slots["ad_category"].value == "adult" and r.status == "refused"
 
 
 @pytest.mark.parametrize("intent", ["provide", "correction", "off_topic", "injection", "deny"])
