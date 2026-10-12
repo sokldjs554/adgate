@@ -23,7 +23,16 @@ from typing import Any, Literal
 
 from ..creative.pipeline import looks_like_injection
 from ..llm import LLMClient, LLMError, LLMMissing
-from .rules import ADSET_MIN_DAILY, HIGH_BUDGET, MIN_DAILY, Issue, missing, plan_adsets, validate
+from .rules import (
+    ADSET_MIN_DAILY,
+    HIGH_BUDGET,
+    MIN_DAILY,
+    RESTRICTED_CATEGORIES,
+    Issue,
+    missing,
+    plan_adsets,
+    validate,
+)
 from .schema import ASSUMABLE_DEFAULTS, SLOTS, SlotError, normalize
 from .tasks import extract_input, extract_task, reply_input, reply_task
 
@@ -81,6 +90,7 @@ class Session:
     confirmed: bool = False
     confirmed_high_budget: bool = False
     asked: dict[str, int] = field(default_factory=dict)
+    notices: list[str] = field(default_factory=list)   # 이번 턴에 코드가 막은 것 — 답변이 광고주에게 알려야 한다(NOTICE_TEXT)
 
     def known(self) -> dict[str, Any]:
         """광고주가 말했거나 말에서 계산한 값(가정은 제외) — 추출기에게 보여 줄 '이미 아는 것'."""
@@ -266,6 +276,14 @@ def display(path: str, value: Any) -> str:
     return str(value)
 
 
+# 이번 턴에 코드가 막은 상태 전이를 광고주에게 알리는 말(템플릿 답변·LLM 답변 검증이 같이 쓴다).
+NOTICE_TEXT = {
+    "restricted_category_downgrade": "제한 업종으로 확인된 설정은 대화로 업종을 바꿀 수 없어요. 업종이 잘못 인식됐다면 광고주 지원(담당자 검토)에 요청해 주세요.",
+    "question_not_applied": "질문으로 보고 말씀하신 값은 아직 설정에 넣지 않았어요. 정하셨다면 알려 주세요.",
+}
+NOTICE_KEYWORD = {"restricted_category_downgrade": "담당자|검토|지원"}
+
+
 # --------------------------------------------------------------------------- 에이전트
 class Agent:
     def __init__(self, client: LLMClient, *, polish: bool = False) -> None:
@@ -288,10 +306,44 @@ class Agent:
         retract = [p for p in out.get("retract", []) if p in SLOTS]
         return str(out.get("intent", "provide")), ok, retract, bad, len(items), None
 
+    # ---- 상태 전이의 안전(F-30)
+    @staticmethod
+    def guard(s: Session, intent: str, accepted: list[dict[str, Any]], retract: list[str]) -> tuple[list[dict[str, Any]], list[str], list[Rejected]]:
+        """근거 검사는 '값이 발화에 있는가'만 본다. '이 발화가 값을 바꾸라는 것인가'와 '그 값으로 바꿔도 되는가'는 여기서 코드가 정한다.
+
+        ① 질문 턴("방문으로 하면 만원도 되나요?")의 값은 가정이지 결정이 아니다 — 상태에 넣지 않는다. ② 제한 업종(성인·도박)은 대화로 일반 업종으로 *내릴* 수 없다
+        (정정·철회 모두). 의도 표지(intent)는 모델이 정하므로 ②는 의도와 무관하게 막는다. 막은 것은 ``Rejected`` 로 남기고 ``s.notices`` 로 답변이 알린다."""
+        blocked: list[Rejected] = []
+        if intent == "question":
+            blocked += [Rejected(a["path"], a["quote"], "question_turn") for a in accepted] + [Rejected(p, "", "question_turn") for p in retract]
+            if blocked:
+                s.notices.append("question_not_applied")
+            return [], [], blocked
+        cur = s.slots.get("ad_category")
+        locked = cur is not None and cur.value in RESTRICTED_CATEGORIES
+        keep: list[dict[str, Any]] = []
+        for a in accepted:
+            if locked and a["path"] == "ad_category" and a["value"] not in RESTRICTED_CATEGORIES:
+                blocked.append(Rejected(a["path"], a["quote"], "restricted_category_downgrade"))
+                continue
+            keep.append(a)
+        keep_retract: list[str] = []
+        for path in retract:
+            if locked and path == "ad_category":
+                blocked.append(Rejected(path, "", "restricted_category_downgrade"))
+                continue
+            keep_retract.append(path)
+        if any(b.reason == "restricted_category_downgrade" for b in blocked):
+            s.notices.append("restricted_category_downgrade")
+        return keep, keep_retract, blocked
+
     # ---- 한 턴
     def step(self, s: Session, utterance: str) -> TurnResult:
         s.turn += 1
+        s.notices = []
         intent, accepted, retract, rejected, proposed, err = self.understand(s, utterance)
+        accepted, retract, blocked = self.guard(s, intent, accepted, retract)
+        rejected = [*rejected, *blocked]
         changed = False
         for a in accepted:
             old = s.slots.get(a["path"])
@@ -356,6 +408,7 @@ class Agent:
     def _plan(self, s: Session, intent: str, status: Status, issues: list[Issue], accepted: list[dict[str, Any]], questions: list[str], utterance: str) -> dict[str, Any]:
         plan: dict[str, Any] = {"status": status, "off_topic": intent in ("off_topic", "injection"), "first_turn": s.turn == 1}
         plan["ack"] = [f"{LABEL[a['path']]}: {display(a['path'], a['value'])}" for a in accepted]
+        plan["notices"] = list(s.notices)
         plan["issues"] = [
             {"code": i.code, "severity": i.severity, "path": i.path, "message": i.message, "help": ISSUE_HELP.get(i.code, "")}
             for i in issues if i.severity == "error" or (i.code == "C12_high_budget_confirm")
@@ -421,6 +474,8 @@ def template_message(plan: dict[str, Any]) -> str:
         parts.append("확인했어요 — " + ", ".join(plan["ack"]) + ".")
     if plan.get("faq"):
         parts.append(plan["faq"])
+    for n in plan.get("notices", []):
+        parts.append(NOTICE_TEXT[n])
     for i in plan.get("issues", []):
         if i["code"] == "C12_high_budget_confirm":
             continue
@@ -468,6 +523,9 @@ def reply_problem(message: str, plan: dict[str, Any], draft: str) -> str | None:
     for i in plan.get("issues", []):
         if i["code"] in ISSUE_KEYWORD and i["severity"] == "error" and not re.search(ISSUE_KEYWORD[i["code"]], message):
             return "missing_issue"
+    for n in plan.get("notices", []):
+        if n in NOTICE_KEYWORD and not re.search(NOTICE_KEYWORD[n], message):
+            return "missing_notice"
     if (plan["status"] == "awaiting_confirm") != ("이대로 진행" in message):
         return "confirm_mismatch"
     return None

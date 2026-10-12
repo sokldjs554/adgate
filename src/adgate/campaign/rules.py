@@ -19,6 +19,7 @@ HIGH_BUDGET = 3_000_000
 MIN_AGE, MAX_AGE, ADULT_AGE = 14, 80, 19
 MIN_TARGET_CPA, MIN_MAX_CPC = 500, 50
 RESTRICTED_AGE_CATEGORIES = ("loan", "invest", "gambling", "adult")
+RESTRICTED_CATEGORIES = ("adult", "gambling")   # 이 플랫폼에서 광고할 수 없는 업종(C10). 대화로는 여기서 벗어날 수 없다 — Agent.guard
 EVENTS_BY_OBJECTIVE = {
     "conversion": ("purchase", "signup", "add_to_cart"), "app_install": ("install",), "lead": ("inquiry", "signup"),
 }
@@ -103,7 +104,7 @@ def validate(
         err("C09_conversion_event", "conversion_event", f"{obj} 목표의 전환 이벤트는 {EVENTS_BY_OBJECTIVE[obj]} 중 하나입니다.")
     elif ev and obj in ("awareness", "traffic"):
         out.append(Issue("C09_event_ignored", "warning", "conversion_event", f"{obj} 목표에서는 전환 이벤트를 쓰지 않습니다."))
-    if cat in ("adult", "gambling"):
+    if cat in RESTRICTED_CATEGORIES:
         err("C10_unsupported_category", "ad_category", f"{cat} 업종은 이 플랫폼에서 광고할 수 없습니다.")
     if cat in ("loan", "invest") and not verified:
         err("C11_unverified_advertiser", "ad_category", f"{cat} 업종은 광고주 인증을 마친 뒤에만 집행할 수 있습니다.")
