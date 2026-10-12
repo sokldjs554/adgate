@@ -1,8 +1,8 @@
 {
   "meta": {
     "suite": "catalog_samples",
-    "git": "99581ce",
-    "dirty": true,
+    "git": "eab06fa",
+    "dirty": false,
     "prereg": "docs/EVAL_LABELING.md"
   },
   "results": {
