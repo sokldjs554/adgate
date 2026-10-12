@@ -55,6 +55,10 @@ def fmt(value: Any, spec: str) -> str:
         return f"{value:.2f} ms"
     if spec == "len":
         return f"{len(value)}"
+    if spec == "usd2":
+        return f"${value:.2f}"
+    if spec == "usd3":
+        return f"${value:.3f}"
     raise ValueError(f"알 수 없는 형식 {spec}")
 
 
@@ -198,7 +202,10 @@ def pooled_judge(judge: dict[str, Any]) -> dict[str, Any]:
     """세 데이터셋을 합친 값. 정답 APPROVE 소재를 judge 가 건드린 비율이 판단 규칙의 근거라서 합계를 따로 낸다."""
     res, summ = judge["results"], judge["meta"]["judge_replay"]["datasets"]
     n_approve = sum(res[ds]["full"]["gold_counts"]["APPROVE"] for ds in summ)
+    n_items = sum(summ[ds]["n"] for ds in summ)
     return {
+        "ungrounded": ratio(sum(summ[ds]["judge_ungrounded"]["k"] for ds in summ), n_items),
+        "unavailable": ratio(sum(summ[ds]["judge_unavailable"]["k"] for ds in summ), n_items),
         "approve_changed": ratio(sum(len(summ[ds]["approve_gold_changed"]) for ds in summ), n_approve),
         "approve_to_reject": ratio(sum(len(summ[ds]["approve_gold_to_reject"]) for ds in summ), n_approve),
         "unsafe_fixed": sum(len(summ[ds]["unsafe_fixed"]) for ds in summ),

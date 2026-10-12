@@ -225,6 +225,7 @@ def test_summary_counts_suspicions_that_could_not_be_grounded(tmp_path):
     d, rows = _write_dataset(tmp_path)
     s = _replay_meta(tmp_path, rows, {"X-2": [{**GUA, "quote": "원금이 보장되는 투자", "field": "body"}]})
     assert s["judge_ungrounded"]["k"] == 1 and s["dropped_ungrounded"] == 1 and s["judge_added"]["k"] == 0
+    assert s["ungrounded_ids"] == ["X-2"] and s["unavailable_ids"] == []
     (x,) = s["changed"]
     assert x["ungrounded"] is True and (x["full"], x["judge"]) == ("APPROVE", "REVIEW")  # 근거 없는 의심은 승인하지 않고 사람에게 보낸다
 
@@ -340,7 +341,7 @@ def test_eval_includes_judge_systems_when_some_live_calls_failed(tmp_path):
     systems = res["results"]["dev"]
     assert {"full+judge", "full+judge_cap"} <= set(systems)
     s = res["meta"]["judge_replay"]["datasets"]["dev"]
-    assert s["judge_unavailable"]["k"] == 1                              # 실패한 호출은 REVIEW(사람)로 센다
+    assert s["judge_unavailable"]["k"] == 1 and s["unavailable_ids"] == ["X-2"]                              # 실패한 호출은 REVIEW(사람)로 센다
     assert next(x for x in s["changed"] if x["id"] == "X-2")["judge"] == "REVIEW" and res["meta"]["judge_replay"]["errors"] == 1
 
 

@@ -47,6 +47,8 @@ def summarize(
     changed: list[dict[str, Any]] = []
     lost = 0
     with_llm = ungrounded = unavailable = dropped = n_llm = 0
+    unavailable_ids: list[str] = []
+    ungrounded_ids: list[str] = []
     for ex, b, j, c in zip(examples, base, judge, cap, strict=True):
         g = ex.gold.decision
         transitions[g][f"{b.outcome}→{j.outcome}"] += 1
@@ -57,6 +59,10 @@ def summarize(
         with_llm += bool(mine)
         ungrounded += "judge_ungrounded" in j.escalations
         unavailable += "judge_unavailable" in j.escalations
+        if "judge_ungrounded" in j.escalations:
+            ungrounded_ids.append(ex.id)
+        if "judge_unavailable" in j.escalations:
+            unavailable_ids.append(ex.id)
         dropped += j.dropped_ungrounded
         if _RANK[j.outcome] != _RANK[b.outcome]:
             changed.append(
@@ -80,6 +86,8 @@ def summarize(
         "judge_findings": n_llm,
         "judge_ungrounded": ratio(ungrounded, n),
         "judge_unavailable": ratio(unavailable, n),
+        "unavailable_ids": unavailable_ids,  # 호출 실패로 REVIEW 가 된 소재(실호출 측정의 L1·L7)
+        "ungrounded_ids": ungrounded_ids,    # 인용이 원문과 맞지 않아 버려진 의심이 있는 소재(L4)
         "dropped_ungrounded": dropped,
         "deterministic_lost": lost,
         "changed": changed,
