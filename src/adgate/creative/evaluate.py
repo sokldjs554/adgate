@@ -178,19 +178,29 @@ class ArmOutput:
     calls: int = 0
     repaired: int = 0
     facts: list[Fact] | None = None
+    trace: list[dict[str, Any]] | None = None      # 후보마다 시도 이력의 요약(실패 분석용 — 채점에는 쓰지 않는다)
 
 
 def from_result(res: ProductResult) -> ArmOutput:
     """파이프라인 결과 → 팔 출력. 추천된(승인·랜딩 보류) 후보의 마지막 시도만 쓴다."""
     cands = [res.traces[i].attempts[-1].candidate for i in res.recommended]
     repaired = sum(len(t.attempts) > 1 for t in res.traces)
-    return ArmOutput(res.status, cands, res.error, sum(res.calls.values()), repaired, res.facts)
+    trace = [
+        {"final": t.final_status, "attempts": [{"outcome": a.outcome, "problems": [f"{p.kind}:{p.code}" for p in a.problems], "headline": a.candidate.headline} for a in t.attempts]}
+        for t in res.traces
+    ]
+    return ArmOutput(res.status, cands, res.error, sum(res.calls.values()), repaired, res.facts, trace)
+
+
+def source_text(lp: LoadedProduct) -> str:
+    """지어낸 숫자 판정의 근거 글: 보이는 본문 + 숨긴 글 + 이미지 속 글자."""
+    parsed = parse_page(lp.html)
+    return " ".join([norm(parsed.plain_text()), norm(" ".join(parsed.dropped)), image_text(lp.product.image)])
 
 
 def score_arm(lp: LoadedProduct, out: ArmOutput, policy: Policy) -> dict[str, Any]:
     gold = lp.product.gold
-    parsed = parse_page(lp.html)
-    source = " ".join([norm(parsed.plain_text()), norm(" ".join(parsed.dropped)), image_text(lp.product.image)])
+    source = source_text(lp)
     per: list[dict[str, Any]] = []
     for c in out.candidates:
         blob = candidate_blob(c, lp)

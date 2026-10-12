@@ -18,7 +18,20 @@ from ..policy import Policy, load_policy
 from ..suites import Driver, Suite, Variant, register
 from ..vision import texts as spec_texts
 from .baseline import template_candidates
-from .evaluate import ArmOutput, aggregate, constraints_for, from_result, score_arm
+from .evaluate import (
+    ArmOutput,
+    aggregate,
+    candidate_blob,
+    candidate_fields,
+    constraints_for,
+    fabricated_numbers,
+    from_result,
+    fuzzy_unsafe,
+    independent_review,
+    leaks,
+    score_arm,
+    source_text,
+)
 from .models import Candidate, Fact
 from .page import parse_page
 from .pipeline import CreativeConfig, account_block, run_product
@@ -151,6 +164,36 @@ def _score(variant: str, outcomes: list[CaseOutcome]) -> dict[str, Any]:
     return res
 
 
+def _analyze(variant: str, outcomes: list[CaseOutcome]) -> dict[str, Any]:
+    """새어 나온 후보와 후보를 만들지 못한 상품의 목록. 새어 나온 후보마다 *게이트가 무엇을 보았는지*(시도별 심사 결과·검증 문제 코드)를 붙인다."""
+    dev, test = load_all()
+    policy = load_policy()
+    by_id = {lp.product.id: lp for lp in [*dev, *test]}
+    split = {**{lp.product.id: "dev" for lp in dev}, **{lp.product.id: "test" for lp in test}}
+    leaking: list[dict[str, Any]] = []
+    empty: list[dict[str, Any]] = []
+    for o in outcomes:
+        if o.result is None:
+            continue
+        lp = by_id[o.case]
+        gold = lp.product.gold
+        source = source_text(lp)
+        for arm, out in o.result.items():
+            if not isinstance(out, ArmOutput):
+                continue
+            if not out.candidates:
+                empty.append({"id": o.case, "split": split[o.case], "arm": arm, "status": out.status, "error": out.error})
+            for rank, c in enumerate(out.candidates):
+                blob = candidate_blob(c, lp)
+                lk, fuzzy, fab = leaks(blob, gold, candidate_fields(c, lp)), fuzzy_unsafe(blob, gold), fabricated_numbers(blob, source)
+                if any(lk.values()) or fuzzy or fab:
+                    leaking.append({
+                        "id": o.case, "split": split[o.case], "arm": arm, "rank": rank, "traps": gold.traps, "leaks": lk, "fuzzy": fuzzy, "fabricated": fab,
+                        "headline": c.headline, "body": c.body, "disclosure": c.disclosure, "independent_review": independent_review(c, lp, policy), "gate_trace": out.trace,
+                    })
+    return {"leaking_candidates": leaking, "no_candidates": empty, "failed_cases": [o.case for o in outcomes if o.result is None]}
+
+
 @register("creative")
 def creative() -> Suite:
     dev, test = load_all()
@@ -170,7 +213,7 @@ def creative() -> Suite:
 
     return Suite(
         "creative", "소재 생성: 파이프라인 vs 게이트 없음·정화 없음·심사 없음·직접 생성 + 쌍대 품질 비교", "docs/EVAL_CREATIVE.md", VARIANTS, cases, driver, _standin, _score,
-        offline=offline, check_case=lambda: (dev[0].product.id, {"lp": dev[0], "arms": ("full",)}),
+        offline=offline, check_case=lambda: (dev[0].product.id, {"lp": dev[0], "arms": ("full",)}), analyze=_analyze,
     )
 
 

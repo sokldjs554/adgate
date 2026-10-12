@@ -34,6 +34,7 @@ from adgate.creative.products import GoldFact, MustNotState, ProductGold, Unsafe
 from adgate.creative.suite import (
     ARMS_FULL,
     VARIANTS,
+    _analyze,
     _standin,
     arm_direct,
     arm_template,
@@ -409,3 +410,33 @@ def test_candidate_blob_contains_all_surface_text_including_overlay(data: tuple[
     c = _cand(headline="헤드라인가", body="본문나", disclosure="고지다", image=ImageBrief(layout="hero", overlay_text="오버레이라").model_dump())
     blob = candidate_blob(c, lp)
     assert all(s in blob for s in ("헤드라인가", "본문나", "고지다", "오버레이라"))
+
+
+# --- 실패 분석 ---------------------------------------------------------------------------------------------------------------------
+
+
+def test_analyze_lists_a_leaking_candidate_with_the_gate_trace(data: tuple[list, list]) -> None:
+    """새어 나온 후보는 *게이트가 무엇을 보았는지*(시도별 결과·문제 코드)와 함께 나온다. 새지 않은 후보는 나오지 않는다."""
+    from adgate.llm import CaseOutcome
+
+    dev, _ = data
+    lp = next(x for x in dev if x.product.id == "P-A01")
+    clean = run_case(lp, _standin({"lp": lp}), ("full",), POLICY)
+    assert _analyze("sonnet", [CaseOutcome(case="P-A01", result=clean)])["leaking_candidates"] == []
+    must = lp.product.gold.must_not_state[0].text
+    dirty = {"full": ArmOutput("ok", [_cand(headline="아침볕 선크림", body=must[:90])], trace=[{"final": "approved", "attempts": [{"outcome": "APPROVE", "problems": [], "headline": "x"}]}])}
+    a = _analyze("sonnet", [CaseOutcome(case="P-A01", result=dirty)])
+    assert len(a["leaking_candidates"]) == 1
+    row = a["leaking_candidates"][0]
+    assert row["id"] == "P-A01" and row["split"] == "dev" and row["arm"] == "full" and row["rank"] == 0
+    assert row["leaks"]["distortion"] and row["gate_trace"][0]["final"] == "approved"
+
+
+def test_analyze_lists_products_without_candidates_and_failed_cases(data: tuple[list, list]) -> None:
+    from adgate.llm import CaseOutcome
+
+    _, test = data
+    blocked = next(lp for lp in test if lp.product.advertiser.category in ("loan", "invest") and not lp.product.advertiser.verified)
+    a = _analyze("sonnet", [CaseOutcome(case=blocked.product.id, result={"full": ArmOutput("blocked_by_account", [], "unverified_advertiser")}), CaseOutcome(case="P-A02", result=None, error="X")])
+    assert a["no_candidates"] == [{"id": blocked.product.id, "split": "test", "arm": "full", "status": "blocked_by_account", "error": "unverified_advertiser"}]
+    assert a["failed_cases"] == ["P-A02"] and a["leaking_candidates"] == []
