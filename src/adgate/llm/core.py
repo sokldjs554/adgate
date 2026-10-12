@@ -51,6 +51,16 @@ class LLMAccountError(LLMBudgetExceeded):
     """계정 때문에 더 부를 수 없다(크레딧 소진·인증·권한). 모델이 낸 실패가 아니다 — 측정에 넣지 않고 실행을 멈춘다. 고친 뒤 이어서 돌린다."""
 
 
+class RunStop(BaseException):
+    """측정 하니스가 *실행 전체를 멈추라고* 올리는 신호(비용 상한 · 계정 오류). ``Exception`` 이 아니므로 fail-closed 로 ``LLMError`` 를 삼키는 에이전트 · 파이프라인의
+    안전 처리를 지나친다. 운영에서는 맞는 그 처리(‘못 알아들었으니 다시 말씀해 주세요’)가 측정에서는 크레딧이 없는데도 사례가 끝난 것처럼 보이게 했다(점검이 ‘성공’했다, F-33).
+    ``HybridClient`` 가 올리고 ``record_cases`` 만 잡는다."""
+
+    def __init__(self, cause: LLMBudgetExceeded) -> None:
+        super().__init__(str(cause))
+        self.cause = cause
+
+
 def is_account_error(exc: BaseException) -> bool:
     """SDK 예외가 계정 문제인가: 크레딧 소진(400 'credit balance is too low' 또는 402), 인증 실패(401), 권한 없음(403)."""
     status = getattr(exc, "status_code", None)

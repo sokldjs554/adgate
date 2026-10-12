@@ -16,6 +16,7 @@ from .core import (
     LLMTruncated,
     Part,
     RenderedImage,
+    RunStop,
     is_account_error,
     task_key,
 )
@@ -34,5 +35,5 @@ from .spend import PRICES, BudgetExceededError, Spend, cost_usd
 __all__ = [
     "PRICES", "TECHNICAL_ERRORS", "BudgetExceededError", "CaseOutcome", "HybridClient", "Image", "LLMAccountError", "LLMBudgetExceeded", "LLMClient",
     "LLMError", "LLMMissing", "LLMProtocolError", "LLMRecordedFailure", "LLMRefused", "LLMResult", "LLMTask", "LLMTruncated", "Part",
-    "RecordedClient", "RecordingStore", "RenderedImage", "ScriptedClient", "Spend", "cost_usd", "is_account_error", "load_rows", "record_cases", "replay_cases", "task_key",
+    "RecordedClient", "RecordingStore", "RenderedImage", "RunStop", "ScriptedClient", "Spend", "cost_usd", "is_account_error", "load_rows", "record_cases", "replay_cases", "task_key",
 ]

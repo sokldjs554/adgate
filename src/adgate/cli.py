@@ -290,7 +290,7 @@ def cmd_llm(args: argparse.Namespace) -> int:
         elif args.action == "check":
             r = suites.check(suite, v, max_usd=args.max_usd)
             print(f"[{suite.name}/{v}] 점검: 사례 {r['completed']}/{r['attempted']} 완료, 오류 {r['case_errors']}, 실제 호출 {r['live_calls']}, {r['spend']}")
-            if r["case_errors"] or r["completed"] < r["attempted"]:     # 사례가 예외로 끝났거나 계정·예산 때문에 부르지 못했다: 점검이 되지 않았다
+            if r["case_errors"] or r["completed"] < r["attempted"] or r["live_calls"] == 0:     # 사례가 예외로 끝났거나 계정·예산 때문에 부르지 못했다, 또는 실제로 한 번도 부르지 못했다: 점검이 되지 않았다
                 return 1
         elif args.action == "record":
             r = suites.record(suite, v, max_usd=args.max_usd, workers=args.workers, retry_technical=args.retry_technical)

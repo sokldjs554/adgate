@@ -29,6 +29,7 @@ from .core import (
     LLMResult,
     LLMTask,
     Part,
+    RunStop,
     parts_of,
     task_key,
 )
@@ -163,13 +164,13 @@ class HybridClient:
         if self.live is None:
             raise LLMMissing(f"{task.name}: 이 호출의 녹음이 없습니다")
         if self.store.stopped.is_set():
-            raise LLMBudgetExceeded("예산 상한에 닿아 새 호출을 시작하지 않습니다")
+            raise RunStop(LLMBudgetExceeded("예산 상한에 닿았거나 계정 문제로 멈췄습니다 — 새 호출을 시작하지 않습니다"))
         base = {"key": key, "task": task.name, "case": self.case, "seq": self.seq}
         try:
             result = self.live.call(task, user)
-        except LLMBudgetExceeded:
+        except LLMBudgetExceeded as exc:
             self.store.stopped.set()
-            raise
+            raise RunStop(exc) from exc       # LLMError 가 아니다: 에이전트·파이프라인의 fail-closed 가 삼키지 못한다(F-33)
         except Exception as exc:
             name = type(exc).__name__
             meta = dict(getattr(self.live, "last_meta", {}) or {})
@@ -240,8 +241,12 @@ def record_cases(
         status = "completed"
         try:
             driver(payload, client)
-        except LLMBudgetExceeded as exc:
+        except RunStop as stop:
             status = "skipped_budget"
+            say(f"{'계정 문제로' if isinstance(stop.cause, LLMAccountError) else '예산 상한에 닿아'} 멈춥니다: {stop.cause}")
+        except LLMBudgetExceeded as exc:      # 하니스를 거치지 않고 올라온 상한 초과(드라이버가 직접 만든 클라이언트)
+            status = "skipped_budget"
+            store.stopped.set()
             say(f"{'계정 문제로' if isinstance(exc, LLMAccountError) else '예산 상한에 닿아'} 멈춥니다: {exc}")
         except Exception as exc:  # noqa: BLE001 — 사례 하나의 실패가 전체를 멈추지 않는다
             status = "case_errors"

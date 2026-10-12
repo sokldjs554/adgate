@@ -13,6 +13,7 @@ from adgate.llm import (
     Image,
     LLMAccountError,
     LLMBudgetExceeded,
+    LLMError,
     LLMMissing,
     LLMProtocolError,
     LLMRecordedFailure,
@@ -21,6 +22,7 @@ from adgate.llm import (
     LLMTruncated,
     RecordedClient,
     RecordingStore,
+    RunStop,
     ScriptedClient,
     Spend,
     is_account_error,
@@ -386,3 +388,71 @@ def test_replay_meta_lists_failure_rows_so_environment_errors_are_seen_before_ag
     res = suites.replay(suite, "v", root=tmp_path)
     assert res["meta"]["recorded_failures"] == {"BadRequestError": 1} and res["meta"]["recorded_rows"] == 2
     assert res["results"] == {"ok": ["정상"]}
+
+
+# --------------------------------------------------------------------------- F-33: fail-closed 로 LLMError 를 삼키는 운영 코드가 측정을 조용히 계속시켰다
+def _fails_closed(payload: Any, client: Any) -> Any:
+    """에이전트·파이프라인의 안전 처리와 같은 모양: 모델이 못 답하면 ‘다시 말씀해 주세요’로 물러난다(운영에서는 맞는 처리)."""
+    try:
+        return client.call(TASK, payload).response
+    except LLMMissing:
+        raise
+    except LLMError:
+        return {"fallback": True}
+
+
+def _raises(exc: Exception):
+    def handler(task: LLMTask, parts: list[Any]) -> dict[str, Any]:
+        raise exc
+
+    return ScriptedClient(handler)
+
+
+def test_the_stop_signal_is_not_an_exception_so_fail_closed_handlers_cannot_swallow_it():
+    assert issubclass(RunStop, BaseException) and not issubclass(RunStop, Exception)
+    assert issubclass(LLMBudgetExceeded, LLMError)          # 운영 경로(API 의 judge)는 그대로 fail-closed 로 물러난다 — 바뀐 것은 측정 하니스뿐이다
+
+
+@pytest.mark.parametrize("exc", [LLMAccountError("BadRequestError: credit balance is too low"), LLMBudgetExceeded("상한")])
+def test_a_fail_closed_driver_cannot_make_an_account_or_budget_stop_look_like_completed_cases(tmp_path, exc):
+    """실제로 일어난 일: 크레딧이 없는데 캠페인 점검이 ‘사례 1/1 완료’로 끝났다. 에이전트의 `except LLMError` 가 계정 오류를 ‘못 알아들음’으로 삼켰다."""
+    out, log = tmp_path / "rec.jsonl", tmp_path / "calls.jsonl"
+    said: list[str] = []
+    s = record_cases(cases("a", "b", "c"), _fails_closed, live=_raises(exc), out=out, log=log, workers=1, say=said.append)
+    assert s["completed"] == 0 and s["skipped_budget"] == 3 and s["case_errors"] == 0
+    assert any(("계정 문제로" if isinstance(exc, LLMAccountError) else "예산 상한에 닿아") in m for m in said)
+    assert load_rows(out) == {}                                 # 아무것도 녹음하지 않았다
+
+
+def test_model_failures_are_still_recorded_and_still_let_a_fail_closed_driver_carry_on(tmp_path):
+    """정상 유사: 모델이 낸 실패(잘림·거절·형식 오류)는 측정이다 — 녹음하고 드라이버의 안전 처리도 그대로 돈다. 멈추는 것은 계정·상한뿐이다."""
+    out, log = tmp_path / "rec.jsonl", tmp_path / "calls.jsonl"
+    s = record_cases(cases("a", "b"), _fails_closed, live=_raises(LLMTruncated("max_tokens")), out=out, log=log, workers=1, say=lambda *_: None)
+    assert s["completed"] == 2 and s["skipped_budget"] == 0 and len(load_rows(out)) == 2
+    assert all(r.get("error") == "LLMTruncated" for r in load_rows(out).values())
+
+
+def test_the_stop_also_works_with_concurrent_workers(tmp_path):
+    out, log = tmp_path / "rec.jsonl", tmp_path / "calls.jsonl"
+    s = record_cases(cases(*"abcdefgh"), _fails_closed, live=_raises(LLMAccountError("credit balance is too low")), out=out, log=log, workers=4, say=lambda *_: None)
+    assert s["completed"] == 0 and s["skipped_budget"] == 8 and load_rows(out) == {}
+
+
+def test_a_check_against_an_empty_account_fails_instead_of_passing(monkeypatch):
+    """`adgate llm check` 가 계정 문제를 ‘성공’으로 돌려주면 본 녹음을 승인할 근거가 거짓이 된다."""
+    from adgate import suites
+    from adgate.llm import anthropic_client
+
+    class Broke:
+        def __init__(self, *a: Any, **k: Any) -> None:
+            self.spend = Spend("claude-sonnet-5-5", 0.5)
+            self.last_meta: dict[str, Any] = {}
+
+        def call(self, task: LLMTask, user: Any) -> Any:
+            raise LLMAccountError("BadRequestError: credit balance is too low")
+
+    monkeypatch.setattr(anthropic_client, "AnthropicClient", Broke)
+    suite = suites.Suite("toy", "장난감", "docs/x.md", {"v": suites.Variant("v", "claude-sonnet-5-5")}, lambda v: cases("a"), lambda v: _fails_closed, lambda p: ScriptedClient(echo),
+                         lambda v, outcomes: {})
+    r = suites.check(suite, "v")
+    assert r["completed"] == 0 and r["skipped_budget"] == 1

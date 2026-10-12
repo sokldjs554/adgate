@@ -309,3 +309,18 @@ def test_analyze_lists_nothing_for_the_oracle_and_the_exact_slot_diff_for_a_weak
     row = weak["closed_failures"][0]
     assert set(row["diff"]) == {"missing", "wrong", "extra"} and row["split"] == "dev" and row["expect_status"] in ("ready", "needs_input", "invalid", "refused")
     assert all(m["utterance"] for m in weak["teacher_turn_misses"])
+
+
+def test_an_account_error_stops_the_recording_of_the_assistant_instead_of_looking_like_a_misunderstood_turn(tmp_path):
+    """에이전트는 모델 실패를 ‘못 알아들음’으로 삼키는 게 맞다(운영). 측정 하니스는 계정 오류만은 그 처리 밖에서 멈춰야 한다 — 크레딧이 없는데 점검이 ‘성공’했다(F-33)."""
+    from adgate.campaign.evaluate import run_scenario
+    from adgate.llm import LLMAccountError, record_cases
+
+    sc = load_scenarios(ROOT / "data" / "setup" / "dev.jsonl")[0]
+
+    def broke(task, parts):  # noqa: ANN001
+        raise LLMAccountError("BadRequestError: credit balance is too low")
+
+    out, log = tmp_path / "rec.jsonl", tmp_path / "calls.jsonl"
+    s = record_cases([(sc.id, sc)], lambda p, c: run_scenario(c, p), live=ScriptedClient(broke), out=out, log=log, workers=1, say=lambda *_: None)
+    assert s["completed"] == 0 and s["skipped_budget"] == 1 and not out.read_text(encoding="utf-8").strip()
