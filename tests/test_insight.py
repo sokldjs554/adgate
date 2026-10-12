@@ -195,3 +195,90 @@ def test_small_campaign_cannot_see_a_partial_tracking_loss_but_does_not_cry_wolf
     sim, obs, g, det = run(make("tracking_outage", 0.4, seed=1, budget=100_000, noise="mid"))
     assert not g["null"]
     assert det.episodes == []
+
+
+# ------------------------------------------------------------------ 평가 하니스·리포트·동결 셋
+from adgate.eval import dataset  # noqa: E402
+from adgate.insight.devset import dev_scenarios  # noqa: E402
+from adgate.insight.evaluate import ARM_RUN, aggregate, counts, run_history_only, run_naive, score_scenario  # noqa: E402
+from adgate.insight.report import Fact, build_facts, raw_input, template_report, verify_report  # noqa: E402
+from adgate.insight.suite import load_frozen  # noqa: E402
+
+
+def test_frozen_insight_scenarios_are_the_registered_sixty_and_in_the_manifest():
+    scs = load_frozen()
+    assert len(scs) == 60 and len({s.id for s in scs}) == 60 and len({s.seed for s in scs}) == 60
+    assert dataset.verify_manifest(ROOT_DIR / "data/MANIFEST.sha256")["insight/scenarios.jsonl"] is True
+    c = counts(scs)
+    assert c["null"] == 20 and c["multi"] == 16 and c["gold_episodes"] == 43
+    assert set(c["causes"]) == {"budget_cut", "bid_drop", "creative_fatigue", "audience_saturation", "tracking_outage", "landing_degradation", "ad_rejected", "seasonal_cpm_spike"}
+
+
+from pathlib import Path  # noqa: E402
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+
+
+def test_every_arm_runs_and_scoring_matches_the_definitions_on_a_small_dev_sample():
+    scs = [s for s in dev_scenarios() if s.id.startswith(("dev-budget_cut-0.5-1", "dev-null-100000-mid-flat-0", "dev-tracking_outage-0.9-2"))]
+    assert len(scs) == 3
+    sims = [(s, simulate(s)) for s in scs]
+    for arm, fn in ARM_RUN.items():
+        scores = [score_scenario(s, sim, fn(sim)) for s, sim in sims]
+        agg = aggregate(scores)
+        assert agg["scenarios"] == 3 and agg["detection"]["gold_episodes"] == 2 and agg["null_scenarios"] == 1, arm
+    system = aggregate([score_scenario(s, sim, ARM_RUN["system"](sim)) for s, sim in sims])
+    assert system["detection"]["detected"]["k"] == 2 and system["false_alarms"]["episodes"] == 0 and system["actions"]["harmful"]["k"] == 0
+
+
+def test_history_only_baseline_is_fooled_by_a_misleading_log_and_blind_to_silent_failures():
+    """조용한 전환 측정 장애인데 하루 전에 '일 예산' 이력만 있다 — 이력만 보는 방식은 원인을 예산 삭감으로 읽고 예산을 올리라고 한다(전환 측정 장애에는 해롭다)."""
+    sc = make("tracking_outage", 0.9, seed=2, distractors=[{"day": 19, "type": "budget_change", "detail": "일 예산 점검(변경 없음)"}])
+    sim = simulate(sc)
+    scored = score_scenario(sc, sim, run_history_only(sim))
+    assert scored["alerts"] == 1 and scored["episodes"][0]["detected"] and not scored["episodes"][0]["alert3"]["top_in_set"]
+    assert scored["per_alert"][0]["harmful"] is True
+    quiet = make("tracking_outage", 0.9, seed=2)
+    assert run_history_only(simulate(quiet)) == [], "이력이 없으면 아무것도 못 본다"
+
+
+def test_naive_dashboard_rule_cries_wolf_on_a_quiet_high_noise_campaign():
+    sim = simulate(make(None, seed=3, noise="high", budget=100_000))
+    assert len(run_naive(sim)) >= 1
+
+
+def test_template_report_always_passes_verification_and_a_fabricated_one_does_not():
+    sim = simulate(make("tracking_outage", 0.8, seed=3, budget=2_000_000))
+    obs = Observation(sim.days, sim.events)
+    det = detect(obs)
+    ep = det.episodes[0]
+    dx = diagnose(obs, det, ep)
+    recs = recommend(obs, dx)
+    facts = build_facts(obs, det, ep, dx, recs)
+    assert any(f.kind == "cause" for f in facts) and all(f.id.startswith("F") for f in facts)
+    rep = template_report(facts, dx, recs)
+    assert verify_report(rep, facts, dx, recs) == []
+    bad = {"headline": "예산 삭감입니다", "paragraphs": [{"text": "전환율이 -99% 떨어졌고 예산 삭감이 원인입니다.", "fact_ids": []}, {"text": "근거 없음", "fact_ids": ["F99"]}],
+           "next_steps": [{"action": "raise_budget", "rationale": "x", "fact_ids": []}]}
+    problems = verify_report(bad, facts, dx, recs)
+    assert any("사실 인용 없음" in p for p in problems) and any("없는 사실" in p for p in problems) and any("금지 액션" in p for p in problems)
+    assert any("진단 후보에 없는 원인" in p for p in problems)
+
+
+def test_report_numbers_must_come_from_the_cited_facts():
+    facts = [Fact("F1", "metric", "전환율 이(가) 평소 대비 -55%.", ["-55%"]), Fact("F2", "episode", "경보는 22일차.", ["22일"])]
+    from adgate.insight.analysis import Diagnosis, Episode
+
+    dx = Diagnosis(Episode(20, 30, 22), [], {}, {}, False)
+    ok = {"headline": "h", "paragraphs": [{"text": "전환율이 55% 줄었고 22일차에 경보가 울렸습니다.", "fact_ids": ["F1", "F2"]}], "next_steps": []}
+    assert verify_report(ok, facts, dx, []) == []
+    wrong = {"headline": "h", "paragraphs": [{"text": "전환율이 70% 줄었습니다.", "fact_ids": ["F1"]}], "next_steps": []}
+    assert any("70%" in p for p in verify_report(wrong, facts, dx, []))
+    uncited = {"headline": "h", "paragraphs": [{"text": "22일차에 경보가 울렸습니다.", "fact_ids": ["F1"]}], "next_steps": []}
+    assert any("22일차" in p for p in verify_report(uncited, facts, dx, [])), "인용한 사실(F1)에 없는 숫자는 다른 사실(F2)에 있어도 안 된다"
+
+
+def test_raw_input_contains_only_observations_not_the_answer():
+    sim = simulate(make("budget_cut", 0.5, seed=2))
+    text = raw_input(Observation(sim.days, sim.events))
+    assert "budget_cut" not in text and "expected" not in text and '"day": 1' in text

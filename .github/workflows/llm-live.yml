@@ -1,0 +1,133 @@
+name: llm-live
+
+# LLM 측정 묶음(adgate llm …, docs/EVAL_*.md)의 실호출. 손으로만 실행한다(workflow_dispatch). 모드에 따라 비용이 든다.
+# 저장소 비밀값 ANTHROPIC_API_KEY 가 필요하다: Settings → Secrets and variables → Actions → New repository secret.
+# 키는 환경 변수로만 전달되고 출력하지 않는다. 이 워크플로는 pull_request 같은 다른 트리거로 돌지 않는다.
+#
+# 순서: dry-run(호출 없음, 키 불필요) → check(한 사례, 상한 $0.5) → record(본 녹음, 비용 발생). 사용자가 dry-run 추정과 상한을 보고 승인한 뒤에 record 를 돌린다.
+# 이 워크플로는 *녹음까지만* 한다. 키가 있는 `llm` 작업은 읽기 권한뿐이고, 쓰기 권한이 있는 `publish` 작업에는 키가 없다.
+# 재생(replay)과 집계는 키가 필요 없으니, 결과 브랜치의 녹음을 main 에 커밋한 뒤 깨끗한 작업트리에서 한 번 돌린다.
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "suite 이름 (adgate llm list): campaign · campaign_reply · …"
+        type: string
+        required: true
+      variant:
+        description: "변형(모델 별칭). 비우면 suite 의 모든 변형"
+        type: string
+        default: ""
+      mode:
+        description: "dry-run = 추정 비용만(호출 없음) · check = 한 사례 점검(상한 $0.5) · record = 본 녹음(비용 발생)"
+        type: choice
+        options: [dry-run, check, record]
+        default: dry-run
+      max_usd:
+        description: "record 의 비용 상한(USD, 변형마다)"
+        type: string
+        default: "3"
+      retry_technical:
+        description: "이어하기(record): 결과 브랜치의 녹음을 가져와 기술적 실패(시간 초과·연결·속도 제한·5xx)만 다시 부른다"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: llm-live
+  cancel-in-progress: false
+
+jobs:
+  llm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[dev]"
+
+      - name: 입력 검사(영문 소문자·숫자·밑줄만)
+        env:
+          SUITE: ${{ inputs.suite }}
+          VARIANT: ${{ inputs.variant }}
+        run: |
+          [[ "$SUITE" =~ ^[a-z0-9_]+$ ]] || { echo "suite 이름이 올바르지 않습니다"; exit 1; }
+          [[ -z "$VARIANT" || "$VARIANT" =~ ^[a-z0-9_]+$ ]] || { echo "variant 이름이 올바르지 않습니다"; exit 1; }
+
+      - name: 추정 비용(호출 없음)
+        if: inputs.mode == 'dry-run'
+        env:
+          SUITE: ${{ inputs.suite }}
+          VARIANT: ${{ inputs.variant }}
+        run: adgate llm dry-run "$SUITE" ${VARIANT:+--variant "$VARIANT"}
+
+      - name: 한 사례 점검(실호출)
+        if: inputs.mode == 'check' || inputs.mode == 'record'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SUITE: ${{ inputs.suite }}
+          VARIANT: ${{ inputs.variant }}
+        run: adgate llm check "$SUITE" ${VARIANT:+--variant "$VARIANT"} --max-usd 0.5
+
+      - name: 직전 녹음 가져오기(이어하기)
+        if: inputs.mode == 'record' && inputs.retry_technical
+        env:
+          SUITE: ${{ inputs.suite }}
+          VARIANT: ${{ inputs.variant }}
+        run: |
+          BRANCH="llm-live-results-${SUITE}-${VARIANT:-all}"
+          git fetch --depth=1 origin "$BRANCH"
+          git checkout FETCH_HEAD -- "data/llm/${SUITE}"
+
+      - name: 녹음(실호출, 비용 발생)
+        if: inputs.mode == 'record'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SUITE: ${{ inputs.suite }}
+          VARIANT: ${{ inputs.variant }}
+          MAX_USD: ${{ inputs.max_usd }}
+          RETRY: ${{ inputs.retry_technical && '--retry-technical' || '' }}
+        run: adgate llm record "$SUITE" ${VARIANT:+--variant "$VARIANT"} --max-usd "$MAX_USD" $RETRY
+
+      - name: 녹음·호출 기록 올리기
+        if: always() && inputs.mode == 'record'
+        uses: actions/upload-artifact@v4
+        with:
+          name: llm-live
+          path: data/llm/
+          if-no-files-found: warn
+
+  publish:
+    needs: llm
+    if: always() && inputs.mode == 'record'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: llm-live
+          path: llm-live
+      - name: 결과 브랜치에 올리기
+        env:
+          RUN_ID: ${{ github.run_id }}
+          CODE_SHA: ${{ github.sha }}
+          SUITE: ${{ inputs.suite }}
+          VARIANT: ${{ inputs.variant }}
+        run: |
+          BRANCH="llm-live-results-${SUITE}-${VARIANT:-all}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan "$BRANCH"
+          git rm -rf --quiet .
+          mkdir -p data/llm
+          cp -r llm-live/* data/llm/
+          git add data/llm
+          git commit -q -m "llm-live 녹음 ${SUITE}/${VARIANT:-all} (run ${RUN_ID}, 코드 ${CODE_SHA})"
+          git push --force origin "$BRANCH"

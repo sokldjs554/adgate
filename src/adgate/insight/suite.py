@@ -1,0 +1,177 @@
+"""성과 인사이트 측정 묶음(docs/EVAL_INSIGHT.md).
+
+* ``insight`` — 결정론: 탐지·진단·액션을 팔 6개(시스템, 절제 3, 단순 규칙, 이력만)로 쟀다. 모델이 없어 ``offline`` 이 전부다.
+* ``insight_llm`` — 모델이 들어가는 둘: ① 사실에 묶인 리포트 작성(시스템의 사실 → LLM 문단 → 코드 검증), ② 모델만 쓰는 비교 기준(일별 표를 주고 도구 없이 진단).
+"""
+
+from __future__ import annotations
+
+import statistics
+from collections import Counter
+from pathlib import Path
+from typing import Any
+
+from ..eval.metrics import ratio
+from ..llm import CaseOutcome, LLMClient, LLMTask, ScriptedClient
+from ..llm.core import Part
+from ..suites import Driver, Suite, Variant, register
+from .analysis import Observation, detect, diagnose, recommend
+from .evaluate import (
+    CHANGE_ACTIONS,
+    SAFE_ACTIONS,
+    counts,
+    episode_causes,
+    evaluate,
+    load_scenarios,
+    power_curve,
+)
+from .report import (
+    build_facts,
+    raw_input,
+    raw_task,
+    report_input,
+    report_task,
+    template_report,
+    verify_report,
+)
+from .sim import IncidentScenario, gold, simulate
+
+DATA = Path(__file__).resolve().parents[3] / "data" / "insight" / "scenarios.jsonl"
+VARIANTS = {"sonnet": Variant("sonnet", "claude-sonnet-5-5", "리포트 작성 + 모델만 쓰는 비교 기준"), "opus": Variant("opus", "claude-opus-5-5", "모델만 쓰는 비교 기준(강한 모델)")}
+MAX_EPISODES_PER_SCENARIO = 3
+
+
+def load_frozen(path: Path | None = None) -> list[IncidentScenario]:
+    return load_scenarios(path or DATA)
+
+
+def _episodes_with_facts(sc: IncidentScenario) -> list[dict[str, Any]]:
+    sim = simulate(sc)
+    obs = Observation(sim.days, sim.events)
+    det = detect(obs)
+    out = []
+    for ep in det.episodes[:MAX_EPISODES_PER_SCENARIO]:
+        part = detect(obs, upto=min(len(sim.days), ep.alert_day + 3))
+        match = next((e for e in part.episodes if e.alert_day == ep.alert_day), None)
+        if match is None:
+            continue
+        dx = diagnose(obs, part, match)
+        recs = recommend(obs, dx)
+        out.append({"ep": match, "dx": dx, "recs": recs, "facts": build_facts(obs, part, match, dx, recs)})
+    return out
+
+
+def _writer_arm(sc: IncidentScenario, client: LLMClient) -> list[dict[str, Any]]:
+    rows = []
+    for item in _episodes_with_facts(sc):
+        facts, dx, recs = item["facts"], item["dx"], item["recs"]
+        tpl = verify_report(template_report(facts, dx, recs), facts, dx, recs)
+        rep = client.call(report_task(), report_input(facts)).response
+        problems = verify_report(rep, facts, dx, recs)
+        steps = {s["action"] for s in rep.get("next_steps", [])}
+        rows.append({
+            "alert_day": item["ep"].alert_day, "template_problems": tpl, "problems": problems, "verified": not problems,
+            "steps_subset_of_recs": steps <= ({r["action"] for r in recs} | set(SAFE_ACTIONS)), "n_paragraphs": len(rep.get("paragraphs", [])),
+            "problem_kinds": sorted({p.split(":")[-1].strip()[:12] for p in problems}),
+        })
+    return rows
+
+
+def _raw_arm(sc: IncidentScenario, client: LLMClient) -> dict[str, Any]:
+    sim = simulate(sc)
+    g = gold(sim)
+    obs = Observation(sim.days, sim.events)
+    out = client.call(raw_task(), raw_input(obs)).response
+    causes = ({out["cause"], *out["other_causes"]} - {"none", "unknown"})
+    first_ep = g["episodes"][0] if g["episodes"] else None
+    gold_causes = set(episode_causes(sc, g, first_ep)) if first_ep else set()
+    acts = set(out["actions"])
+    harmful = bool(acts & (set(CHANGE_ACTIONS) if g["null"] else set(g["harmful_actions"])))
+    return {
+        "null": g["null"], "anomaly": bool(out["anomaly"]), "top_in_set": out["cause"] in gold_causes, "any_in_set": bool(causes & gold_causes),
+        "primary_ok": out["cause"] == g["primary_cause"], "harmful": harmful, "useful": bool(acts & set(g["acceptable_actions"])) if not g["null"] else acts <= set(SAFE_ACTIONS),
+        "start_error": abs(out["start_day"] - g["onset"]) if (out["start_day"] is not None and g["onset"] is not None) else None,
+    }
+
+
+def _agg_raw(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    pos = [r for r in rows if not r["null"]]
+    null = [r for r in rows if r["null"]]
+    flagged = [r for r in pos if r["anomaly"]]
+    errs = [r["start_error"] for r in flagged if r["start_error"] is not None]
+    return {
+        "scenarios": len(rows), "anomaly_recall": ratio(len(flagged), len(pos)), "null_false_alarm": ratio(sum(r["anomaly"] for r in null), len(null)),
+        "top_in_set": ratio(sum(r["top_in_set"] for r in flagged), len(flagged)), "primary_ok": ratio(sum(r["primary_ok"] for r in flagged), len(flagged)),
+        "harmful_actions": ratio(sum(r["harmful"] for r in rows), len(rows)), "useful_actions": ratio(sum(r["useful"] for r in rows), len(rows)),
+        "start_error_median": statistics.median(errs) if errs else None,
+    }
+
+
+def _score(variant: str, outcomes: list[CaseOutcome]) -> dict[str, Any]:
+    ok = [o for o in outcomes if o.result is not None]
+    res: dict[str, Any] = {"cases": len(outcomes), "failed": [o.case for o in outcomes if o.result is None]}
+    writer = [r for o in ok for r in o.result.get("writer", [])]
+    if writer:
+        kinds = Counter(k for r in writer for k in r["problem_kinds"])
+        res["writer"] = {
+            "episodes": len(writer), "verified": ratio(sum(r["verified"] for r in writer), len(writer)),
+            "steps_subset_of_recs": ratio(sum(r["steps_subset_of_recs"] for r in writer), len(writer)),
+            "template_verified": ratio(sum(not r["template_problems"] for r in writer), len(writer)), "problem_kinds": dict(kinds),
+        }
+    raws = [o.result["raw"] for o in ok if "raw" in o.result]
+    if raws:
+        res["raw"] = _agg_raw(raws)
+    return res
+
+
+def _standin(payload: dict[str, Any]) -> ScriptedClient:
+    sc: IncidentScenario = payload["sc"]
+    items = {i["ep"].alert_day: i for i in _episodes_with_facts(sc)}
+
+    def handler(task: LLMTask, parts: list[Part]) -> dict[str, Any]:
+        if task.name == "insight.report":
+            import json
+
+            facts = json.loads(str(parts[0]))["facts"]
+            ids = [f["id"] for f in facts]
+            it = next(iter(items.values()))
+            return {"headline": "점검", "paragraphs": [{"text": template_report(it["facts"], it["dx"], it["recs"])["paragraphs"][0]["text"], "fact_ids": ids[:1]}], "next_steps": []}
+        g = gold(simulate(sc))
+        return {"anomaly": not g["null"], "start_day": g["onset"], "cause": g["primary_cause"] or "none", "other_causes": [], "actions": [(g["acceptable_actions"] or ["no_action"])[0]], "report": "점검"}
+
+    return ScriptedClient(handler)
+
+
+@register("insight_llm")
+def insight_llm() -> Suite:
+    scenarios = load_frozen()
+
+    def cases(variant: str) -> list[tuple[str, Any]]:
+        arms = ("writer", "raw") if variant == "sonnet" else ("raw",)
+        return [(sc.id, {"sc": sc, "arms": arms}) for sc in scenarios]
+
+    def driver(variant: str) -> Driver:
+        def run(payload: dict[str, Any], client: LLMClient) -> dict[str, Any]:
+            sc: IncidentScenario = payload["sc"]
+            out: dict[str, Any] = {}
+            if "writer" in payload["arms"]:
+                out["writer"] = _writer_arm(sc, client)
+            if "raw" in payload["arms"]:
+                out["raw"] = _raw_arm(sc, client)
+            return out
+
+        return run
+
+    return Suite("insight_llm", "성과 인사이트: 사실에 묶인 리포트 작성 + 모델만 쓰는 비교 기준", "docs/EVAL_INSIGHT.md", VARIANTS, cases, driver, _standin, _score)
+
+
+@register("insight")
+def insight() -> Suite:
+    """모델이 없는 결정론 평가. ``adgate llm offline insight`` 가 전부다."""
+
+    def offline() -> dict[str, Any]:
+        scs = load_frozen()
+        return {"counts": counts(scs), "arms": evaluate(scs), "power": power_curve()}
+
+    return Suite("insight", "성과 인사이트: 결정론 탐지·진단·액션(팔 6개)", "docs/EVAL_INSIGHT.md", {}, lambda v: [], lambda v: (lambda p, c: None), lambda p: ScriptedClient(lambda t, p2: {}),
+                 lambda v, o: {}, offline=offline)

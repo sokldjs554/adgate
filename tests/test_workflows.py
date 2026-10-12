@@ -50,3 +50,35 @@ def test_the_paid_workflow_runs_only_by_hand_and_only_the_keyless_job_can_write(
     assert "permissions" not in wf["jobs"]["judge"]
     assert wf["jobs"]["publish"]["permissions"] == {"contents": "write"} and "secrets." not in str(wf["jobs"]["publish"]["steps"]).replace("github.token", "")
     assert wf["jobs"]["publish"]["needs"] == "judge"
+
+
+def test_llm_live_is_manual_only_keyed_steps_are_the_two_calling_ones_and_publish_has_no_key():
+    wf = load("llm-live.yml")
+    assert set(wf["on"]) == {"workflow_dispatch"}
+    assert wf["permissions"] == {"contents": "read"}
+    text = (ROOT / ".github" / "workflows" / "llm-live.yml").read_text(encoding="utf-8")
+    assert text.count("secrets.ANTHROPIC_API_KEY") == 2
+    keyed = []
+    for name, job in wf["jobs"].items():
+        for step in job["steps"]:
+            run = step.get("run", "")
+            assert "${{" not in run, f"입력·비밀값을 셸 명령에 직접 끼우지 않는다(환경 변수로): {run}"
+            assert "echo $" not in run and "ANTHROPIC_API_KEY" not in run
+            if "secrets.ANTHROPIC_API_KEY" in str(step.get("env", {})):
+                keyed.append((name, step["name"]))
+    assert [n for n, _ in keyed] == ["llm", "llm"]
+    assert "permissions" not in wf["jobs"]["llm"]
+    assert wf["jobs"]["publish"]["permissions"] == {"contents": "write"} and "secrets." not in str(wf["jobs"]["publish"]["steps"]).replace("github.token", "")
+    assert wf["jobs"]["publish"]["needs"] == "llm"
+    # 이름 입력은 셸에 닿기 전에 정규식으로 거른다
+    assert any("^[a-z0-9_]+$" in s.get("run", "") for s in wf["jobs"]["llm"]["steps"])
+
+
+def test_every_suite_the_workflow_can_run_is_registered_and_dry_runs_without_a_key():
+    from adgate import suites
+
+    assert {"campaign", "campaign_reply"} <= set(suites.names())
+    for n in suites.names():
+        s = suites.get(n)
+        assert s.variants and s.prereg.startswith("docs/EVAL_")
+        assert (ROOT / s.prereg).exists()

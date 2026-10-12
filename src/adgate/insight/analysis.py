@@ -21,8 +21,9 @@ from __future__ import annotations
 
 import math
 import statistics
-from collections.abc import Sequence
-from dataclasses import dataclass, field
+from collections.abc import Iterator, Sequence
+from contextlib import contextmanager
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from .sim import ACCEPTABLE, BASE_UTIL, HARMFUL, Day, Event
@@ -32,6 +33,31 @@ REL_MIN = 0.12          # 상대 편차가 이보다 작으면 잡음이 아무�
 Z_ALERT = 3.5
 SINGLE_DAY = 0.30       # 한 번에 이만큼 벗어나면(|z| ≥ Z_ALERT+1) 이틀 연속을 기다리지 않는다
 WINDOWS = (3, 7, 14)
+
+
+@dataclass
+class Config:
+    """절제(ablation) 실험용 스위치. 기본값이 시스템이다."""
+
+    windows: tuple[int, ...] = WINDOWS
+    align: bool = True          # False: 같은 요일로 맞추지 않고 바로 앞의 깨끗한 창과 견준다
+    use_history: bool = True    # False: 변경 이력을 진단 단서로 쓰지 않는다
+    persistence: bool = True    # False: 이틀 연속 조건 없이 한 번 넘으면 경보
+
+
+CFG = Config()
+
+
+@contextmanager
+def override(**kw: Any) -> Iterator[Config]:
+    """``with override(align=False): …`` 안에서만 설정을 바꾼다(단일 스레드 평가용)."""
+    global CFG
+    old = CFG
+    CFG = replace(old, **kw)
+    try:
+        yield CFG
+    finally:
+        CFG = old
 K_REF = 4               # 기준 창은 최대 4개
 DRIFT = 0.0025         # 하루당 허용하는 완만한 추세. 기준이 오래되면 그만큼 경보 문턱을 올린다
 DEFF = 1.3              # 이항 분산의 과대분산 보정
@@ -107,6 +133,16 @@ class _Series:
 def ref_windows(flagged: Sequence[bool], i: int, w: int, kmax: int = K_REF) -> list[tuple[int, int]]:
     """창 끝 ``i``(0부터), 길이 ``w`` 의 기준 창 ``(lo, hi)`` 들. 안의 날이 모두 깨끗한 것만, 가까운 것부터 최대 ``kmax`` 개."""
     out: list[tuple[int, int]] = []
+    if w <= 3 and not CFG.align:                    # 절제: 요일을 맞추지 않고 바로 앞의 깨끗한 창들
+        e = i - w
+        while e - (w - 1) >= 0 and len(out) < kmax:
+            lo = e - (w - 1)
+            if not any(flagged[lo:e + 1]):
+                out.append((lo, e))
+                e = lo - 1
+            else:
+                e -= 1
+        return out
     if w <= 3:
         for wk in range(1, 9):                      # 같은 요일로 맞춘 wk 주 전 창
             e = i - 7 * wk
@@ -279,7 +315,7 @@ def detect(obs: Observation, upto: int | None = None) -> Detection:
         devs_by_w: dict[int, tuple[dict[str, Dev], int]] = {}
         alert_w = 0
         hits_now: dict[str, float] = {}
-        for w in WINDOWS:
+        for w in CFG.windows:
             devs, k = window_devs(s, flagged, i, w, noise)
             devs_by_w[w] = (devs, k)
             for name, d in _triggers(devs).items():
@@ -288,7 +324,7 @@ def detect(obs: Observation, upto: int | None = None) -> Detection:
                 sign = 1 if d.value > 0 else -1
                 key = (name, w)
                 big = abs(d.value) >= SINGLE_DAY and abs(d.z) >= Z_ALERT + 1
-                persistent = last_hit.get(key) == (i - 1, sign) or big
+                persistent = last_hit.get(key) == (i - 1, sign) or big or not CFG.persistence
                 last_hit[key] = (i, sign)
                 if not persistent:
                     continue
@@ -514,6 +550,8 @@ def _chi2(x: dict[str, Dev], pred: dict[str, float]) -> float:
 
 
 def _hist_bonus(events: list[Event], ep: Episode, cause: CauseName) -> float:
+    if not CFG.use_history:
+        return 0.0
     kind = {"budget_cut": "budget_change", "bid_drop": "bid_change", "ad_rejected": "ad_rejected", "tracking_outage": "tracking_change",
             "landing_degradation": "landing_change"}.get(cause)
     if kind and any(e.type == kind and ep.start - 5 <= e.day <= ep.alert_day for e in events):
