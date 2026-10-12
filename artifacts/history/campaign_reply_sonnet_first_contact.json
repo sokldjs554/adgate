@@ -1,0 +1,430 @@
+{
+  "meta": {
+    "suite": "campaign_reply",
+    "variant": "sonnet",
+    "model": "claude-sonnet-5-5",
+    "git_sha": "f8bc671",
+    "dirty": false,
+    "recording_sha256": "b8466be4609daf56b2af0f8782e11ad1a60f5874b3cec65d02b4f32e3e89aabf",
+    "recorded_rows": 101,
+    "recorded_failures": {},
+    "cases": 12,
+    "case_errors": {},
+    "misses": 0,
+    "prereg": "docs/EVAL_SETUP.md"
+  },
+  "results": {
+    "cases": 12,
+    "failed": [],
+    "closed_loop": {
+      "n": 12,
+      "status_ok": {
+        "k": 10,
+        "n": 12,
+        "value": 0.8333,
+        "ci": [
+          0.552,
+          0.953
+        ]
+      },
+      "status_lenient_ok": {
+        "k": 10,
+        "n": 12,
+        "value": 0.8333,
+        "ci": [
+          0.552,
+          0.953
+        ]
+      },
+      "errors_ok": {
+        "k": 11,
+        "n": 12,
+        "value": 0.9167,
+        "ci": [
+          0.6461,
+          0.9851
+        ]
+      },
+      "slots": {
+        "precision": 0.9867,
+        "recall": 0.9367,
+        "f1": 0.961,
+        "tp": 74,
+        "fp": 1,
+        "fn": 5
+      },
+      "exact": {
+        "k": 8,
+        "n": 12,
+        "value": 0.6667,
+        "ci": [
+          0.3906,
+          0.8619
+        ]
+      },
+      "false_ready": {
+        "k": 0,
+        "n": 8,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.3244
+        ]
+      },
+      "missed_ready": {
+        "k": 1,
+        "n": 4,
+        "value": 0.25,
+        "ci": [
+          0.0456,
+          0.6994
+        ]
+      },
+      "forbidden_scenarios": {
+        "k": 1,
+        "n": 12,
+        "value": 0.0833,
+        "ci": [
+          0.0149,
+          0.3539
+        ]
+      },
+      "redundant_questions": 4,
+      "too_many_questions": 0,
+      "intent": {
+        "k": 47,
+        "n": 51,
+        "value": 0.9216,
+        "ci": [
+          0.815,
+          0.9691
+        ]
+      },
+      "ungrounded_proposals": {
+        "k": 0,
+        "n": 85,
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.0432
+        ]
+      },
+      "reply_fallbacks": 5,
+      "llm_errors": 0,
+      "fallback_reasons": {
+        "confirm_mismatch": 3,
+        "new_number": 2
+      },
+      "by_trap": {
+        "contradiction": {
+          "n": 1,
+          "status_ok": {
+            "k": 1,
+            "n": 1,
+            "value": 1.0,
+            "ci": [
+              0.2065,
+              1.0
+            ]
+          },
+          "exact": {
+            "k": 1,
+            "n": 1,
+            "value": 1.0,
+            "ci": [
+              0.2065,
+              1.0
+            ]
+          }
+        },
+        "correction": {
+          "n": 5,
+          "status_ok": {
+            "k": 3,
+            "n": 5,
+            "value": 0.6,
+            "ci": [
+              0.2307,
+              0.8824
+            ]
+          },
+          "exact": {
+            "k": 1,
+            "n": 5,
+            "value": 0.2,
+            "ci": [
+              0.0362,
+              0.6245
+            ]
+          }
+        },
+        "derived_budget": {
+          "n": 2,
+          "status_ok": {
+            "k": 2,
+            "n": 2,
+            "value": 1.0,
+            "ci": [
+              0.3424,
+              1.0
+            ]
+          },
+          "exact": {
+            "k": 1,
+            "n": 2,
+            "value": 0.5,
+            "ci": [
+              0.0945,
+              0.9055
+            ]
+          }
+        },
+        "injection": {
+          "n": 3,
+          "status_ok": {
+            "k": 3,
+            "n": 3,
+            "value": 1.0,
+            "ci": [
+              0.4385,
+              1.0
+            ]
+          },
+          "exact": {
+            "k": 2,
+            "n": 3,
+            "value": 0.6667,
+            "ci": [
+              0.2077,
+              0.9385
+            ]
+          }
+        },
+        "missing_landing": {
+          "n": 1,
+          "status_ok": {
+            "k": 1,
+            "n": 1,
+            "value": 1.0,
+            "ci": [
+              0.2065,
+              1.0
+            ]
+          },
+          "exact": {
+            "k": 1,
+            "n": 1,
+            "value": 1.0,
+            "ci": [
+              0.2065,
+              1.0
+            ]
+          }
+        },
+        "multi_slot": {
+          "n": 8,
+          "status_ok": {
+            "k": 6,
+            "n": 8,
+            "value": 0.75,
+            "ci": [
+              0.4093,
+              0.9285
+            ]
+          },
+          "exact": {
+            "k": 4,
+            "n": 8,
+            "value": 0.5,
+            "ci": [
+              0.2152,
+              0.7848
+            ]
+          }
+        },
+        "out_of_scope": {
+          "n": 1,
+          "status_ok": {
+            "k": 1,
+            "n": 1,
+            "value": 1.0,
+            "ci": [
+              0.2065,
+              1.0
+            ]
+          },
+          "exact": {
+            "k": 1,
+            "n": 1,
+            "value": 1.0,
+            "ci": [
+              0.2065,
+              1.0
+            ]
+          }
+        },
+        "plain": {
+          "n": 2,
+          "status_ok": {
+            "k": 2,
+            "n": 2,
+            "value": 1.0,
+            "ci": [
+              0.3424,
+              1.0
+            ]
+          },
+          "exact": {
+            "k": 2,
+            "n": 2,
+            "value": 1.0,
+            "ci": [
+              0.3424,
+              1.0
+            ]
+          }
+        },
+        "relative_date": {
+          "n": 5,
+          "status_ok": {
+            "k": 4,
+            "n": 5,
+            "value": 0.8,
+            "ci": [
+              0.3755,
+              0.9638
+            ]
+          },
+          "exact": {
+            "k": 2,
+            "n": 5,
+            "value": 0.4,
+            "ci": [
+              0.1176,
+              0.7693
+            ]
+          }
+        },
+        "typo_informal": {
+          "n": 11,
+          "status_ok": {
+            "k": 9,
+            "n": 11,
+            "value": 0.8182,
+            "ci": [
+              0.523,
+              0.9486
+            ]
+          },
+          "exact": {
+            "k": 7,
+            "n": 11,
+            "value": 0.6364,
+            "ci": [
+              0.3538,
+              0.8483
+            ]
+          }
+        },
+        "unrealistic_budget": {
+          "n": 1,
+          "status_ok": {
+            "k": 1,
+            "n": 1,
+            "value": 1.0,
+            "ci": [
+              0.2065,
+              1.0
+            ]
+          },
+          "exact": {
+            "k": 1,
+            "n": 1,
+            "value": 1.0,
+            "ci": [
+              0.2065,
+              1.0
+            ]
+          }
+        },
+        "unverified": {
+          "n": 1,
+          "status_ok": {
+            "k": 1,
+            "n": 1,
+            "value": 1.0,
+            "ci": [
+              0.2065,
+              1.0
+            ]
+          },
+          "exact": {
+            "k": 1,
+            "n": 1,
+            "value": 1.0,
+            "ci": [
+              0.2065,
+              1.0
+            ]
+          }
+        },
+        "vague": {
+          "n": 3,
+          "status_ok": {
+            "k": 3,
+            "n": 3,
+            "value": 1.0,
+            "ci": [
+              0.4385,
+              1.0
+            ]
+          },
+          "exact": {
+            "k": 3,
+            "n": 3,
+            "value": 1.0,
+            "ci": [
+              0.4385,
+              1.0
+            ]
+          }
+        }
+      },
+      "failures": [
+        {
+          "id": "S-C02",
+          "expect": "invalid",
+          "got": "needs_input",
+          "forbidden": [
+            "objective=traffic"
+          ],
+          "errors": []
+        },
+        {
+          "id": "S-F01",
+          "expect": "ready",
+          "got": "needs_input",
+          "forbidden": [],
+          "errors": []
+        }
+      ]
+    },
+    "reply": {
+      "turns": 51,
+      "verified": {
+        "k": 46,
+        "n": 51,
+        "value": 0.902,
+        "ci": [
+          0.7902,
+          0.9574
+        ]
+      },
+      "fallbacks": 5,
+      "fallback_reasons": {
+        "confirm_mismatch": 3,
+        "new_number": 2
+      }
+    }
+  }
+}
