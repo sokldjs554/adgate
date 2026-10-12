@@ -4,10 +4,30 @@
     "source": "data/llm/<suite>/<variant>.calls.jsonl"
   },
   "total": {
-    "calls": 180,
-    "usd": 1.004108
+    "calls": 389,
+    "usd": 1.095241
   },
   "suites": {
+    "creative": {
+      "haiku": {
+        "model": "claude-haiku-5-5",
+        "calls": 209,
+        "ok": 209,
+        "failed": 0,
+        "cases": 46,
+        "input_tokens": 295730,
+        "output_tokens": 104985,
+        "cache_write_tokens": 35834,
+        "cache_read_tokens": 458828,
+        "usd": 0.091133,
+        "usd_per_call": 0.000436,
+        "latency_ms": {
+          "p50": 2021,
+          "p95": 5366,
+          "max": 9795
+        }
+      }
+    },
     "vision": {
       "haiku": {
         "model": "claude-haiku-5-5",
