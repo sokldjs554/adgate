@@ -30,5 +30,13 @@
     "sha256": "74c0f56154a9c760509f3b3b5f04f21d766b936ddcf5b38430ee2d6dd0a0d455",
     "registered": "2026-10-12",
     "note": ""
+  },
+  {
+    "doc": "docs/EVAL_VISION.md",
+    "start": "## 1.",
+    "end": "## 7.",
+    "sha256": "943492f7dc4dd47dc5474890dc30e00dc9b1c47efca0ad4460b45249047e44c7",
+    "registered": "2026-10-12",
+    "note": ""
   }
 ]

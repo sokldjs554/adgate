@@ -24,6 +24,7 @@ from .spec import FLAGS, hard_texts, texts
 
 _NOISE = re.compile(r"[\s\W_]+", re.UNICODE)
 SIMILAR = 0.85
+COMPOSITION_TAGS = ("image_only", "benign_image", "visual_cue", "both")
 
 
 def norm(text: str) -> str:
@@ -35,6 +36,27 @@ def similar(a: str, b: str) -> bool:
     if not na or not nb:
         return False
     return na == nb or SequenceMatcher(None, na, nb).ratio() >= SIMILAR
+
+
+def found_in(gold_chunk: str, haystack: str) -> bool:
+    """정답 덩어리가 읽은 글 전체(정규화해 이은 것) 안에 (거의) 그대로 있는가. 덩어리 나눔이 달라도(두 덩어리를 한 줄로 읽음 …) 심사가 보는 것은 이어 붙인 글이므로 이쪽이 판정에 더 가깝다."""
+    g, h = norm(gold_chunk), norm(haystack)
+    if not g or not h:
+        return False
+    if g in h:
+        return True
+    n = len(g)
+    if len(h) < n * 0.8:
+        return False
+    best = 0.0
+    for size in {max(1, n - 1), n, n + 1}:
+        for i in range(0, max(1, len(h) - size + 1)):
+            r = SequenceMatcher(None, g, h[i:i + size]).ratio()
+            if r > best:
+                best = r
+                if best >= SIMILAR:
+                    return True
+    return best >= SIMILAR
 
 
 def cer(gold: str, got: str) -> float:
@@ -56,11 +78,14 @@ def score_reading(item: VisionExample, reading: ImageReading | None) -> dict[str
     hard = set(hard_texts(item.image))
     got = [t.text for t in reading.texts if t.text.strip()] if reading else []
     hit = [any(similar(g, e) for e in got) for g in gold]
+    joined = " ".join(got)
+    hit_cat = [found_in(g, joined) for g in gold]
     hallucinated = [e for e in got if not any(similar(g, e) for g in gold)]
     gold_flags, got_flags = set(_flags(item)), set(reading.flags) if reading else set()
     return {
         "id": item.id, "read": reading is not None, "gold_n": len(gold), "hit": sum(hit), "hard_n": sum(g in hard for g in gold),
         "hard_hit": sum(h for g, h in zip(gold, hit, strict=True) if g in hard), "extracted_n": len(got), "hallucinated": hallucinated,
+        "hit_concat": sum(hit_cat), "hard_hit_concat": sum(h for g, h in zip(gold, hit_cat, strict=True) if g in hard),
         "cer": cer(" ".join(gold), " ".join(got)) if reading else 1.0, "all_hit": all(hit) and not hallucinated,
         "flags_tp": sorted(gold_flags & got_flags), "flags_fp": sorted(got_flags - gold_flags), "flags_fn": sorted(gold_flags - got_flags),
         "missed": [g for g, h in zip(gold, hit, strict=True) if not h],
@@ -87,6 +112,8 @@ def summarize_reading(scores: list[dict[str, Any]]) -> dict[str, Any]:
         "text_recall": ratio(sum(s["hit"] for s in scores), n_gold),
         "hard_text_recall": ratio(sum(s["hard_hit"] for s in scores), n_hard),
         "easy_text_recall": ratio(sum(s["hit"] - s["hard_hit"] for s in scores), n_gold - n_hard),
+        "text_recall_concat": ratio(sum(s["hit_concat"] for s in scores), n_gold),
+        "hard_text_recall_concat": ratio(sum(s["hard_hit_concat"] for s in scores), n_hard),
         "text_precision": ratio(n_extracted - sum(len(s["hallucinated"]) for s in scores), n_extracted),
         "hallucinated_items": sum(bool(s["hallucinated"]) for s in scores),
         "all_texts_exact": ratio(sum(s["all_hit"] for s in scores), len(scores)),
@@ -121,4 +148,9 @@ def decision_effect(items: list[VisionExample], readings: Mapping[str, ImageRead
     out["image_only"] = {
         name: metrics.compute([examples[i] for i in only], [preds[i] for i in only]) for name, preds in systems.items()
     } if only else {}
+    out["by_tag"] = {}
+    for tag in COMPOSITION_TAGS:
+        idx = [i for i, it in enumerate(items) if tag in it.gold.tags]
+        if idx:
+            out["by_tag"][tag] = {name: metrics.compute([examples[i] for i in idx], [preds[i] for i in idx]) for name, preds in systems.items()}
     return out
