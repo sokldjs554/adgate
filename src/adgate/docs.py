@@ -186,7 +186,10 @@ def results_md(src: dict[str, Any]) -> str:
     judge = src.get("judge")
     if judge:
         out += judge_replay_md(judge, sec("LLM judge — 녹음 재생 (실호출 아님)"))
-    elif not spend:
+    live = src.get("judge_live")
+    if live and src.get("judge_live_info"):
+        out += judge_replay_md(live, sec("LLM judge — 실호출 녹음"), live=src["judge_live_info"], compare=src.get("judge_compare"))
+    if not judge and not live and not spend:
         out += [sec("LLM judge"), "", "이 저장소의 결과에는 LLM judge 측정이 없다(실호출 미실측). `adgate eval --judge anthropic` 으로 측정한다.", ""]
     return "\n".join(out)
 
@@ -204,17 +207,47 @@ def pooled_judge(judge: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def judge_replay_md(judge: dict[str, Any], heading: str) -> list[str]:
+def judge_live_info(root: Path) -> dict[str, Any] | None:
+    """실호출 녹음의 호출별 기록(``data/judge_live/calls.jsonl``)과 총량(``summary.json``)에서 지연·실패 종류를 센다."""
+    d = root / "data" / "judge_live"
+    summary = _load(d / "summary.json")
+    if not summary:
+        return None
+    calls = [json.loads(ln) for ln in (d / "calls.jsonl").read_text(encoding="utf-8").splitlines() if ln.strip()] if (d / "calls.jsonl").exists() else []
+    lat = sorted(c["latency_ms"] / 1000 for c in calls if c.get("latency_ms") is not None)
+
+    def pct(q: float) -> float | None:
+        return round(lat[min(len(lat) - 1, int(q * len(lat)))], 2) if lat else None
+
+    errors: dict[str, int] = {}
+    for c in calls:
+        if not c.get("ok"):
+            errors[c.get("error", "?")] = errors.get(c.get("error", "?"), 0) + 1
+    return {"summary": summary, "calls": len(calls), "latency_s": {"p50": pct(0.5), "p95": pct(0.95), "max": round(lat[-1], 2) if lat else None}, "errors": errors}
+
+
+def judge_replay_md(judge: dict[str, Any], heading: str, live: dict[str, Any] | None = None, compare: dict[str, Any] | None = None) -> list[str]:
     meta, res = judge["meta"], judge["results"]
     rp = meta["judge_replay"]
     summ: dict[str, dict[str, Any]] = rp["datasets"]
     pool = pooled_judge(judge)
+    failed_rows = f", 실패 행 {rp['errors']}" if rp.get("errors") else ""
+    if live is None:
+        banner = [
+            "> **이 수치는 운영 모델의 성능이 아니다.** 프롬프트·스키마·근거 검증·병합·판정은 실제 파이프라인이지만, 모델 응답은 서브에이전트가 '모델 대역'으로 만든 녹음이다.",
+            "> 설계자·작성자와 같은 모델 계열이고, 대역은 평가임을 안다(낙관 쪽 편향). 사전등록·방법·한계는 [JUDGE_REPLAY.md](JUDGE_REPLAY.md).",
+        ]
+    else:
+        sm = live["summary"]
+        banner = [
+            f"> **실제 API 호출**(모델 `{sm['model']}`, effort `{sm['effort']}`)을 녹음해 대역 측정과 같은 파이프라인·같은 집계로 재생했다. 사전등록·방법·한계는 [JUDGE_LIVE.md](JUDGE_LIVE.md).",
+            "> 소재·정답·라벨러가 같은 모델 계열이라 낙관 쪽 편향이 남는다. 소재마다 한 번 호출했으므로 모델 출력의 변동은 모른다.",
+        ]
     out = [
         heading,
         "",
-        "> **이 수치는 운영 모델의 성능이 아니다.** 프롬프트·스키마·근거 검증·병합·판정은 실제 파이프라인이지만, 모델 응답은 서브에이전트가 '모델 대역'으로 만든 녹음이다.",
-        "> 설계자·작성자와 같은 모델 계열이고, 대역은 평가임을 안다(낙관 쪽 편향). 사전등록·방법·한계는 [JUDGE_REPLAY.md](JUDGE_REPLAY.md).",
-        f"> 녹음 {rp['responses']}건(sha256 `{rp['file_sha256'][:12]}…`, 누락 {rp['misses']}), 측정 기준 git `{meta['git_sha']}`{' (작업트리 수정됨)' if meta['dirty'] else ''}, {meta['created']}.",
+        *banner,
+        f"> 녹음 {rp['responses']}건(sha256 `{rp['file_sha256'][:12]}…`, 누락 {rp['misses']}{failed_rows}), 측정 기준 git `{meta['git_sha']}`{' (작업트리 수정됨)' if meta['dirty'] else ''}, {meta['created']}.",
         "",
         "| 데이터셋 | 시스템 | N | 정확도 | 위험 승인율 | 정상 오반려 | 정상 오보류 | 자동 처리율 | 자동 처리 정밀도 |",
         "|---|---|---:|---:|---|---|---|---:|---|",
@@ -256,6 +289,28 @@ def judge_replay_md(judge: dict[str, Any], heading: str) -> list[str]:
     if not rows:
         out.append("| (없음) | | | | |")
     out.append("")
+    if live is not None:
+        sm, lat = live["summary"], live["latency_s"]
+        out += [
+            "### 호출",
+            "",
+            "| 호출 | 성공 | 실패(종류) | 입력 · 출력 토큰 | 캐시 쓰기 · 읽기 토큰 | 추정 비용 (상한) | 지연 p50 · p95 · 최대 |",
+            "|---:|---:|---|---|---|---|---|",
+            f"| {sm['calls']} | {sm['ok']} | {sm['failed']}" + (f" ({', '.join(f'{k} {v}' for k, v in live['errors'].items())})" if live["errors"] else "") +
+            f" | {sm['input_tokens']:,} · {sm['output_tokens']:,} | {sm['cache_write_tokens']:,} · {sm['cache_read_tokens']:,} | ${sm['estimated_usd']:.2f} (${sm['max_usd']:.2f}) | "
+            f"{lat['p50']}초 · {lat['p95']}초 · {lat['max']}초 |",
+            "",
+        ]
+    if compare:
+        ag = compare["agreement"]
+        out += [
+            "### 대역과의 견줌",
+            "",
+            f"같은 소재 {compare['n']}건 중 비교 가능한 {compare['compared']}건에서 *후보를 냈는가*가 일치한 것은 **{ag['k']}/{ag['n']}**"
+            f" ({ag['value'] * 100:.1f}%). 둘 다 없음 {compare['agree_empty']} · 둘 다 있음 {compare['agree_nonempty']}(낸 규칙 집합까지 같음 {compare['rule_sets_equal']}) · "
+            f"대역만 {compare['only_a']} · 실호출만 {compare['only_b']} · 실호출 실패 {compare['error_b']}.",
+            "",
+        ]
     return out
 
 
@@ -345,6 +400,15 @@ def gather(root: Path) -> dict[str, Any]:
     judge = _load(art / "results_judge.json")
     if judge:
         src["judge"] = judge
+    judge_live = _load(art / "results_judge_live.json")
+    if judge_live:
+        src["judge_live"] = judge_live
+        info = judge_live_info(root)
+        if info:
+            src["judge_live_info"] = info
+        compare = _load(art / "judge_compare.json")
+        if compare:
+            src["judge_compare"] = compare
     agree = _load(art / "agreement_test.json")
     if agree:
         src["agreement"] = agree
@@ -392,6 +456,11 @@ def lookup_sources(src: dict[str, Any]) -> dict[str, Any]:
     tree["sensitivity"] = src.get("sensitivity", {})
     if "judge" in src:
         tree["judge"] = {**src["judge"], "pooled": pooled_judge(src["judge"])}
+    if "judge_live" in src:
+        tree["judge_live"] = {
+            **src["judge_live"], "pooled": pooled_judge(src["judge_live"]),
+            "info": src.get("judge_live_info", {}), "compare": src.get("judge_compare", {}),
+        }
     return tree
 
 
@@ -406,6 +475,7 @@ def build(root: Path) -> dict[Path, str]:
     tree = lookup_sources(src)
     for path in (
         root / "README.md", root / "docs/DECISIONS.md", root / "docs/FAILURES.md", root / "docs/LIMITATIONS.md", root / "docs/JUDGE_REPLAY.md",
+        root / "docs/JUDGE_LIVE.md",
     ):
         if path.exists():
             files[path] = fill_markers(path.read_text(encoding="utf-8"), tree)

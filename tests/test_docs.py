@@ -174,3 +174,31 @@ def test_judge_live_preregistration_text_is_unchanged():
     end = text.index("\n## 5.") if "\n## 5." in text else len(text)
     body = text[text.index("## 1. 무엇을 알고 싶은가"):end]
     assert hashlib.sha256(body.strip("\n").encode("utf-8")).hexdigest() == LIVE_PREREGISTERED_SHA256, "실호출 사전등록(1–4절)을 고쳤다"
+
+
+def test_judge_live_section_renders_calls_and_the_comparison_with_the_stand_ins(tmp_path):
+    """실호출 산출물이 생기면 결과 문서에 호출 요약·지연·대역과의 견줌이 나온다(합성 입력으로 렌더링만 시험한다)."""
+    root = tmp_path
+    (root / "artifacts").mkdir()
+    (root / "data/judge_live").mkdir(parents=True)
+    (root / "artifacts/results_judge_live.json").write_text(json.dumps(_judge()), encoding="utf-8")
+    (root / "data/judge_live/summary.json").write_text(json.dumps({
+        "model": "claude-opus-5-5", "effort": "medium", "calls": 4, "ok": 3, "failed": 1, "input_tokens": 1000, "output_tokens": 2000,
+        "cache_write_tokens": 2621, "cache_read_tokens": 7863, "estimated_usd": 0.1234, "max_usd": 6.0,
+    }), encoding="utf-8")
+    calls = [{"key": "a", "ok": True, "latency_ms": 4000}, {"key": "b", "ok": True, "latency_ms": 6000},
+             {"key": "c", "ok": True, "latency_ms": 8000}, {"key": "d", "ok": False, "error": "APITimeoutError", "latency_ms": 60000}]
+    (root / "data/judge_live/calls.jsonl").write_text("".join(json.dumps(c) + "\n" for c in calls), encoding="utf-8")
+    (root / "artifacts/judge_compare.json").write_text(json.dumps({
+        "n": 209, "compared": 207, "agree_empty": 170, "agree_nonempty": 20, "rule_sets_equal": 18, "only_a": 8, "only_b": 9, "error_b": 2,
+        "agreement": {"k": 190, "n": 207, "value": 0.918, "ci": [0.87, 0.95]},
+    }), encoding="utf-8")
+    src = docs.gather(root)
+    info = src["judge_live_info"]
+    assert info["calls"] == 4 and info["errors"] == {"APITimeoutError": 1} and info["latency_s"]["max"] == 60.0 and info["latency_s"]["p50"] == 8.0
+    text = "\n".join(docs.judge_replay_md(src["judge_live"], "## 8. LLM judge — 실호출 녹음", live=info, compare=src["judge_compare"]))
+    assert "실제 API 호출" in text and "claude-opus-5-5" in text and "운영 모델의 성능이 아니다" not in text
+    assert "### 호출" in text and "APITimeoutError 1" in text and "$0.12 ($6.00)" in text and "2,621 · 7,863" in text
+    assert "190/207" in text and "실호출 실패 2" in text
+    tree = docs.lookup_sources(src)
+    assert tree["judge_live"]["info"]["calls"] == 4 and tree["judge_live"]["compare"]["compared"] == 207
