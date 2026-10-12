@@ -289,3 +289,23 @@ def test_a_budget_under_the_adset_floor_reports_only_the_budget_error_like_the_s
                                     slot("landing_url", "https://a.example.com", "https://a.example.com"), slot("conversion_event", "purchase", "구매")]})
     r = agent.step(s, "쇼핑몰 구매 늘리기 일 천원 https://a.example.com 구매")
     assert [i.code for i in r.issues if i.severity == "error"] == ["C01_min_daily_budget"]
+
+
+def test_analyze_lists_nothing_for_the_oracle_and_the_exact_slot_diff_for_a_weaker_extractor():
+    """실패 분석: 오라클이면 틀린 시나리오·턴이 없다. 규칙 추출기처럼 약한 추출기면 *무엇이 빠지고 틀리고 남았는지*가 시나리오마다 나온다."""
+    from adgate.campaign.suite import _analyze
+    from adgate.llm import CaseOutcome
+
+    def outcomes(make):
+        out = []
+        for sc in DEV:
+            out.append(CaseOutcome(case=sc.id, result={"teacher": teacher_forced(make(sc), sc), "closed": score_run(sc, run_scenario(make(sc), sc))}))
+        return out
+
+    clean = _analyze("sonnet", outcomes(oracle_client))
+    assert clean["closed_failures"] == [] and clean["teacher_turn_misses"] == [] and clean["intent_confusions"] == {}
+    weak = _analyze("sonnet", outcomes(lambda sc: heuristic_client()))
+    assert weak["closed_failures"] and weak["teacher_turn_misses"]
+    row = weak["closed_failures"][0]
+    assert set(row["diff"]) == {"missing", "wrong", "extra"} and row["split"] == "dev" and row["expect_status"] in ("ready", "needs_input", "invalid", "refused")
+    assert all(m["utterance"] for m in weak["teacher_turn_misses"])

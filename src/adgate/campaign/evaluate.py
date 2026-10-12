@@ -82,6 +82,11 @@ def score_run(sc: Scenario, run: Run) -> dict[str, Any]:
         have = state_after(sc, t - 1)
         redundant += sum(1 for q in r.questions if q in have)
     intents = sum(r.intent == g for r, g in zip(run.results, sc.expect.turn_intents, strict=True))
+    diff = {
+        "missing": sorted(f"{p}={v}" for p, v in gold.items() if p not in got),
+        "wrong": sorted(f"{p}: got {got[p]!r}, want {v!r}" for p, v in gold.items() if p in got and got[p] != v),
+        "extra": sorted(f"{p}={v}" for p, v in got.items() if p not in gold),
+    }
     return {
         "id": sc.id, "traps": sc.traps, "expect_status": exp, "status": status,
         "status_ok": status == exp, "status_lenient_ok": _lenient(status) == _lenient(exp),
@@ -94,6 +99,7 @@ def score_run(sc: Scenario, run: Run) -> dict[str, Any]:
         "proposed": sum(r.proposed for r in run.results), "fallbacks": sum(r.used_fallback for r in run.results),
         "fallback_reasons": dict(Counter(r.fallback_reason for r in run.results if r.fallback_reason)),
         "llm_errors": sum(r.llm_error is not None for r in run.results),
+        "diff": diff, "issue_codes": sorted({i.code for i in run.final.issues}),
     }
 
 

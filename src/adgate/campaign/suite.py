@@ -63,6 +63,38 @@ def _score(variant: str, outcomes: list[CaseOutcome]) -> dict[str, Any]:
     return res
 
 
+def _analyze(variant: str, outcomes: list[CaseOutcome]) -> dict[str, Any]:
+    """틀린 시나리오의 목록: 닫힌 고리에서 상태가 어긋났거나 슬롯이 정답과 다른 시나리오(무엇이 빠지고·틀리고·남았는가), 교사 강제에서 슬롯·의도를 틀린 턴."""
+    dev, test = load_split()
+    sc_by_id = {s.id: s for s in [*dev, *test]}
+    split = {**{s.id: "dev" for s in dev}, **{s.id: "test" for s in test}}
+    closed_fail: list[dict[str, Any]] = []
+    turn_miss: list[dict[str, Any]] = []
+    confusion: Counter[str] = Counter()
+    for o in outcomes:
+        if o.result is None:
+            continue
+        sc = sc_by_id[o.case]
+        c = o.result.get("closed")
+        if c and not (c["status_ok"] and c["exact"] and not c["forbidden"]):
+            closed_fail.append({
+                "id": sc.id, "split": split[sc.id], "traps": sc.traps, "expect_status": c["expect_status"], "status": c["status"], "diff": c["diff"],
+                "forbidden": c["forbidden"], "errors": c["errors"], "expected_errors": sc.expect.validation_errors, "issue_codes": c["issue_codes"],
+                "redundant_questions": c["redundant_questions"],
+            })
+        for r in o.result.get("teacher", []):
+            # 금지 값은 정정 *전*의 옛 값일 수 있어 그 턴의 정답에도 있을 수 있다(오라클도 센다) → 정답과 다른 추출(fp)일 때만 틀린 턴으로 본다
+            if r["fp"] or r["fn"] or not r["intent_ok"]:
+                turn_miss.append({
+                    "id": r["id"], "split": split[r["id"]], "turn": r["turn"], "utterance": sc.turns[r["turn"] - 1].user, "fp": r["fp"], "fn": r["fn"],
+                    "intent": r["intent"], "gold_intent": r["gold_intent"], "forbidden": r["forbidden"], "ungrounded": r["ungrounded_reasons"],
+                    "traps": r["traps"],
+                })
+            if not r["intent_ok"]:
+                confusion[f"{r['gold_intent']}→{r['intent']}"] += 1
+    return {"closed_failures": closed_fail, "teacher_turn_misses": turn_miss, "intent_confusions": dict(confusion), "failed_cases": [o.case for o in outcomes if o.result is None]}
+
+
 @register("campaign")
 def campaign() -> Suite:
     dev, test = load_split()
@@ -89,6 +121,7 @@ def campaign() -> Suite:
     return Suite(
         "campaign", "셋업 어시스턴트: 교사 강제 추출 + 닫힌 고리 + 단일 호출(비교)", "docs/EVAL_SETUP.md", VARIANTS, cases, driver,
         lambda payload: standin_client(payload["sc"]), _score, offline=offline, check_case=lambda: (dev[0].id, {"sc": dev[0], "arms": ("teacher",)}),
+        analyze=_analyze,
     )
 
 
