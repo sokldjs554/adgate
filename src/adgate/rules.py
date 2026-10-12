@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import bisect
 import re
 import unicodedata
 from collections.abc import Callable
@@ -383,19 +384,24 @@ def run_rules(scan: Scan) -> list[Finding]:
 
 
 def resolve_overlaps(findings: list[Finding], policy: Policy) -> list[Finding]:
-    """같은 필드에서 같은 표현을 가리키는 발견이 여럿이면 우선순위가 높은 규칙 하나만 남긴다(docs/POLICY.md 5절)."""
+    """같은 필드에서 같은 표현을 가리키는 발견이 여럿이면 우선순위가 높은 규칙 하나만 남긴다(docs/POLICY.md 5절).
+
+    우선순위 순으로 훑으며 이미 남긴 것과 겹치지 않는 발견만 남긴다. 남긴 구간은 서로 겹치지 않으므로 필드마다 시작 위치로 정렬해 두면
+    새 구간과 겹칠 수 있는 것은 '시작이 새 구간의 끝보다 작은 것 중 마지막 하나'뿐이다 → 이분 탐색 한 번. (이전 구현은 남긴 것 전부와 견줘서
+    같은 표현을 수천 번 되풀이한 소재 하나가 CI 의 느린 파이썬에서 4초를 넘겼다. 발견 수에 대해 2차 시간이었다.)
+    """
     spanned = [f for f in findings if f.start is not None and f.end is not None]
     others = [f for f in findings if f.start is None or f.end is None]
     spanned.sort(key=lambda f: (policy.rank(f.rule_id), -((f.end or 0) - (f.start or 0)), f.start or 0))
     kept: list[Finding] = []
+    taken: dict[str | None, list[tuple[int, int]]] = {}  # 필드 → 남긴 (start, end), start 순
     for f in spanned:
         assert f.start is not None and f.end is not None
-        clash = any(
-            k.field == f.field and k.start is not None and k.end is not None
-            and f.start < k.end and k.start < f.end
-            for k in kept
-        )
-        if not clash:
-            kept.append(f)
+        spans = taken.setdefault(f.field, [])
+        i = bisect.bisect_left(spans, (f.end, -1))  # spans[:i] 는 start < f.end
+        if i and spans[i - 1][1] > f.start:  # 그중 마지막이 f.start 를 넘어 이어지면 겹친다
+            continue
+        bisect.insort(spans, (f.start, f.end))
+        kept.append(f)
     kept.sort(key=lambda f: (f.field or "", f.start or 0))
     return kept + others
