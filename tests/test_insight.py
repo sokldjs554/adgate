@@ -282,3 +282,35 @@ def test_raw_input_contains_only_observations_not_the_answer():
     sim = simulate(make("budget_cut", 0.5, seed=2))
     text = raw_input(Observation(sim.days, sim.events))
     assert "budget_cut" not in text and "expected" not in text and '"day": 1' in text
+
+
+def test_insight_llm_failure_analysis_names_the_scenarios_where_the_model_only_baseline_went_wrong():
+    """집계 수치가 비슷해도 틀린 곳이 같다는 뜻은 아니다 — 모델만 쓴 기준이 놓친 이상 · 오경보 · 해로운 액션을 시나리오 단위로 적는다."""
+    from adgate.insight.suite import _analyze, _raw_arm, load_frozen
+    from adgate.llm import CaseOutcome, ScriptedClient
+
+    scs = load_frozen()
+    null_sc = next(s for s in scs if gold(simulate(s))["null"])
+    pos_sc = next(s for s in scs if not gold(simulate(s))["null"])
+
+    def client(out):
+        return ScriptedClient(lambda task, parts: out)
+
+    cry_wolf = {"anomaly": True, "start_day": 10, "cause": "budget_cut", "other_causes": [], "actions": ["raise_budget"], "report": "x"}
+    sleep = {"anomaly": False, "start_day": None, "cause": "none", "other_causes": [], "actions": ["no_action"], "report": "x"}
+    outcomes = [
+        CaseOutcome(null_sc.id, {"raw": _raw_arm(null_sc, client(cry_wolf))}),
+        CaseOutcome(pos_sc.id, {"raw": _raw_arm(pos_sc, client(sleep))}),
+    ]
+    a = _analyze("opus", outcomes)
+    assert list(a["raw_false_alarms"]) == [null_sc.id] and list(a["raw_harmful"]) == [null_sc.id]      # 사건이 없는데 예산을 올리자고 했다
+    assert list(a["raw_missed"]) == [pos_sc.id]
+    assert a["raw_missed"][pos_sc.id]["model"]["cause"] == "none" and a["raw_missed"][pos_sc.id]["gold"]["primary"]   # 모델이 낸 것과 정답이 같이 남는다
+    assert set(a["both_missed"]) | set(a["raw_only_missed"]) == {pos_sc.id}
+    assert a["writer_unverified"] == []
+
+
+def test_the_failure_analysis_runs_on_a_partial_recording_without_inventing_cases():
+    from adgate.insight.suite import _analyze
+
+    assert _analyze("opus", [])["raw_missed"] == {} and _analyze("opus", [])["system_only_missed"] == []

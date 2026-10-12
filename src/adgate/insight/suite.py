@@ -91,6 +91,11 @@ def _raw_arm(sc: IncidentScenario, client: LLMClient) -> dict[str, Any]:
         "null": g["null"], "anomaly": bool(out["anomaly"]), "top_in_set": out["cause"] in gold_causes, "any_in_set": bool(causes & gold_causes),
         "primary_ok": out["cause"] == g["primary_cause"], "harmful": harmful, "useful": bool(acts & set(g["acceptable_actions"])) if not g["null"] else acts <= set(SAFE_ACTIONS),
         "start_error": abs(out["start_day"] - g["onset"]) if (out["start_day"] is not None and g["onset"] is not None) else None,
+        # 실패 분석용(채점에는 쓰지 않는다): 모델이 낸 것과 정답
+        "detail": {
+            "model": {"cause": out["cause"], "other_causes": sorted(out["other_causes"]), "actions": sorted(acts), "start_day": out["start_day"]},
+            "gold": {"primary": g["primary_cause"], "causes": sorted(gold_causes), "harmful": sorted(set(CHANGE_ACTIONS) if g["null"] else g["harmful_actions"]), "onset": g["onset"]},
+        },
     }
 
 
@@ -122,6 +127,31 @@ def _score(variant: str, outcomes: list[CaseOutcome]) -> dict[str, Any]:
     if raws:
         res["raw"] = _agg_raw(raws)
     return res
+
+
+def _analyze(variant: str, outcomes: list[CaseOutcome]) -> dict[str, Any]:
+    """모델만 쓴 비교 기준(raw)이 *어느 시나리오에서* 틀렸는가와 시스템(결정론)이 놓친 구간과의 겹침. 집계 수치가 비슷해도 틀린 곳이 같다는 뜻은 아니다."""
+    raws = {o.case: o.result["raw"] for o in outcomes if o.result is not None and "raw" in o.result}
+
+    def pick(row: dict[str, Any]) -> dict[str, Any]:
+        return {"model": row["detail"]["model"], "gold": row["detail"]["gold"]}
+
+    missed = {i: r for i, r in raws.items() if not r["null"] and not r["anomaly"]}
+    wrong_cause = {i: r for i, r in raws.items() if not r["null"] and r["anomaly"] and not r["top_in_set"]}
+    harmful = {i: r for i, r in raws.items() if r["harmful"]}
+    false_alarm = {i: r for i, r in raws.items() if r["null"] and r["anomaly"]}
+    system_missed = {m["id"] for m in evaluate(load_frozen())["system"]["misses"]}
+    return {
+        "raw_missed": {i: pick(r) for i, r in sorted(missed.items())},
+        "raw_wrong_cause": {i: pick(r) for i, r in sorted(wrong_cause.items())},
+        "raw_harmful": {i: pick(r) for i, r in sorted(harmful.items())},
+        "raw_false_alarms": {i: pick(r) for i, r in sorted(false_alarm.items())},
+        "system_missed_scenarios": sorted(system_missed),
+        "both_missed": sorted(system_missed & set(missed)),
+        "raw_only_missed": sorted(set(missed) - system_missed),
+        "system_only_missed": sorted((system_missed & set(raws)) - set(missed)),
+        "writer_unverified": [o.case for o in outcomes if o.result is not None and any(not r["verified"] for r in o.result.get("writer", []))],
+    }
 
 
 def _standin(payload: dict[str, Any]) -> ScriptedClient:
@@ -162,7 +192,7 @@ def insight_llm() -> Suite:
 
         return run
 
-    return Suite("insight_llm", "성과 인사이트: 사실에 묶인 리포트 작성 + 모델만 쓰는 비교 기준", "docs/EVAL_INSIGHT.md", VARIANTS, cases, driver, _standin, _score)
+    return Suite("insight_llm", "성과 인사이트: 사실에 묶인 리포트 작성 + 모델만 쓰는 비교 기준", "docs/EVAL_INSIGHT.md", VARIANTS, cases, driver, _standin, _score, analyze=_analyze)
 
 
 @register("insight")
