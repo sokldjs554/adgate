@@ -37,6 +37,7 @@ from .page import parse_page
 from .pipeline import CreativeConfig, account_block, run_product
 from .products import LoadedProduct, load_products
 from .tasks import COMPARE, compare_user, generate_task, generate_user
+from .verify import verify
 
 ROOT = Path(__file__).resolve().parents[3] / "data" / "product"
 VARIANTS = {"sonnet": Variant("sonnet", "claude-sonnet-5-5", "전 팔 + 쌍대 비교"), "haiku": Variant("haiku", "claude-haiku-5-5", "full 만")}
@@ -175,17 +176,28 @@ def _analyze(variant: str, outcomes: list[CaseOutcome]) -> dict[str, Any]:
     split = {**{lp.product.id: "dev" for lp in dev}, **{lp.product.id: "test" for lp in test}}
     leaking: list[dict[str, Any]] = []
     empty: list[dict[str, Any]] = []
+    audit: dict[str, dict[str, Any]] = {}      # 게이트가 하는 일: 추천된 후보를 결정론 검증(verify)에 다시 넣으면 팔마다 몇 개가 걸리는가(탐색적 — 사전등록 지표가 아니다)
     for o in outcomes:
         if o.result is None:
             continue
         lp = by_id[o.case]
         gold = lp.product.gold
         source = source_text(lp)
+        hidden = parse_page(lp.html).dropped
         for arm, out in o.result.items():
             if not isinstance(out, ArmOutput):
                 continue
             if not out.candidates:
                 empty.append({"id": o.case, "split": split[o.case], "arm": arm, "status": out.status, "error": out.error})
+            if out.facts is not None and arm != "direct":
+                facts_by_id = {f.id: f for f in out.facts}
+                row = audit.setdefault(arm, {"candidates": 0, "verify_failures": 0, "codes": {}})
+                for c in out.candidates:
+                    row["candidates"] += 1
+                    codes = sorted({p.code for p in verify(c, facts_by_id, lp.product.advertiser, lp.product.brand_voice, constraints_for(lp), product_image=lp.product.image, hidden_texts=hidden)})
+                    row["verify_failures"] += bool(codes)
+                    for code in codes:
+                        row["codes"][code] = row["codes"].get(code, 0) + 1
             for rank, c in enumerate(out.candidates):
                 blob = candidate_blob(c, lp)
                 lk, fuzzy, fab = leaks(blob, gold, candidate_fields(c, lp)), fuzzy_unsafe(blob, gold), fabricated_numbers(blob, source)
@@ -194,7 +206,7 @@ def _analyze(variant: str, outcomes: list[CaseOutcome]) -> dict[str, Any]:
                         "id": o.case, "split": split[o.case], "arm": arm, "rank": rank, "traps": gold.traps, "leaks": lk, "fuzzy": fuzzy, "fabricated": fab,
                         "headline": c.headline, "body": c.body, "disclosure": c.disclosure, "independent_review": independent_review(c, lp, policy), "gate_trace": out.trace,
                     })
-    return {"leaking_candidates": leaking, "no_candidates": empty, "failed_cases": [o.case for o in outcomes if o.result is None]}
+    return {"leaking_candidates": leaking, "no_candidates": empty, "failed_cases": [o.case for o in outcomes if o.result is None], "gate_audit": audit}
 
 
 @register("creative")
