@@ -17,7 +17,7 @@
 ## 2. 탐지 능력
 
 - **의미상 위반은 결정론 경로가 못 잡는다.** 레드팀 패러프레이즈 슬라이스에서 위험 승인율이 <!-- num:history.redteam_v1.redteam.full.slices.paraphrase.unsafe_approve|rpct1 -->87.5% (14/16)<!-- /num --> 다 ("손해 볼 일 없는 투자", "먹어 본 분 전원이 만족했어요").
-  닫힌 어휘로는 열린 표현을 막을 수 없고, 막으려 어휘를 늘리면 평가셋에 맞춘 패치가 된다([D-11](DECISIONS.md)). 이를 위해 LLM judge 를 설계했지만 **실호출로 측정하지 못했다**(3절).
+  닫힌 어휘로는 열린 표현을 막을 수 없고, 막으려 어휘를 늘리면 평가셋에 맞춘 패치가 된다([D-11](DECISIONS.md)). 이를 위해 LLM judge 를 설계했고 실호출로 한 번 쟀다(3절): 같은 소재에서 <!-- num:judge_live.results.redteam.full+judge.slices.paraphrase.unsafe_approve|rpct1 -->0.0% (0/16)<!-- /num --> — 단, 한 번·한 모델·같은 모델 계열이다.
 - **어휘의 재현율은 불완전하다.** 질병명·시간 단위·동사 목록은 유한하다. 리뷰어가 찾은 변형은 넣었지만 다음 변형은 놓칠 수 있다. 정규화 표도 유한하다(한자 49자와 몇 종의 유사 문자만 접는다).
 - **tight 매칭은 낱말이 붙어 생기는 오탐을 구조적으로 안고 있다.** 우회("수 익 보 장")를 잡으려 공백을 지우면 "총 기능"이 `총기`로 읽힌다. 알려진 몇 개(`총기능`, `이유 일부`, `1 위치`, `오늘 만나는`)만 막았다([REVIEW.md M6](REVIEW.md)).
 - **이미지를 이해하지 않는다.** `image_text`(이미지 속 글자)는 업스트림 OCR/VLM 이 준 값이라고 가정한다. 이미지 자체의 위반(성적 이미지, 비교 이미지)은 다루지 않는다.
@@ -33,15 +33,16 @@
 
 ## 3. LLM 경로
 
-- **실제 API 호출을 한 번도 하지 못했다.** 개발 환경에 API 키와 외부 호출이 없었다. 어댑터는 SDK 서명과 공식 문서에 맞춰 쓰고 모의 전송으로 요청·응답 계약만 확인했다.
-  정확도, 비용, 지연, 거절 빈도, `fallbacks: "default"` 가 실제로 받아들여지는지, 프롬프트 캐시가 실제로 읽히는지는 **미확인**이다.
-- `adgate judge-check`(한 건 호출)와 `adgate eval --judge anthropic --max-usd N`(측정)으로 키가 있는 환경에서 확인한다.
-- **대리 측정**: 같은 프롬프트·스키마·근거 검증·병합 규칙을 거치게 하되 모델 응답은 Claude Code 서브에이전트가 만든 *녹음*을 재생했다([JUDGE_REPLAY.md](JUDGE_REPLAY.md)). 운영 경로(API, 지정 모델, 노력 수준)를 재는 것이 아니다.
-  결과: 패러프레이즈 위험 승인율 <!-- num:judge.results.redteam.full.slices.paraphrase.unsafe_approve|rpct1 -->87.5% (14/16)<!-- /num --> → <!-- num:judge.results.redteam.full+judge.slices.paraphrase.unsafe_approve|rpct1 -->0.0% (0/16)<!-- /num -->. **이 수치는 낙관적이다**: 설계자·작성자·라벨러·대역이 모두 같은 모델 계열이고, 대역은 평가임을 알며, 패러프레이즈는 16건이다. 같은 judge 가 정답 APPROVE 소재 <!-- num:judge.pooled.approve_changed|rpct1 -->4.4% (3/68)<!-- /num --> 의 판정을 바꿨고 그중 2건이 REJECT 였다 → 기본값을 상한 구성(Judge 는 REVIEW 까지만)으로 했다([D-14](DECISIONS.md)).
-- **Judge 프롬프트·입력의 알려진 결함(고치지 않음)**: 규칙을 한 줄로만 요약해 정책의 예외를 모른다, 랜딩 텍스트가 입력에 없다, `already_found` 가 인용 없는 발견을 빼 같은 규칙을 지어낸 앵커로 다시 제안한다, 부재형 위반을 내는 방법이 정해져 있지 않다([JUDGE_REPLAY.md](JUDGE_REPLAY.md) 4.4). 고치면 다시 재야 한다.
-- **근거 없는 인용의 빈도는 모른다.** 녹음 절차가 그것을 걸러 냈다(F-19). 실제 모델이 인용을 틀리게 옮기는 빈도는 실호출로만 안다.
+- **실호출은 한 번 쟀다**([JUDGE_LIVE.md](JUDGE_LIVE.md)): `claude-opus-5-5`, effort `medium`, 소재 209건에 한 번씩, GitHub Actions 에서. 요청(구조화 출력·`fallbacks: "default"`·시스템 블록 캐시)이 모두 받아들여졌고 실패·거절은 0건이었다.
+  패러프레이즈 위험 승인율 <!-- num:judge_live.results.redteam.full.slices.paraphrase.unsafe_approve|rpct1 -->87.5% (14/16)<!-- /num --> → <!-- num:judge_live.results.redteam.full+judge_cap.slices.paraphrase.unsafe_approve|rpct1 -->0.0% (0/16)<!-- /num -->, 정답 APPROVE 소재 <!-- num:judge_live.pooled.approve_changed|rpct1 -->7.3% (5/68)<!-- /num --> 의 판정이 바뀌었고 그중 2건이 REJECT 였다 → 기본값을 상한 구성(Judge 는 REVIEW 까지만)으로 했다([D-14](DECISIONS.md)).
+- **이 수치가 보여 주지 않는 것**: ① **소재당 한 번 호출**이라 같은 입력을 다시 넣었을 때의 변동을 모른다(경계 사례는 달라질 수 있다). ② 모델 하나·effort 하나·프롬프트 v1 이다 — 더 싼 모델, 다른 effort, 다른 프롬프트는 재지 않았다.
+  ③ 소재·정답·라벨러·(대역)이 설계자와 **같은 모델 계열**이라 낙관 쪽 편향이 남는다. ④ 정답 APPROVE 는 68건이고 한 건이 1.5%p 다. ⑤ GitHub 러너에서 동시 4개로 3분 걸렸다 — 속도 제한, 긴 소재, 동시 요청이 많은 운영 환경은 재지 않았다.
+- **서브에이전트 대역**으로 먼저 예측했고([JUDGE_REPLAY.md](JUDGE_REPLAY.md)) 핵심 결론(패러프레이즈 0/16, 상한 없이 정상 소재 REJECT 2건)은 실호출과 같았다. 달랐던 것은 양이다 — 실호출이 후보를 낸 소재가 <!-- num:judge_live.pooled.judge_added|kn -->54/209<!-- /num -->로 대역(<!-- num:judge.pooled.judge_added|kn -->28/209<!-- /num -->)의 약 두 배였고 규칙 단위 정밀도가 떨어졌다.
+- **Judge 프롬프트·입력의 알려진 결함(고치지 않음)**: 규칙을 한 줄로만 요약해 정책의 예외를 모른다, 랜딩 텍스트가 입력에 없다(실호출 모델이 근거 문장에 그렇게 적었다), `already_found` 가 인용 없는 발견을 빼 같은 규칙을 지어낸 앵커로 다시 제안한다, 부재형 위반을 내는 방법이 정해져 있지 않다([JUDGE_REPLAY.md 4.4](JUDGE_REPLAY.md)). 고치면 다시 재야 한다.
+- **인용 정확도**: 제안한 후보 <!-- num:judge_live.info.proposals|int -->76<!-- /num -->개 전부 원문과 일치했다(근거 없는 의심 0/209). 표본이 작아 '틀리지 않는다'는 증거는 아니다.
 - LLM 은 위반을 **더할 수만** 있다. 결정론 경로의 오탐(정상 소재 오반려)을 LLM 이 바로잡지는 못한다.
 - 예산 상한에 닿으면 프로세스가 끝날 때까지 모든 승인이 REVIEW 가 된다(기간 예산이 없다).
+- **API 키는 GitHub 비밀값**으로만 쓰며 수동 워크플로(`judge-live`)가 읽는다. CI(`ci.yml`)는 API 를 부르지 않는다. 저장소가 공개라서 워크플로 권한은 최소로 나눴다(키가 있는 작업은 읽기뿐, 쓰기 작업에는 키가 없다).
 
 ## 4. 수정안
 

@@ -47,22 +47,21 @@ $ adgate review ad.json      # 헤드라인 "수 익 보 장!"(띄어쓰기 우�
 4. **독립 코드 리뷰가 26건의 결함을 찾았습니다.** 그중 하나는 제가 직전에 한 수정이 만든 지수 시간 정규식(숫자 26자리에 34초)이었습니다. 전부 재현해서 회귀 테스트로 남겼습니다([REVIEW.md](docs/REVIEW.md), [F-17](docs/FAILURES.md)).
    그 반영 중에 정상 소재를 오반려하는 회귀를 또 만들었는데, 게이트가 아니라 레드팀 재측정이 잡았습니다([F-18](docs/FAILURES.md)).
 
-### LLM judge — 실호출은 못 했고, 대신 *녹음 재생*으로 쟀습니다
+### LLM judge — 실제 API 로 쟀습니다 (서브에이전트 대역으로 먼저 예측했습니다)
 
-API 키와 외부 호출이 없는 환경이라 어댑터의 실호출은 한 번도 못 했습니다. 대신 실제 프롬프트·스키마·근거 검증·병합·판정에 **서브에이전트가 '모델 대역'으로 만든 응답 209건**을 재생했습니다.
-예상과 판단 규칙을 측정 *전에* 커밋했고([JUDGE_REPLAY.md](docs/JUDGE_REPLAY.md)), 한 번 재고 그대로 적었습니다.
+예상과 판단 규칙을 측정 *전에* 커밋하고 한 번씩만 쟀습니다. 먼저 서브에이전트가 '모델 대역'으로 만든 응답 209건을 실제 프롬프트·근거 검증·병합·판정에 재생했고([JUDGE_REPLAY.md](docs/JUDGE_REPLAY.md)),
+그다음 **같은 입력으로 실제 `claude-opus-5-5` 를 209번 호출**해 녹음한 뒤 같은 코드로 집계했습니다([JUDGE_LIVE.md](docs/JUDGE_LIVE.md)). GitHub Actions 에서 약 3분, 총 <!-- num:judge_live.info.summary.estimated_usd|usd2 -->$1.20<!-- /num --> 였습니다.
 
-| | 결정론만 | + judge (정책 등급 그대로) | + judge (REVIEW 까지만, **기본값**) |
+| `redteam` 등 (실호출 기준) | 결정론만 | + judge (정책 등급 그대로) | + judge (REVIEW 까지만, **기본값**) |
 |---|---|---|---|
-| `redteam` 패러프레이즈 위험 승인율 | <!-- num:judge.results.redteam.full.slices.paraphrase.unsafe_approve|rpct1 -->87.5% (14/16)<!-- /num --> | <!-- num:judge.results.redteam.full+judge.slices.paraphrase.unsafe_approve|rpct1 -->0.0% (0/16)<!-- /num --> | <!-- num:judge.results.redteam.full+judge_cap.slices.paraphrase.unsafe_approve|rpct1 -->0.0% (0/16)<!-- /num --> |
-| `redteam` 정확도 · 자동 처리율 | <!-- num:judge.results.redteam.full.accuracy.value|pct1 -->77.8%<!-- /num --> · <!-- num:judge.results.redteam.full.auto_rate.value|pct1 -->80.6%<!-- /num --> | <!-- num:judge.results.redteam.full+judge.accuracy.value|pct1 -->98.6%<!-- /num --> · <!-- num:judge.results.redteam.full+judge.auto_rate.value|pct1 -->75.0%<!-- /num --> | <!-- num:judge.results.redteam.full+judge_cap.accuracy.value|pct1 -->84.7%<!-- /num --> · <!-- num:judge.results.redteam.full+judge_cap.auto_rate.value|pct1 -->61.1%<!-- /num --> |
-| 정답 APPROVE 중 judge 때문에 바뀐 소재(세 셋 합계) | — | <!-- num:judge.pooled.approve_changed|rpct1 -->4.4% (3/68)<!-- /num -->, 그중 REJECT <!-- num:judge.pooled.approve_to_reject|rpct1 -->2.9% (2/68)<!-- /num --> | 3건 모두 REVIEW |
+| 패러프레이즈 위험 승인율 | <!-- num:judge_live.results.redteam.full.slices.paraphrase.unsafe_approve|rpct1 -->87.5% (14/16)<!-- /num --> | <!-- num:judge_live.results.redteam.full+judge.slices.paraphrase.unsafe_approve|rpct1 -->0.0% (0/16)<!-- /num --> | <!-- num:judge_live.results.redteam.full+judge_cap.slices.paraphrase.unsafe_approve|rpct1 -->0.0% (0/16)<!-- /num --> |
+| 정확도 · 자동 처리율 | <!-- num:judge_live.results.redteam.full.accuracy.value|pct1 -->77.8%<!-- /num --> · <!-- num:judge_live.results.redteam.full.auto_rate.value|pct1 -->80.6%<!-- /num --> | <!-- num:judge_live.results.redteam.full+judge.accuracy.value|pct1 -->97.2%<!-- /num --> · <!-- num:judge_live.results.redteam.full+judge.auto_rate.value|pct1 -->73.6%<!-- /num --> | <!-- num:judge_live.results.redteam.full+judge_cap.accuracy.value|pct1 -->83.3%<!-- /num --> · <!-- num:judge_live.results.redteam.full+judge_cap.auto_rate.value|pct1 -->59.7%<!-- /num --> |
+| 정답 APPROVE 중 judge 때문에 바뀐 소재(세 셋 합계) | — | <!-- num:judge_live.pooled.approve_changed|rpct1 -->7.3% (5/68)<!-- /num -->, 그중 REJECT <!-- num:judge_live.pooled.approve_to_reject|rpct1 -->2.9% (2/68)<!-- /num --> | 5건 모두 REVIEW |
 
-- 패러프레이즈는 모두 잡혔지만 **낙관적인 수치**입니다. 설계자·작성자·라벨러·대역이 모두 같은 모델 계열이고, 대역은 평가임을 알고, 패러프레이즈는 16건입니다.
-- 사전등록한 예상 넷 중 하나(E2)는 빗나갔고 하나(E4)는 *절차가 측정 대상을 지워서* 측정되지 않았습니다([F-19](docs/FAILURES.md)).
-- 정답이 APPROVE 인 소재 2건을 judge 가 REJECT 로 만들었습니다. 미리 정한 규칙대로 **Judge 발견은 기본적으로 REVIEW 까지만**(LLM 한마디로 자동 반려하지 않음) 내도록 기본값을 바꿨습니다([D-14](docs/DECISIONS.md)). 대가는 사람 검토 부담입니다.
-- 오탐의 원인 중 둘은 프롬프트·입력 설계(랜딩 텍스트 없음, 규칙을 한 줄로만 요약)로 보입니다. 고치면 다시 재야 해서 **고치지 않았습니다**([F-20](docs/FAILURES.md)).
-- 이 수치는 **운영 모델의 성능이 아닙니다.** 구조화 출력·지정 모델·캐시·지연·비용은 미확인입니다([LIMITATIONS.md](docs/LIMITATIONS.md)).
+- **사전등록한 예상 7개 중 6개가 맞았고 하나(비용)가 빗나갔습니다**(예상 $5–12, 실제 $1.20). 호출 <!-- num:judge_live.info.summary.calls|int -->209<!-- /num -->회에 실패·거절 0건, 제안한 후보 <!-- num:judge_live.info.proposals|int -->76<!-- /num -->개의 인용이 모두 원문과 일치했고(근거 없는 의심 0/209), 지연은 p50 <!-- num:judge_live.info.latency_s.p50|f2 -->2.64<!-- /num -->초 · p95 <!-- num:judge_live.info.latency_s.p95|f2 -->7.04<!-- /num -->초였습니다.
+- 대역 측정이 예측한 핵심은 실호출에서도 같았습니다 — 패러프레이즈 0/16, 상한 없으면 정상 소재 2건(`dev` D-004·D-060)이 자동 반려. 달랐던 것은 *양*입니다: 실호출은 후보를 낸 소재가 <!-- num:judge_live.pooled.judge_added|kn -->54/209<!-- /num -->건으로 대역(<!-- num:judge.pooled.judge_added|kn -->28/209<!-- /num -->)의 약 두 배이고, 늘어난 것은 대부분 이미 걸린 소재의 규칙 후보라 규칙 단위 정밀도가 떨어졌습니다.
+- 그래서 미리 정한 규칙대로 **Judge 발견은 기본적으로 REVIEW 까지만**(LLM 한마디로 자동 반려하지 않음) 냅니다([D-14](docs/DECISIONS.md)). 정상 소재를 건드린 5건의 후보는 모델 스스로 신뢰도 0.45–0.60 에 '확인이 필요하다'고 쓴 것들이라 상한이 맞는 기본값이고, 대가는 사람 검토 부담입니다.
+- 한계: **소재당 한 번 호출**(출력 변동을 모름), 한 모델·한 설정, 소재·정답·라벨러가 같은 모델 계열, 프롬프트 v1 의 알려진 결함(랜딩 텍스트가 입력에 없다 등 — 고치면 다시 재야 해서 고치지 않았습니다, [F-20](docs/FAILURES.md)), 운영 환경이 아닙니다([LIMITATIONS.md](docs/LIMITATIONS.md)).
 
 ## 설계 원칙
 
@@ -110,12 +109,12 @@ REVIEW ─▶ waiting_input ─▶ 심사자 resume(직무 분리, 한 번만) �
 | 경로 | 내용 |
 |---|---|
 | `src/adgate/normalize.py` `lexicon.py` `rules.py` `numbers.py` | 정규화, 어휘 패턴, 규칙, 광고-랜딩 수치 대조 |
-| `challenge.py` `judge.py` `judge_anthropic.py` `judge_recorded.py` | 도전자, Judge 인터페이스와 근거 검증, Anthropic 어댑터(실호출 미실측), 녹음 재생 Judge |
+| `challenge.py` `judge.py` `judge_anthropic.py` `judge_recorded.py` | 도전자, Judge 인터페이스와 근거 검증, Anthropic 어댑터, 녹음·재생 Judge(실호출 녹음 도구 포함) |
 | `pipeline.py` `decide.py` `explain.py` `rewrite.py` | 파이프라인, 판정, 사유, 수정안 + 재심사 |
 | `api.py` `store.py` `settings.py` `web/` | REST API, SQLite, 인증, 콘솔 |
 | `eval/` | 데이터셋·지표·베이스라인·어블레이션·게이트·생성기·일치도·judge 재생 요약 |
 | `data/` | 합성 데이터와 동결 해시, 독립 라벨러 라벨, judge 녹음([README](data/README.md)) |
-| `docs/` | [정책](docs/POLICY.md) · [평가 계획](docs/EVAL_PLAN.md) · [결정](docs/DECISIONS.md) · [실패](docs/FAILURES.md) · [한계](docs/LIMITATIONS.md) · [리뷰](docs/REVIEW.md) · [judge 재생](docs/JUDGE_REPLAY.md) · [결과](docs/RESULTS.md) |
+| `docs/` | [정책](docs/POLICY.md) · [평가 계획](docs/EVAL_PLAN.md) · [결정](docs/DECISIONS.md) · [실패](docs/FAILURES.md) · [한계](docs/LIMITATIONS.md) · [리뷰](docs/REVIEW.md) · [judge 재생](docs/JUDGE_REPLAY.md) · [judge 실호출](docs/JUDGE_LIVE.md) · [결과](docs/RESULTS.md) |
 
 ## 검증한 것과 못 한 것
 
@@ -124,14 +123,14 @@ REVIEW ─▶ waiting_input ─▶ 심사자 resume(직무 분리, 한 번만) �
 **GitHub Actions 에서도 통과합니다**: 파이썬 3.11–3.13 의 ruff · mypy · pytest · 게이트 · 열화 대조군 · 문서 검사, Docker 이미지 빌드·기동·헬스체크·토큰 없는 시작 거부, 브라우저 e2e. 처음 올린 CI 는 3.11 에서 2차 시간 결함을 잡았습니다([F-21](docs/FAILURES.md)). 문서의 수치는 산출물과 같은지 `adgate docs --check` 가 검사하고, 사전등록 본문의 해시도 테스트가 고정합니다.
 
 **못 함**(자세히는 [LIMITATIONS.md](docs/LIMITATIONS.md)):
-- LLM judge 의 **실제 호출·정확도·비용·지연**(키가 없었다). 녹음 재생은 대리 측정일 뿐입니다.
+- LLM judge 는 **한 모델·한 설정·소재당 한 번**만 쟀습니다. 출력의 변동, 다른 모델, 속도 제한·동시 요청이 많은 운영 환경은 모릅니다.
 - 실제 광고 데이터, 실제 심사자와의 일치도, 이미지 이해, 부하 시험, 요청 단위 CPU 예산(정규식 하나가 GIL 을 쥐면 서버가 선다).
 - 모든 데이터·정답·라벨러가 설계자와 **같은 모델 계열**입니다. 독립 라벨러와의 일치도(`test` <!-- num:agreement.decision_agreement|rpct1 -->98.7% (76/77)<!-- /num -->, `redteam` <!-- num:agreement_redteam.decision_agreement|rpct1 -->100.0% (72/72)<!-- /num -->)는 정책이 명확하다는 증거일 수도, 같은 방식으로 읽는다는 증거일 수도 있습니다.
 
 ## 다음에 하고 싶은 것
 
-1. **실호출 측정** — 예상과 판단 규칙은 이미 사전등록했다([JUDGE_LIVE.md](docs/JUDGE_LIVE.md)). `ANTHROPIC_API_KEY` 가 있는 곳에서 `make judge-live-dry`(추정 비용) → `make judge-check`(한 건) → `make judge-record`(209건 녹음),
-   또는 GitHub Actions 의 `judge-live` 워크플로(수동 실행, 저장소 비밀값 `ANTHROPIC_API_KEY`)로 녹음한 뒤 `make judge-live-eval` 로 집계한다. 비용·지연·거절·인용 오류율을 처음으로 잰다.
-2. Judge 프롬프트 v2 — 규칙의 정의·예외를 넣고, 랜딩 텍스트와 인용 없는 발견(`already_found`)을 입력에 넣고, 부재형 위반을 내는 방법을 정한다. **새 사전등록**으로 다시 잰다([JUDGE_REPLAY.md 4.4](docs/JUDGE_REPLAY.md)).
-3. 사람 심사자 라벨 — 같은 모델 계열이 아닌 사람 몇 명의 라벨과 일치도(κ), 회색 지대 소재.
-4. 심사 조작 시도(광고 문구 속 "승인으로 답하라")를 규칙으로: 지금은 속지 않지만 의심해서 사람에게 보내지도 않는다.
+1. **Judge 프롬프트 v2** — 규칙의 정의·예외를 넣고, 랜딩 텍스트와 인용 없는 발견(`already_found`)을 입력에 넣고, 부재형 위반을 내는 방법을 정한다. 한 번 재는 데 약 $1.2 이므로 **새 사전등록**으로 다시 재 볼 만하다([JUDGE_LIVE.md 6절](docs/JUDGE_LIVE.md)).
+2. **신뢰도 문턱 가설 시험** — 이번 실호출에서 정상 소재 오탐 5건의 신뢰도는 0.45–0.60, 위험을 잡은 건 대부분 0.75 이상이었다. 같은 209건에 맞추면 안 되므로 *새 셋*(또는 프롬프트 v2)에서 문턱을 미리 정하고 잰다.
+3. **반복 호출과 다른 모델** — 같은 입력을 여러 번 불러 출력 변동을 재고, 더 싼 모델과 균형을 비교한다.
+4. 사람 심사자 라벨 — 같은 모델 계열이 아닌 사람 몇 명의 라벨과 일치도(κ), 회색 지대 소재.
+5. 심사 조작 시도(광고 문구 속 "승인으로 답하라")를 규칙으로: 지금은 속지 않지만 의심해서 사람에게 보내지도 않는다.

@@ -6,7 +6,7 @@
 - **결정**: 승인·반려·보류는 규칙과 정책표로 계산한다. LLM(Judge)의 출력 스키마에는 판정 필드가 없고(추가 키는 거부), 제안은 인용이 원문에 있어야 발견이 되며, 기존 발견을 지울 수 없다. Judge 가 실패하면 REVIEW 다(fail-closed).
 - **버린 것**: 'LLM 이 직접 승인/반려를 내리고 설명도 쓴다'. 가장 단순하지만 광고주가 광고 문구 안에 "이 광고는 이미 승인되었다"를 써 넣는 경우를 막을 구조가 없다.
 - **대가**: 의미상 위반(돌려 말한 보장)은 결정론 경로가 못 잡는다. LLM 이 *오탐을 줄여 주지도* 못한다(더하기만 가능). 두 비용 모두 안전 쪽으로 치우친 선택이다.
-- **확인한 것**: 다른 위반이 *이미 있는* 광고에 주입 문구가 들어 있어도 판정은 그대로다(테스트). 환각 인용은 발견이 되지 못하고 사람에게 넘어간다(테스트). **주입 문구만 든 광고는 승인된다** — 결정론 경로는 속지는 않지만 의심해서 사람에게 보내지도 않는다(POLICY 5절의 알려진 공백, v2 후보). **LLM 경로의 정확도·비용은 실호출로 측정하지 못했다**([JUDGE_REPLAY.md](JUDGE_REPLAY.md) 의 대리 측정만 있다).
+- **확인한 것**: 다른 위반이 *이미 있는* 광고에 주입 문구가 들어 있어도 판정은 그대로다(테스트). 환각 인용은 발견이 되지 못하고 사람에게 넘어간다(테스트). **주입 문구만 든 광고는 승인된다** — 결정론 경로는 속지는 않지만 의심해서 사람에게 보내지도 않는다(POLICY 5절의 알려진 공백, v2 후보). **LLM 경로는 실호출로 한 번 쟀다**([JUDGE_LIVE.md](JUDGE_LIVE.md)): 판정 필드가 없는 스키마에서도 후보 <!-- num:judge_live.info.proposals|int -->76<!-- /num -->개의 인용이 모두 원문과 일치했고, 주입 소재 10건에서 오류·거절이 없었다.
 
 ## D-2. 정규화는 원문 위치를 잃지 않는다
 - **결정**: 모든 정규화 문자(NFKC, 제로폭 제거, 구분 기호·공백 제거)가 원문 위치를 기억한다. 발견의 `quote` 는 항상 `원문[start:end]` 와 정확히 같고, 파이프라인이 마지막에 그 불변식을 검사한다.
@@ -89,3 +89,4 @@
 - **대가**: `redteam` 정확도 <!-- num:judge.results.redteam.full+judge.accuracy.value|pct1 -->98.6%<!-- /num --> → <!-- num:judge.results.redteam.full+judge_cap.accuracy.value|pct1 -->84.7%<!-- /num -->, 자동 처리율 <!-- num:judge.results.redteam.full+judge.auto_rate.value|pct1 -->75.0%<!-- /num --> → <!-- num:judge.results.redteam.full+judge_cap.auto_rate.value|pct1 -->61.1%<!-- /num -->.
   정답이 REJECT 인 패러프레이즈 <!-- num:judge.meta.judge_replay.datasets.redteam.transitions_cap.REJECT.APPROVE→REVIEW|int -->9<!-- /num -->건을 사람이 본다. 위험 승인율은 같다(<!-- num:judge.results.redteam.full+judge_cap.unsafe_approve|rpct1 -->0.0% (0/51)<!-- /num -->). 사람 검토 부담이 는다.
 - **한계**: 대역이 만든 녹음에서 나온 결정이다. 실제 모델의 오탐률은 다를 수 있다. 상한 구성이 안전 쪽(사람이 본다)이라 방향은 같은 결정이라고 본다.
+- **실호출로 다시 확인했다**([JUDGE_LIVE.md 6.2](JUDGE_LIVE.md)): 상한 없이 정답 APPROVE 소재가 REJECT 가 되는 일이 실호출에서도 <!-- num:judge_live.pooled.approve_to_reject|rpct1 -->2.9% (2/68)<!-- /num --> 있었다(같은 `dev` D-004·D-060). 정상 소재를 건드린 후보의 신뢰도는 0.45–0.60 이었다. 기본값은 그대로다.

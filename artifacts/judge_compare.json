@@ -1,0 +1,23 @@
+{
+  "n": 209,
+  "agree_empty": 155,
+  "agree_nonempty": 28,
+  "only_a": 0,
+  "only_b": 26,
+  "error_a": 0,
+  "error_b": 0,
+  "both_nonempty": 28,
+  "rule_sets_equal": 24,
+  "only_in_a": 0,
+  "only_in_b": 0,
+  "compared": 209,
+  "agreement": {
+    "k": 183,
+    "n": 209,
+    "value": 0.8756,
+    "ci": [
+      0.824,
+      0.9137
+    ]
+  }
+}

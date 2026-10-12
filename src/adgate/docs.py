@@ -55,6 +55,8 @@ def fmt(value: Any, spec: str) -> str:
         return f"{value:.2f} ms"
     if spec == "len":
         return f"{len(value)}"
+    if spec == "num":
+        return f"{int(value):,}"
     if spec == "usd2":
         return f"${value:.2f}"
     if spec == "usd3":
@@ -194,7 +196,7 @@ def results_md(src: dict[str, Any]) -> str:
     if live and src.get("judge_live_info"):
         out += judge_replay_md(live, sec("LLM judge — 실호출 녹음"), live=src["judge_live_info"], compare=src.get("judge_compare"))
     if not judge and not live and not spend:
-        out += [sec("LLM judge"), "", "이 저장소의 결과에는 LLM judge 측정이 없다(실호출 미실측). `adgate eval --judge anthropic` 으로 측정한다.", ""]
+        out += [sec("LLM judge"), "", "이 산출물에는 LLM judge 측정이 없다. `adgate judge-record` 와 `adgate eval --judge recorded` 로 측정한다(docs/JUDGE_LIVE.md).", ""]
     return "\n".join(out)
 
 
@@ -204,6 +206,8 @@ def pooled_judge(judge: dict[str, Any]) -> dict[str, Any]:
     n_approve = sum(res[ds]["full"]["gold_counts"]["APPROVE"] for ds in summ)
     n_items = sum(summ[ds]["n"] for ds in summ)
     return {
+        "judge_added": ratio(sum(summ[ds]["judge_added"]["k"] for ds in summ), n_items),
+        "judge_findings": sum(summ[ds]["judge_findings"] for ds in summ),
         "ungrounded": ratio(sum(summ[ds]["judge_ungrounded"]["k"] for ds in summ), n_items),
         "unavailable": ratio(sum(summ[ds]["judge_unavailable"]["k"] for ds in summ), n_items),
         "approve_changed": ratio(sum(len(summ[ds]["approve_gold_changed"]) for ds in summ), n_approve),
@@ -230,7 +234,12 @@ def judge_live_info(root: Path) -> dict[str, Any] | None:
     for c in calls:
         if not c.get("ok"):
             errors[c.get("error", "?")] = errors.get(c.get("error", "?"), 0) + 1
-    return {"summary": summary, "calls": len(calls), "latency_s": {"p50": pct(0.5), "p95": pct(0.95), "max": round(lat[-1], 2) if lat else None}, "errors": errors}
+    rec = d / "recording.jsonl"
+    proposals = sum(len(json.loads(ln).get("response", {}).get("findings", [])) for ln in rec.read_text(encoding="utf-8").splitlines() if ln.strip()) if rec.exists() else None
+    return {
+        "summary": summary, "calls": len(calls), "latency_s": {"p50": pct(0.5), "p95": pct(0.95), "max": round(lat[-1], 2) if lat else None},
+        "errors": errors, "proposals": proposals,  # 모델이 낸 후보 수(병합 전). 판정에 쓰인 수는 요약의 judge_findings
+    }
 
 
 def judge_replay_md(judge: dict[str, Any], heading: str, live: dict[str, Any] | None = None, compare: dict[str, Any] | None = None) -> list[str]:
@@ -412,6 +421,9 @@ def gather(root: Path) -> dict[str, Any]:
         src["judge_live"] = judge_live
         info = judge_live_info(root)
         if info:
+            if info["proposals"] is not None:
+                used = sum(d["judge_findings"] for d in judge_live["meta"]["judge_replay"]["datasets"].values())
+                info["merged_away"] = info["proposals"] - used  # 결정론이 같은 자리를 같거나 더 무겁게 판정해 병합에서 빠진 후보
             src["judge_live_info"] = info
         compare = _load(art / "judge_compare.json")
         if compare:

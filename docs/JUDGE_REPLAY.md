@@ -124,3 +124,8 @@ adgate docs
 ```
 
 탐지기가 바뀌어 `<already_found>` 가 달라지면 녹음은 낡는다. `tests/test_docs.py` 가 재내보내기와 `PROMPTS.sha256` 이 같은지 확인하므로 그때 테스트가 실패한다 — 다시 녹음하고 다시 재거나, 낡았다고 적어야 한다.
+
+## 7. 이후: 실호출로 다시 쟀다
+
+이 문서의 대역 측정 뒤에 같은 입력으로 실제 `claude-opus-5-5` 를 호출해 쟀다([JUDGE_LIVE.md](JUDGE_LIVE.md)). 대역의 핵심 결론은 실호출에서도 그대로 나왔다 — 패러프레이즈 <!-- num:judge_live.results.redteam.full+judge.slices.paraphrase.unsafe_approve|rpct1 -->0.0% (0/16)<!-- /num -->, 상한 없이 정상 소재 REJECT <!-- num:judge_live.pooled.approve_to_reject|rpct1 -->2.9% (2/68)<!-- /num -->(같은 `dev` D-004·D-060).
+달랐던 것은 양이다: 후보를 낸 소재가 대역 <!-- num:judge.pooled.judge_added|kn -->28/209<!-- /num --> 대 실호출 <!-- num:judge_live.pooled.judge_added|kn -->54/209<!-- /num -->이었고, 대역이 낸 소재는 실호출도 모두 냈다. 4.4 의 'E4 는 측정되지 않았다'에는 실호출이 답했다: 근거 없는 의심 <!-- num:judge_live.pooled.ungrounded|rpct1 -->0.0% (0/209)<!-- /num -->.

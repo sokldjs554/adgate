@@ -60,3 +60,61 @@
 - 지연 5.7초, `stop_reason: end_turn`, 입력 180 · 출력 312 · **캐시 쓰기 2,621 토큰**(시스템 프롬프트가 캐시 가능한 길이를 넘는다 — 표지가 의도대로 동작). 한 건이라 캐시 읽기는 아직 0이다. 추정 비용 $0.020(캐시 쓰기 1.25배 포함).
 - 후보 1건: `AD-GUA-01`/`guarantee` 헤드라인 "손해 볼 일 없는 투자", 신뢰도 0.85. 대역이 같은 문구에 낸 후보와 같다. 인용이 원문과 일치해 근거 검증을 통과했고, 기본(상한) 구성에서 결정론 APPROVE → REVIEW 가 됐다.
 - 한 건의 사용량으로 총비용을 다시 어림하면(캐시를 읽으면 시스템 프롬프트 비용이 1/10) 209건에 $2–5 쯤이다. dry-run 추정($5.56)과 L6 의 예상($5–12)보다 낮다. 소재마다 길이와 생각 토큰이 달라 한 건으로는 단정할 수 없고, 본 측정의 실제 비용이 답이다.
+
+## 6. 결과 (측정 뒤에 쓴 부분)
+
+**집계는 한 번 했다.** 녹음: Actions [실행 38193673928](https://github.com/sokldjs554/adgate/actions/runs/38193673928)(코드 `42466a3`, 모델 `claude-opus-5-5`, effort `medium`, 소재마다 한 번, 동시 4개). 녹음 파일 sha256 `49c630c8…`, 집계는 그 녹음을 커밋한 `62fa2d5` 의 깨끗한 작업트리에서 `make judge-live-eval` 로 한 번. 산출물은 [artifacts/results_judge_live.json](../artifacts/results_judge_live.json)·[judge_compare.json](../artifacts/judge_compare.json), 전체 표는 [RESULTS.md](RESULTS.md).
+프롬프트·스키마·모델·effort·탐지기 판정은 측정 전후에 바꾸지 않았다. 호출은 <!-- num:judge_live.info.summary.calls|int -->209<!-- /num -->회 모두 `end_turn` 으로 끝났다.
+
+### 6.1 예상 대 관측
+
+| # | 사전 예상 | 관측 | 판정 |
+|---|---|---|---|
+| L1 | 실패 5% 미만, 첫 점검에서 요청이 받아들여진다 | 실패 <!-- num:judge_live.info.summary.failed|int -->0<!-- /num -->건 · 거절 <!-- num:judge_live.info.summary.refusals|int -->0<!-- /num -->건 · 시간 초과 0건(<!-- num:judge_live.info.summary.calls|int -->209<!-- /num -->회 중). 첫 점검(5절)에서 이미 받아들여졌다 | **충족** |
+| L2 | `redteam` 패러프레이즈 위험 승인율 25% 이하, 대역(0/16)보다 나쁠 것 | 결정론 <!-- num:judge_live.results.redteam.full.slices.paraphrase.unsafe_approve|rpct1 -->87.5% (14/16)<!-- /num --> → +judge <!-- num:judge_live.results.redteam.full+judge_cap.slices.paraphrase.unsafe_approve|rpct1 -->0.0% (0/16)<!-- /num -->(상한 없이도 <!-- num:judge_live.results.redteam.full+judge.slices.paraphrase.unsafe_approve|rpct1 -->0.0% (0/16)<!-- /num -->) | 앞 절반 **충족**. '대역보다 나쁠 것'은 **빗나감** — 대역과 같다 |
+| L3 | 정답 APPROVE 68건 중 바뀌는 것 9% 이하, 상한 없이는 REJECT 가 1건 이상 | 세 셋 합계 <!-- num:judge_live.pooled.approve_changed|rpct1 -->7.3% (5/68)<!-- /num -->, 그중 REJECT <!-- num:judge_live.pooled.approve_to_reject|rpct1 -->2.9% (2/68)<!-- /num --> | **충족.** 대역(3건)보다 2건 많다 |
+| L4 | 근거 없는 의심 5% 미만 | <!-- num:judge_live.pooled.ungrounded|rpct1 -->0.0% (0/209)<!-- /num -->. 제안한 후보 <!-- num:judge_live.info.proposals|int -->76<!-- /num -->개 모두 인용이 원문과 글자까지 일치해 근거 검증을 통과했다 | **충족.** 대역 측정이 지웠던 질문([F-19](FAILURES.md))에 처음으로 답한다 |
+| L5 | 같은 소재에서 후보 유무가 대역과 85% 이상 일치 | <!-- num:judge_live.compare.agreement|rpct1 -->87.6% (183/209)<!-- /num -->. 불일치는 전부 한 방향이다: 실호출만 후보를 낸 소재 <!-- num:judge_live.compare.only_b|int -->26<!-- /num -->건, 대역만 낸 소재 <!-- num:judge_live.compare.only_a|int -->0<!-- /num -->건 | **충족**, 그러나 6.3 |
+| L6 | 총 비용 $5–12(상한 이내), 지연 p95 30초 이하 | 총 <!-- num:judge_live.info.summary.estimated_usd|usd2 -->$1.20<!-- /num -->(상한 $6), 지연 p50 <!-- num:judge_live.info.latency_s.p50|f2 -->2.64<!-- /num -->초 · p95 <!-- num:judge_live.info.latency_s.p95|f2 -->7.04<!-- /num -->초 · 최대 <!-- num:judge_live.info.latency_s.max|f2 -->9.82<!-- /num -->초 | 지연 **충족**, 비용은 **빗나감**(예상보다 훨씬 쌌다) |
+| L7 | 주입 소재(10건)에서 형식 오류·거절이 없고, 정답이 APPROVE 인 주입 소재(5건)의 판정이 바뀌지 않는다 | 오류·거절 0건, 주입 APPROVE 소재의 정확도 <!-- num:judge_live.results.redteam.full+judge.slices.injection_only.accuracy|rpct1 -->100.0% (5/5)<!-- /num --> | **충족** |
+
+일곱 중 여섯을 충족했고 비용이 빗나갔다. 'L2 의 대역보다 나쁠 것'도 틀렸다. 대역 측정의 핵심 결론 — 패러프레이즈 <!-- num:judge_live.results.redteam.full+judge.slices.paraphrase.unsafe_approve|rpct1 -->0.0% (0/16)<!-- /num -->, 정상 소재 2건이 상한 없이 REJECT(`dev` D-004·D-060) — 은 실호출에서도 **그대로** 나왔다.
+
+| `redteam` 구성 | 정확도 | 위험 승인율 | 자동 처리율 | 자동 처리 정밀도 |
+|---|---:|---|---:|---|
+| 결정론만 | <!-- num:judge_live.results.redteam.full.accuracy.value|pct1 -->77.8%<!-- /num --> | <!-- num:judge_live.results.redteam.full.unsafe_approve|rpct1 -->27.5% (14/51)<!-- /num --> | <!-- num:judge_live.results.redteam.full.auto_rate.value|pct1 -->80.6%<!-- /num --> | <!-- num:judge_live.results.redteam.full.auto_precision|rpct1 -->75.9% (44/58)<!-- /num --> |
+| + judge (정책 등급 그대로) | <!-- num:judge_live.results.redteam.full+judge.accuracy.value|pct1 -->97.2%<!-- /num --> | <!-- num:judge_live.results.redteam.full+judge.unsafe_approve|rpct1 -->0.0% (0/51)<!-- /num --> | <!-- num:judge_live.results.redteam.full+judge.auto_rate.value|pct1 -->73.6%<!-- /num --> | <!-- num:judge_live.results.redteam.full+judge.auto_precision|rpct1 -->100.0% (53/53)<!-- /num --> |
+| + judge (REVIEW 까지만, 기본값) | <!-- num:judge_live.results.redteam.full+judge_cap.accuracy.value|pct1 -->83.3%<!-- /num --> | <!-- num:judge_live.results.redteam.full+judge_cap.unsafe_approve|rpct1 -->0.0% (0/51)<!-- /num --> | <!-- num:judge_live.results.redteam.full+judge_cap.auto_rate.value|pct1 -->59.7%<!-- /num --> | <!-- num:judge_live.results.redteam.full+judge_cap.auto_precision|rpct1 -->100.0% (43/43)<!-- /num --> |
+
+결정론이 놓친 위험 소재 14건(<!-- ids:live_fixed -->R-038, R-039, R-040, R-041, R-042, R-043, R-044, R-045, R-046, R-047, R-048, R-049, R-051, R-052<!-- /ids -->)을 실호출도 모두 잡았다. 대역이 잡은 것과 같은 14건이고, [F-14](FAILURES.md)가 '어휘로는 못 막는다'며 남겨 둔 바로 그 소재다.
+
+### 6.2 판단 규칙의 적용
+
+- **D1.** `judge_cap_review = True` 를 유지한다. 상한 없이 정답 APPROVE 소재가 REJECT 가 되는 일이 실호출에서도 있었다(<!-- ids:live_to_reject -->D-004, D-060<!-- /ids -->). 기본값을 되돌리는 근거는 나오지 않았다.
+- **D2.** 기술적 실패가 0건이라 이어하기를 하지 않았다.
+- **D3.** 프롬프트·스키마·모델·effort 를 고쳐 다시 재지 않았다. 탐지기 코드는 [F-21](FAILURES.md)의 성능 수정만 있었고 판정은 같다(`tests/test_docs.py` 가 녹음이 낡지 않았음을 확인한다).
+- **D4.** 예산 상한($6)에 닿지 않았고 209건이 모두 기록됐다.
+
+### 6.3 대역과 달랐던 것 — 실호출이 더 많이 말한다
+
+- 후보를 낸 소재가 대역 <!-- num:judge.pooled.judge_added|kn -->28/209<!-- /num --> 대 실호출 <!-- num:judge_live.pooled.judge_added|kn -->54/209<!-- /num -->(제안한 후보는 <!-- num:judge.pooled.judge_findings|int -->31<!-- /num -->개 대 <!-- num:judge_live.info.proposals|int -->76<!-- /num -->개이고, 그중 실호출의 <!-- num:judge_live.info.merged_away|int -->5<!-- /num -->개는 결정론이 같은 자리를 이미 같거나 더 무겁게 판정해 병합에서 빠졌다)이다. 대역이 낸 <!-- num:judge_live.compare.agree_nonempty|int -->28<!-- /num -->건은 실호출도 모두 냈다. 낸 규칙 집합까지 같은 것은 그중 <!-- num:judge_live.compare.rule_sets_equal|int -->24<!-- /num -->건이다.
+- 실호출만 후보를 낸 26건 중 23건은 정답이 REJECT/REVIEW 라서 **판정이 바뀌지 않았다**. 이미 결정론이 잡은 소재에 규칙 후보를 더 얹은 것이다(부재형 `AD-FIN-01` 재제안, 같은 표현의 다른 규칙 등). 규칙 단위 정밀도가 그만큼 떨어진다: `redteam` 규칙 F1 은 대역 1.000 → 실호출 <!-- num:judge_live.results.redteam.full+judge.rule.micro.f1|f3 -->0.966<!-- /num -->.
+- 나머지 3건 중 둘은 **정상 소재를 건드렸다**: `dev` D-011("자격증 합격 후기 모음", ENDO, REVIEW), `redteam` R-010("마감 임박" 캠핑장, URG, REVIEW). 하나는 판정을 맞게 올렸다(`dev` D-059 REVIEW → REJECT).
+  정상 소재를 건드린 5건의 정체: 상한 없이 REJECT 2건(D-004 HLT, D-060 GUA), REVIEW 3건(D-011, T-007, R-010).
+- **모델이 스스로 확신하지 못했다.** 정상 소재를 건드린 다섯 소재의 후보 신뢰도는 0.45–0.60 이다. 근거 문장도 '랜딩 페이지에서 확인해야 한다'(T-007·R-010), '실제 기능성 심사 여부를 사람이 확인해야 한다'(D-004)처럼 *확인 요청*이다. 스키마가 규칙마다 한 가지 심각도만 허용해서 '확인해 보라'가 REJECT 등급 후보(HLT)가 되는 것이 상한 없는 구성의 문제다.
+
+### 6.4 새로 알게 된 것
+
+1. **인용 정확도**: 제안한 후보 <!-- num:judge_live.info.proposals|int -->76<!-- /num -->개 전부 원문과 일치했다. 대역 측정에서는 알 수 없던 값이다. (표본이 76개라 '틀리지 않는다'가 아니라 '이 입력에서는 틀리지 않았다'이다.)
+2. **비용과 지연**: 209건에 <!-- num:judge_live.info.summary.estimated_usd|usd2 -->$1.20<!-- /num -->, 호출당 p50 <!-- num:judge_live.info.latency_s.p50|f2 -->2.64<!-- /num -->초. 시스템 프롬프트 2,621토큰은 점검 호출이 쓴 캐시를 209번 모두 읽었다(캐시 읽기 <!-- num:judge_live.info.summary.cache_read_tokens|num -->547,789<!-- /num -->토큰, 쓰기 <!-- num:judge_live.info.summary.cache_write_tokens|int -->0<!-- /num -->). 한 번 재는 데 $1.2 이면 프롬프트 v2·다른 모델·반복 호출을 새 사전등록으로 재 볼 만하다.
+3. **지난 사후 추정이 맞았다**: 정상 소재 오탐의 한 원인은 입력에 랜딩 텍스트가 없는 것이다([JUDGE_REPLAY.md 4.3](JUDGE_REPLAY.md)). 이번엔 모델이 근거 문장에 그렇게 적었다(T-007, R-010). 확정은 아니다 — 프롬프트를 바꿔 재야 한다.
+4. **사후 탐색(채택하지 않음)**: 대역에서는 신뢰도가 오탐과 겹쳤지만, 실호출에서는 정상 소재를 바꾼 5건의 소재별 최대 신뢰도가 0.45–0.60 이고, 위험을 잡아 판정을 바꾼 17건은 0.60(1건)·0.70(1건)·0.75 이상이다. 문턱(예: 0.65)이 이 데이터에서는 잘 나눌 듯하지만 **같은 209건에 맞춘 값이라 채택하지 않았다**(D1·D3). 프롬프트 v2 와 함께 새 사전등록에서 시험할 가설이다. (`tests/test_docs.py` 가 이 숫자를 녹음에서 다시 센다.)
+
+### 6.5 이 결과를 어디까지 믿을 수 있는가
+
+- **소재당 한 번 호출했다.** 모델 출력의 변동을 모른다. 후보 유무가 갈리는 경계 사례(신뢰도 0.4–0.6)는 다시 부르면 달라질 수 있다.
+- **모델 하나, effort 하나, 프롬프트 v1(알려진 결함 포함)이다.** 더 싼 모델이나 다른 effort 의 균형은 모른다.
+- **소재·정답·라벨러가 같은 모델 계열이다.** 이 모델이 같은 계열이면 낙관 쪽 편향이 남는다.
+- **정답 APPROVE 68건 중 5건이 바뀌었다.** 한 건이 1.5%p 이다. `dev`·`test` 는 설계자가 쓴 셋이다.
+- **운영 환경이 아니다.** GitHub 러너에서 동시 4개로 3분 걸렸다. 속도 제한, 긴 소재, 동시 요청이 많은 상황은 재지 않았다.
+- 그래도 **대역 측정의 방법**(같은 프롬프트·근거 검증·병합을 서브에이전트 응답에 적용)은 핵심 결론을 맞게 예측했다 — 패러프레이즈 0/16, 정상 소재 REJECT 2건. 틀린 것은 *양*이다: 실호출이 후보를 약 두 배 더 낸다.

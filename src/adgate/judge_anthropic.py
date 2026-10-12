@@ -1,8 +1,8 @@
 """Anthropic(Claude) 기반 Judge 어댑터.
 
-**이 저장소의 개발 환경에서는 실제 API 를 호출하지 못했다.** 요청 형태는 SDK 시그니처와 공식 문서에 맞춰 쓰고
-모의 전송(httpx2 MockTransport)으로 요청·응답 계약을 시험했다. 실제 호출의 정확도·비용·지연은 측정하지 않았다.
-키가 있는 환경에서는 ``adgate judge-check`` 로 한 건을 호출해 확인하고, ``adgate eval --judge anthropic`` 으로 측정한다.
+요청 형태는 SDK 시그니처와 공식 문서에 맞춰 쓰고 모의 전송(httpx2 MockTransport)으로 요청·응답 계약을 시험했다.
+**실제 호출은 개발 환경에 키가 없어 늦게야 해 봤다** — GitHub Actions 에서 ``adgate judge-check`` 가 처음 성공했고, 소재 209건의 측정은 docs/JUDGE_LIVE.md 에 있다
+(소재당 한 번·한 모델·한 설정이다). 키가 있는 환경에서 ``adgate judge-check`` 로 한 건, ``adgate judge-record`` 로 측정한다.
 
 설계 원칙(judge.py 와 같다):
 

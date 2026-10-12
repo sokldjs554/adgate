@@ -202,3 +202,79 @@ def test_judge_live_section_renders_calls_and_the_comparison_with_the_stand_ins(
     assert "190/207" in text and "실호출 실패 2" in text
     tree = docs.lookup_sources(src)
     assert tree["judge_live"]["info"]["calls"] == 4 and tree["judge_live"]["compare"]["compared"] == 207
+
+
+# --------------------------------------------------------------------------- LLM judge 실호출(docs/JUDGE_LIVE.md 6절)
+LIVE_DATA = ROOT / "data" / "judge_live"
+
+
+def _live() -> dict:
+    return json.loads((ROOT / "artifacts" / "results_judge_live.json").read_text(encoding="utf-8"))
+
+
+def _jsonl(path: Path) -> list[dict]:
+    return [json.loads(ln) for ln in path.read_text(encoding="utf-8").splitlines() if ln.strip()]
+
+
+def _live_ids(name: str) -> set[str]:
+    m = re.search(rf"<!-- ids:{name} -->(.*?)<!-- /ids -->", LIVE.read_text(encoding="utf-8"), re.DOTALL)
+    assert m, f"JUDGE_LIVE.md 에 ids:{name} 표식이 없다"
+    return set(re.findall(r"[DTR]-\d{3}", m.group(1)))
+
+
+def test_judge_live_doc_names_exactly_the_creatives_the_artifact_says():
+    summ = _live()["meta"]["judge_replay"]["datasets"]
+    assert _live_ids("live_fixed") == set(summ["redteam"]["unsafe_fixed"]) == _doc_ids("paraphrase_v0")  # 대역이 고친 14건과 같다
+    assert _live_ids("live_to_reject") == {i for d in summ.values() for i in d["approve_gold_to_reject"]}
+    assert all(d["deterministic_lost"] == 0 for d in summ.values())
+
+
+def test_judge_live_artifact_was_measured_on_the_committed_recording_with_a_clean_tree():
+    art = _live()
+    meta = art["meta"]["judge_replay"]
+    assert hashlib.sha256((LIVE_DATA / "recording.jsonl").read_bytes()).hexdigest() == meta["file_sha256"]
+    assert (meta["responses"], meta["misses"], meta["errors"]) == (209, 0, 0)
+    assert art["meta"]["dirty"] is False  # 사전등록: 녹음을 커밋한 깨끗한 작업트리에서 한 번 집계한다
+
+
+def test_judge_live_call_log_agrees_with_the_summary_and_the_recording():
+    summary = json.loads((LIVE_DATA / "summary.json").read_text(encoding="utf-8"))
+    calls, rows = _jsonl(LIVE_DATA / "calls.jsonl"), _jsonl(LIVE_DATA / "recording.jsonl")
+    assert len(calls) == len(rows) == summary["calls"] == summary["ok"] == 209 and summary["failed"] == summary["refusals"] == 0
+    assert {c["key"] for c in calls} == {r["key"] for r in rows} and all(c["ok"] and c["stop_reason"] == "end_turn" for c in calls)
+    assert summary["estimated_usd"] < summary["max_usd"] == 6.0 and summary["model"] == "claude-opus-5-5" and summary["effort"] == "medium"
+    assert sum(c["cache_read_tokens"] for c in calls) == summary["cache_read_tokens"] and sum(c["input_tokens"] for c in calls) == summary["input_tokens"]
+
+
+def test_judge_live_comparison_artifact_is_derived_from_the_two_committed_recordings():
+    from adgate.eval.judge_replay import compare_recordings
+
+    a = {r["key"]: r for r in _jsonl(ROOT / "data/judge_replay/recording.jsonl")}
+    b = {r["key"]: r for r in _jsonl(LIVE_DATA / "recording.jsonl")}
+    assert compare_recordings(a, b) == json.loads((ROOT / "artifacts/judge_compare.json").read_text(encoding="utf-8"))
+
+
+def test_judge_live_prose_about_the_26_live_only_items_and_the_confidences_is_recomputed():
+    from adgate.cli import load_dataset
+    from adgate.judge_recorded import creative_key
+
+    summ = _live()["meta"]["judge_replay"]["datasets"]
+    changed = {(ds, x["id"]): x for ds, d in summ.items() for x in d["changed"]}
+    stand_in = {r["key"]: r["response"]["findings"] for r in _jsonl(ROOT / "data/judge_replay/recording.jsonl")}
+    live = {r["key"]: r["response"]["findings"] for r in _jsonl(LIVE_DATA / "recording.jsonl")}
+    live_only, wrong, helped = [], [], []
+    top: dict[str, float] = {}
+    for ds in summ:
+        for ex in load_dataset(ds, ROOT / "data"):
+            k = creative_key(ex.creative)
+            if live[k] and not stand_in[k]:
+                live_only.append((ds, ex.id))
+            x = changed.get((ds, ex.id))
+            if x is not None:
+                top[f"{ds}/{ex.id}"] = max(f["confidence"] for f in live[k])
+                (wrong if x["gold"] == "APPROVE" else helped).extend(f["confidence"] for f in live[k])
+    assert len(live_only) == 26 and {i for i in live_only if i in changed} == {("dev", "D-011"), ("dev", "D-059"), ("redteam", "R-010")}  # 나머지 23건은 판정 불변
+    assert (len(wrong), min(wrong), max(wrong)) == (6, 0.45, 0.6)                                   # 정상 소재를 건드린 5소재의 후보
+    helped_top = sorted(v for key, v in top.items() if changed[tuple(key.split("/"))]["gold"] != "APPROVE")
+    assert len(helped_top) == 17 and helped_top[:2] == [0.6, 0.7] and min(helped_top[2:]) >= 0.75   # 위험을 잡은 17소재
+    assert max(v for key, v in top.items() if changed[tuple(key.split("/"))]["gold"] == "APPROVE") == 0.6

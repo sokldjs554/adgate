@@ -27,14 +27,12 @@ adgate docs --check                             # 문서의 수치가 artifacts/
 
 - `src/adgate/` 구현, `data/` 데이터와 동결 해시, `artifacts/` 측정 산출물, `docs/` 정책·평가 계획·결정·실패·한계·결과.
 - 결정은 `docs/DECISIONS.md`, 틀렸던 것은 `docs/FAILURES.md`, 알려진 한계는 `docs/LIMITATIONS.md`. 새 결정·실패는 거기에 적는다.
-- LLM judge: 실호출은 한 번도 못 했던 어댑터(`judge_anthropic.py`). 대리 측정은 `docs/JUDGE_REPLAY.md`, 실호출 측정은 `docs/JUDGE_LIVE.md`(사전등록됨, 수동 워크플로 `.github/workflows/judge-live.yml`).
+- LLM judge(`judge_anthropic.py`): 서브에이전트 대역으로 먼저 재고 `docs/JUDGE_REPLAY.md`, 같은 입력으로 실제 모델을 호출해 다시 쟀다 `docs/JUDGE_LIVE.md`(수동 워크플로 `.github/workflows/judge-live.yml`, 녹음은 `data/judge_replay/`·`data/judge_live/`).
 
-## 지금 상태와 다음 할 일 (실호출 측정이 끝나면 이 절을 지운다)
+## 지금 상태와 다음 할 일
 
 - GitHub `sokldjs554/adgate`(공개)에 `main` 이 올라가 있고 CI 는 통과한다. 태그(`detector-pre-redteam`, `detector-v0`)는 세션의 푸시 권한으로 403 이라 올리지 못했다 → 문서에는 커밋 해시(`f97cc05`, `b50e4c1`)를 함께 적었다.
-- **API 키는 GitHub 저장소 비밀값 `ANTHROPIC_API_KEY` 에 있다**(세션 환경에는 없다). 실호출은 Actions 의 `judge-live` 워크플로(수동)로 한다. **첫 호출 점검은 끝났다**(`docs/JUDGE_LIVE.md` 5절): 어댑터가 실제로 동작하고 한 건 5.7초·$0.02.
-- **본 측정(209건 녹음)은 아직이다.** 사용자의 비용 승인을 받은 뒤에 한다(상한 $12, 한 건 기준 재추정 $2–5). 순서:
-  1. 워크플로 `judge-live` 를 mode=`record`, max_usd=`12` 로 실행한다(`mcp__github__actions_run_trigger`, ref=main). `judge` 작업이 녹음하고 `publish` 작업이 결과를 `judge-live-results` 브랜치에 올린다.
-  2. 기술적 실패(시간 초과·연결·속도 제한·5xx)가 있으면 D2 에 따라 한 번만 `retry_technical=true` 로 이어한다. 거절·형식 오류는 다시 부르지 않는다.
-  3. `git fetch origin judge-live-results` 로 `data/judge_live/` 를 가져와 main 에 커밋한다. **깨끗한 작업트리에서** `make judge-live-eval` 을 한 번.
-  4. 결과를 `docs/JUDGE_LIVE.md` 6절 이후에 덧붙인다(예상 L1–L7 대 관측, 대역과의 견줌, 비용·지연). `docs.py` 에 실호출 절 렌더링을 더하고 `adgate docs`. 1–4절은 고치지 않는다.
+- **API 키는 GitHub 저장소 비밀값 `ANTHROPIC_API_KEY` 에 있다**(세션 환경에는 없다). 실호출은 Actions 의 `judge-live` 워크플로(수동)로 한다. 결과는 `judge-live-results` 브랜치에 올라오고 `git fetch` 로 가져온다.
+- **실호출 측정은 끝났다**(`docs/JUDGE_LIVE.md` 5–6절, 한 번만 쟀다 — 다시 재지 않는다). 다음 실험은 모두 **새 사전등록 문서**로 시작한다(예: `docs/JUDGE_V2.md`).
+  후보: ① 프롬프트 v2(규칙 정의·예외, 랜딩 텍스트, 인용 없는 발견을 `already_found` 에, 부재형 위반 처리) ② 신뢰도 문턱 가설(새 셋 또는 v2 에서 문턱을 *미리* 정한다) ③ 반복 호출로 출력 변동, 더 싼 모델 비교. 한 번에 약 $1.2 다.
+  비용이 드는 실행은 `--dry-run`/상한을 보여 주고 사용자 승인을 받은 뒤에 한다.
