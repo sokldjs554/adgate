@@ -247,6 +247,54 @@ def cmd_agreement_multi(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_llm(args: argparse.Namespace) -> int:
+    """LLM 측정 묶음(suite)의 dry-run·점검·녹음·재생·오프라인 팔. 정의는 adgate/suites.py."""
+    from . import suites
+
+    if args.action == "list":
+        for n in suites.names():
+            s = suites.get(n)
+            print(f"{n:16} {s.describe}  [{s.prereg}]  변형: {', '.join(f'{v.name}={v.model}' for v in s.variants.values())}")
+        return 0
+    suite = suites.get(args.suite)
+    variants = [args.variant] if args.variant else list(suite.variants)
+    for v in variants:
+        if v not in suite.variants:
+            raise SystemExit(f"알 수 없는 변형 {v} (가능: {', '.join(suite.variants)})")
+    if args.action == "offline":
+        if suite.offline is None:
+            raise SystemExit("이 suite 에는 오프라인 팔이 없습니다")
+        res = {"meta": {"suite": suite.name, "git": report.git_state(ROOT)[0], "dirty": report.git_state(ROOT)[1], "prereg": suite.prereg}, "results": suite.offline()}
+        out = Path(args.out or f"artifacts/results_{suite.name}__offline.json")
+        suites.dump(res, out)
+        print(f"오프라인 팔 → {out}")
+        return 0
+    for v in variants:
+        if args.action == "dry-run":
+            d = suites.dry_run(suite, v)
+            print(f"[{suite.name}/{v}] 사례 {d['cases']}건, 호출 {d['calls']}회, 추정 비용 상한 ${d['estimated_usd_upper_bound']:.2f} ({d['model']})  대역 실패 {d['stand_in_failed']}")
+            for t, row in d["by_task"].items():
+                print(f"    {t:20} {row['calls']:4}회  ${row['usd']:.3f}")
+            print("   ", d["note"])
+            if args.out:
+                suites.dump(d, Path(args.out))
+        elif args.action == "check":
+            r = suites.check(suite, v, max_usd=args.max_usd)
+            print(f"[{suite.name}/{v}] 점검: 사례 {r['completed']}/{r['attempted']} 완료, 오류 {r['case_errors']}, 실제 호출 {r['live_calls']}, {r['spend']}")
+            if r["case_errors"]:
+                return 1
+        elif args.action == "record":
+            r = suites.record(suite, v, max_usd=args.max_usd, workers=args.workers, retry_technical=args.retry_technical)
+            print(f"[{suite.name}/{v}] 녹음: {r}")
+        elif args.action == "replay":
+            res = suites.replay(suite, v)
+            out = Path(args.out or f"artifacts/results_{suite.name}__{v}.json")
+            suites.dump(res, out)
+            m = res["meta"]
+            print(f"[{suite.name}/{v}] 재생 → {out}  (사례 {m['cases']}, 오류 {len(m['case_errors'])}, 녹음 없음 {m['misses']})")
+    return 0
+
+
 def cmd_prereg(args: argparse.Namespace) -> int:
     if args.register:
         e = prereg.register(args.register, args.start, args.end, note=args.note or "")
@@ -498,6 +546,15 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--labels", default="data/labeler_test.jsonl")
     s.add_argument("--out", default="artifacts/agreement_test.json")
     s.set_defaults(fn=cmd_agreement)
+    s = sub.add_parser("llm", help="LLM 측정 묶음(suite): list · offline · dry-run · check · record · replay")
+    s.add_argument("action", choices=["list", "offline", "dry-run", "check", "record", "replay"])
+    s.add_argument("suite", nargs="?", default="")
+    s.add_argument("--variant", default="", help="변형(모델) 이름. 비우면 모두")
+    s.add_argument("--max-usd", type=float, default=5.0)
+    s.add_argument("--workers", type=int, default=4)
+    s.add_argument("--retry-technical", action="store_true")
+    s.add_argument("--out", default="")
+    s.set_defaults(fn=cmd_llm)
     s = sub.add_parser("prereg", help="사전등록 절의 해시를 등록(--register)하거나 그대로인지 검사")
     s.add_argument("--register", help="등록할 문서 경로(예: docs/EVAL_GRAY.md)")
     s.add_argument("--start", default="## 1.", help="사전등록 시작 제목의 앞부분")

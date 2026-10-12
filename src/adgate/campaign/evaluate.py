@@ -21,7 +21,7 @@ from datetime import date, timedelta
 from typing import Any
 
 from ..eval.metrics import ratio
-from ..llm import LLMClient, LLMError, LLMTask, ScriptedClient
+from ..llm import LLMClient, LLMError, LLMMissing, LLMTask, ScriptedClient
 from ..llm.core import Part
 from .agent import WEEKDAYS, Agent, Session, SlotValue, TurnResult
 from .rules import missing, validate
@@ -92,6 +92,7 @@ def score_run(sc: Scenario, run: Run) -> dict[str, Any]:
         "intent_ok": intents, "turns": len(run.results),
         "rejected": dict(Counter(x.reason for r in run.results for x in r.rejected)),
         "proposed": sum(r.proposed for r in run.results), "fallbacks": sum(r.used_fallback for r in run.results),
+        "fallback_reasons": dict(Counter(r.fallback_reason for r in run.results if r.fallback_reason)),
         "llm_errors": sum(r.llm_error is not None for r in run.results),
     }
 
@@ -155,9 +156,10 @@ def aggregate_closed(scores: list[dict[str, Any]]) -> dict[str, Any]:
         "missed_ready": ratio(sum(s["missed_ready"] for s in exp_ready), len(exp_ready)),
         "forbidden_scenarios": ratio(sum(bool(s["forbidden"]) for s in scores), n),
         "redundant_questions": _sum(scores, "redundant_questions"), "too_many_questions": _sum(scores, "too_many_questions"),
-        "intent": ratio(_sum(scores, "intent_ok"), turns),
+        "intent": None if all(s["intent_ok"] is None for s in scores) else ratio(sum(s["intent_ok"] or 0 for s in scores), turns),
         "ungrounded_proposals": ratio(sum(sum(s["rejected"].values()) for s in scores), max(1, _sum(scores, "proposed"))),
         "reply_fallbacks": _sum(scores, "fallbacks"), "llm_errors": _sum(scores, "llm_errors"),
+        "fallback_reasons": dict(sum((Counter(s.get("fallback_reasons", {})) for s in scores), Counter())),
         "by_trap": by_trap,
         "failures": [{"id": s["id"], "expect": s["expect_status"], "got": s["status"], "forbidden": s["forbidden"], "errors": s["errors"]} for s in scores if not s["status_ok"] or s["forbidden"]],
     }
@@ -329,6 +331,8 @@ def run_baseline(client: LLMClient, sc: Scenario) -> BaselineRun:
     dialog = [{"role": "advertiser", "text": t.user} for t in sc.turns]
     try:
         out = client.call(baseline_task(), baseline_input(dialog, sc.today, sc.verified)).response
+    except LLMMissing:
+        raise
     except LLMError as exc:
         return BaselineRun(sc.id, "needs_input", {}, type(exc).__name__)
     slots: dict[str, Any] = {}
@@ -368,7 +372,7 @@ def score_baseline(sc: Scenario, run: BaselineRun) -> dict[str, Any]:
         "errors_ok": run.issues == sorted(set(sc.expect.validation_errors)), "errors": run.issues, "forbidden": forbidden,
         "false_ready": run.status == "ready" and exp != "ready", "missed_ready": run.status != "ready" and exp == "ready",
         "ready_with_errors": run.status == "ready" and bool(run.issues),
-        "redundant_questions": 0, "too_many_questions": 0, "intent_ok": 0, "turns": len(sc.turns), "rejected": {}, "proposed": 0, "fallbacks": 0,
+        "redundant_questions": 0, "too_many_questions": 0, "intent_ok": None, "turns": len(sc.turns), "rejected": {}, "proposed": 0, "fallbacks": 0,
         "llm_errors": int(run.error is not None),
     }
 
@@ -378,3 +382,20 @@ def scenario_missing(sc: Scenario) -> list[str]:
 
 
 Driver = Callable[[Scenario, LLMClient], Any]
+
+
+def standin_client(sc: Scenario) -> ScriptedClient:
+    """dry-run 용 대역: 추출은 오라클, 단일 호출은 정답 상태·status, 답변 다듬기는 템플릿 초안 그대로. 실제 모델이 아니라 호출 수·길이를 세기 위한 것이다."""
+    oracle = oracle_client(sc)
+
+    def handler(task: LLMTask, parts: list[Part]) -> dict[str, Any]:
+        if task.name == "campaign.extract":
+            return oracle.handler(task, parts)
+        if task.name == "campaign.baseline":
+            slots = [{"path": p, "value_json": json.dumps(v, ensure_ascii=False), "quote": "", "derived": False} for p, v in final_state(sc).items()]
+            return {"status": sc.expect.status, "slots": slots, "reply": "정리했어요."}
+        if task.name == "campaign.reply":
+            return {"message": json.loads(str(parts[0]))["plan"]["draft"]}
+        raise LLMError(task.name)
+
+    return ScriptedClient(handler)
