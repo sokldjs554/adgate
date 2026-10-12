@@ -46,6 +46,7 @@ class Suite:
     score: Callable[[str, list[CaseOutcome]], dict[str, Any]]
     offline: Callable[[], dict[str, Any]] | None = None       # 모델 없는 팔(규칙 추출기·오라클 …)
     check_case: Callable[[], tuple[str, Any]] | None = None
+    analyze: Callable[[str, list[CaseOutcome]], dict[str, Any]] | None = None   # 실패 분석: 틀린 사례의 목록과 이유(채점 수치가 아니라 *어디서* 틀렸는가)
     tags: list[str] = field(default_factory=list)
 
 
@@ -176,6 +177,22 @@ def replay(suite: Suite, variant: str, *, root: Path = Path(".")) -> dict[str, A
             "prereg": suite.prereg,
         },
         "results": suite.score(variant, outcomes),
+    }
+
+
+def analyze(suite: Suite, variant: str, *, root: Path = Path(".")) -> dict[str, Any]:
+    """녹음을 재생해 *틀린 사례*를 뽑는다(실패 분석). 채점과 같은 재생이라 키도 비용도 필요 없고 결정론이다."""
+    if suite.analyze is None:
+        raise SystemExit(f"{suite.name} 에는 실패 분석이 없습니다")
+    rows_path, _ = paths(suite.name, variant, root)
+    if not rows_path.exists():
+        raise SystemExit(f"녹음이 없습니다: {rows_path}")
+    outcomes = replay_cases(suite.cases(variant), suite.driver(variant), load_rows(rows_path))
+    sha, dirty = _git_state()
+    return {
+        "meta": {"suite": suite.name, "variant": variant, "model": suite.variants[variant].model, "git_sha": sha, "dirty": dirty,
+                 "recording_sha256": hashlib.sha256(rows_path.read_bytes()).hexdigest(), "prereg": suite.prereg},
+        "analysis": suite.analyze(variant, outcomes),
     }
 
 

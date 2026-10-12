@@ -1,0 +1,68 @@
+{
+  "meta": {
+    "note": "녹음 호출 기록에서 모은 *추정* 비용이다(청구서가 아니다). 가격표와 공식은 adgate.llm.spend.",
+    "source": "data/llm/<suite>/<variant>.calls.jsonl"
+  },
+  "total": {
+    "calls": 180,
+    "usd": 1.004108
+  },
+  "suites": {
+    "vision": {
+      "haiku": {
+        "model": "claude-haiku-5-5",
+        "calls": 60,
+        "ok": 60,
+        "failed": 0,
+        "cases": 60,
+        "input_tokens": 64391,
+        "output_tokens": 18039,
+        "cache_write_tokens": 0,
+        "cache_read_tokens": 60300,
+        "usd": 0.016062,
+        "usd_per_call": 0.000268,
+        "latency_ms": {
+          "p50": 2176,
+          "p95": 3179,
+          "max": 3305
+        }
+      },
+      "opus": {
+        "model": "claude-opus-5-5",
+        "calls": 60,
+        "ok": 60,
+        "failed": 0,
+        "cases": 60,
+        "input_tokens": 64391,
+        "output_tokens": 18697,
+        "cache_write_tokens": 0,
+        "cache_read_tokens": 60300,
+        "usd": 0.655624,
+        "usd_per_call": 0.010927,
+        "latency_ms": {
+          "p50": 3898,
+          "p95": 5235,
+          "max": 11094
+        }
+      },
+      "sonnet": {
+        "model": "claude-sonnet-5-5",
+        "calls": 60,
+        "ok": 60,
+        "failed": 0,
+        "cases": 60,
+        "input_tokens": 64391,
+        "output_tokens": 19158,
+        "cache_write_tokens": 0,
+        "cache_read_tokens": 60300,
+        "usd": 0.332422,
+        "usd_per_call": 0.00554,
+        "latency_ms": {
+          "p50": 2531,
+          "p95": 4297,
+          "max": 5838
+        }
+      }
+    }
+  }
+}

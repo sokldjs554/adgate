@@ -13,7 +13,7 @@ from ..llm import CaseOutcome, Image, LLMClient, LLMTask, ScriptedClient
 from ..llm.core import Part
 from ..suites import Driver, Suite, Variant, register
 from .dataset import VisionExample, load_vision
-from .evaluate import COMPOSITION_TAGS, decision_effect, score_reading, summarize_reading
+from .evaluate import COMPOSITION_TAGS, decision_effect, decision_errors, score_reading, summarize_reading
 from .read import ImageReading, read_image
 from .spec import flags, texts
 
@@ -56,6 +56,30 @@ def _score(variant: str, outcomes: list[CaseOutcome]) -> dict[str, Any]:
     }
 
 
+def _analyze(variant: str, outcomes: list[CaseOutcome]) -> dict[str, Any]:
+    """틀린 소재의 목록. 읽은 글을 줬을 때(read)와 정답 글자를 줬을 때(oracle)의 판정을 *소재 단위*로 견준다 — 집계 정확도가 같아도 틀린 소재가 같다는 뜻은 아니다."""
+    items = {it.id: it for it in load_all()}
+    readings: dict[str, ImageReading | None] = {o.case: (ImageReading.model_validate(o.result) if o.result is not None else None) for o in outcomes}
+    sel = [items[o.case] for o in outcomes]
+    errs = decision_errors(sel, readings)
+    read_ids, oracle_ids = {e["id"] for e in errs["read"]}, {e["id"] for e in errs["oracle"]}
+    scores = [score_reading(it, readings[it.id]) for it in sel]
+    flag_fp: dict[str, list[str]] = {}
+    flag_fn: dict[str, list[str]] = {}
+    for sc in scores:
+        for f in sc["flags_fp"]:
+            flag_fp.setdefault(f, []).append(sc["id"])
+        for f in sc["flags_fn"]:
+            flag_fn.setdefault(f, []).append(sc["id"])
+    return {
+        "decision_errors": {"read": errs["read"], "oracle": errs["oracle"]},
+        "read_worse_than_oracle": sorted(read_ids - oracle_ids), "read_better_than_oracle": sorted(oracle_ids - read_ids),
+        "both_wrong": sorted(read_ids & oracle_ids),
+        "reading_misses": [{"id": sc["id"], "missed": sc["missed"], "extra": sc["hallucinated"]} for sc in scores if sc["missed"] or sc["hallucinated"]],
+        "flag_false_positives": flag_fp, "flag_false_negatives": flag_fn,
+    }
+
+
 def _standin(payload: dict[str, Any]) -> ScriptedClient:
     item: VisionExample = payload["item"]
 
@@ -90,5 +114,5 @@ def vision() -> Suite:
 
     return Suite(
         "vision", "이미지 읽기(VLM): 글자·시각 단서와 심사 판정에 주는 효과", "docs/EVAL_VISION.md", VARIANTS, cases, driver, _standin, _score,
-        offline=offline, check_case=lambda: (items[0].id, {"item": items[0]}),
+        offline=offline, check_case=lambda: (items[0].id, {"item": items[0]}), analyze=_analyze,
     )

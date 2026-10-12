@@ -19,6 +19,13 @@ PRICES: dict[str, tuple[float, float]] = {
 }
 
 
+def cost_usd(model: str, input_tokens: int, output_tokens: int, cache_write_tokens: int = 0, cache_read_tokens: int = 0) -> float:
+    """토큰 수로 추정한 비용(달러). 캐시 쓰기는 입력의 1.25배, 캐시 읽기는 0.1배로 본다."""
+    p_in, p_out = PRICES.get(model, (10.0, 50.0))
+    billed_in = input_tokens + 1.25 * cache_write_tokens + 0.1 * cache_read_tokens
+    return (billed_in * p_in + output_tokens * p_out) / 1_000_000
+
+
 class BudgetExceededError(Exception):
     """설정한 비용 상한에 도달했다."""
 
@@ -38,9 +45,7 @@ class Spend:
 
     @property
     def usd(self) -> float:
-        p_in, p_out = PRICES.get(self.model, (10.0, 50.0))
-        billed_in = self.input_tokens + 1.25 * self.cache_write_tokens + 0.1 * self.cache_read_tokens
-        return (billed_in * p_in + self.output_tokens * p_out) / 1_000_000 + self.failed_usd
+        return cost_usd(self.model, self.input_tokens, self.output_tokens, self.cache_write_tokens, self.cache_read_tokens) + self.failed_usd
 
     def estimate(self, prompt_chars: int, *, expected_output_tokens: int = 800) -> float:
         """호출 전 추정 비용. 한국어는 글자당 토큰 하나로 넉넉히 보고, 출력은 후보 몇 건의 JSON 정도로 본다."""

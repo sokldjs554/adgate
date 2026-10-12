@@ -19,7 +19,18 @@ from adgate.suites import get  # noqa: E402
 from adgate.vision.evaluate import COMPOSITION_TAGS, cer, found_in, score_reading, similar, summarize_reading  # noqa: E402
 from adgate.vision.read import ImageReading, ReadText  # noqa: E402
 from adgate.vision.spec import flags, texts  # noqa: E402
-from adgate.vision.suite import DATA, HARD_TAGS, ROOT, _score, _standin, image_part, load_all, offline, vision  # noqa: E402
+from adgate.vision.suite import (  # noqa: E402
+    DATA,
+    HARD_TAGS,
+    ROOT,
+    _analyze,
+    _score,
+    _standin,
+    image_part,
+    load_all,
+    offline,
+    vision,
+)
 
 ITEMS = load_all()
 
@@ -134,3 +145,53 @@ def test_offline_has_no_model_arm() -> None:
     assert out["items"] == 60 and set(out["decision"]) >= {"no_image", "oracle", "image_only", "by_tag"}
     assert "read" not in out["decision"] and "read" not in out["decision"]["image_only"]
     assert all("read" not in b for b in out["decision"]["by_tag"].values())
+
+
+# --- 실패 분석 ---------------------------------------------------------------------------------------------------------------------
+
+
+def _outcomes(n: int, mutate=None):  # type: ignore[no-untyped-def]
+    s = vision()
+    driver = s.driver("sonnet")
+    out = []
+    for cid, payload in s.cases("sonnet")[:n]:
+        res = driver(payload, _standin(payload))
+        if mutate is not None:
+            res = mutate(cid, payload["item"], res)
+        out.append(CaseOutcome(case=cid, result=res))
+    return out
+
+
+def test_analyze_with_perfect_reading_has_no_read_only_errors() -> None:
+    """완벽히 읽으면 read 팔의 틀린 소재는 oracle 팔과 같다 — 엔진의 몫만 남는다."""
+    a = _analyze("sonnet", _outcomes(20))
+    assert a["read_worse_than_oracle"] == [] and a["read_better_than_oracle"] == []
+    assert {e["id"] for e in a["decision_errors"]["read"]} == {e["id"] for e in a["decision_errors"]["oracle"]} == set(a["both_wrong"])
+    assert a["reading_misses"] == [] and a["flag_false_positives"] == {} and a["flag_false_negatives"] == {}
+
+
+def test_analyze_finds_items_where_a_missed_disclosure_flips_the_decision() -> None:
+    """작은 글씨 고지를 읽지 못하면 FIN-01 오탐으로 read 팔만 틀린다(V-A05·A06: 정답 APPROVE → REJECT). 같은 누락이 이미 REJECT 인 소재(V-A01)의 판정은 바꾸지 못한다."""
+    from adgate.vision.spec import hard_texts
+
+    drop = {"V-A01", "V-A05", "V-A06"}
+
+    def drop_small_print(cid, item, res):  # type: ignore[no-untyped-def]
+        if cid in drop:
+            hard = set(hard_texts(item.image))
+            res = {**res, "texts": [t for t in res["texts"] if t["text"] not in hard]}
+        return res
+
+    a = _analyze("sonnet", _outcomes(60, drop_small_print))
+    assert {m["id"] for m in a["reading_misses"]} >= drop
+    assert {"V-A05", "V-A06"} <= set(a["read_worse_than_oracle"]) and "V-A01" not in a["read_worse_than_oracle"]
+    assert all(e["pred_findings"][0][0] == "AD-FIN-01" for e in a["decision_errors"]["read"] if e["id"] in ("V-A05", "V-A06"))
+
+
+def test_analyze_counts_a_failed_read_as_an_error_unless_gold_is_review() -> None:
+    s = vision()
+    outcomes = [CaseOutcome(case=cid, result=None, error="LLMTruncated") for cid, _ in s.cases("sonnet")[:10]]
+    a = _analyze("sonnet", outcomes)
+    wrong = {e["id"] for e in a["decision_errors"]["read"]}
+    gold = {it.id: it.gold.decision for it in ITEMS}
+    assert wrong == {cid for cid, _ in s.cases("sonnet")[:10] if gold[cid] != "REVIEW"}     # 읽지 못하면 REVIEW 로 보낸다 → 정답이 REVIEW 가 아닌 소재만 틀린 것으로 센다

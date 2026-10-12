@@ -256,6 +256,14 @@ def cmd_llm(args: argparse.Namespace) -> int:
             s = suites.get(n)
             print(f"{n:16} {s.describe}  [{s.prereg}]  변형: {', '.join(f'{v.name}={v.model}' for v in s.variants.values())}")
         return 0
+    if args.action == "spend":
+        from .llm import ledger
+
+        res = ledger.build()
+        out = Path(args.out or "artifacts/llm_spend.json")
+        suites.dump(res, out)
+        print(f"실제 호출 {res['total']['calls']}회, 추정 비용 ${res['total']['usd']:.4f} → {out}")
+        return 0
     suite = suites.get(args.suite)
     variants = [args.variant] if args.variant else list(suite.variants)
     for v in variants:
@@ -286,6 +294,11 @@ def cmd_llm(args: argparse.Namespace) -> int:
         elif args.action == "record":
             r = suites.record(suite, v, max_usd=args.max_usd, workers=args.workers, retry_technical=args.retry_technical)
             print(f"[{suite.name}/{v}] 녹음: {r}")
+        elif args.action == "analyze":
+            res = suites.analyze(suite, v)
+            out = Path(args.out or f"artifacts/analysis_{suite.name}__{v}.json")
+            suites.dump(res, out)
+            print(f"[{suite.name}/{v}] 실패 분석 → {out}")
         elif args.action == "replay":
             res = suites.replay(suite, v)
             out = Path(args.out or f"artifacts/results_{suite.name}__{v}.json")
@@ -546,8 +559,8 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--labels", default="data/labeler_test.jsonl")
     s.add_argument("--out", default="artifacts/agreement_test.json")
     s.set_defaults(fn=cmd_agreement)
-    s = sub.add_parser("llm", help="LLM 측정 묶음(suite): list · offline · dry-run · check · record · replay")
-    s.add_argument("action", choices=["list", "offline", "dry-run", "check", "record", "replay"])
+    s = sub.add_parser("llm", help="LLM 측정 묶음(suite): list · offline · dry-run · check · record · replay · analyze(실패 분석) · spend(비용 장부)")
+    s.add_argument("action", choices=["list", "offline", "dry-run", "check", "record", "replay", "analyze", "spend"])
     s.add_argument("suite", nargs="?", default="")
     s.add_argument("--variant", default="", help="변형(모델) 이름. 비우면 모두")
     s.add_argument("--max-usd", type=float, default=5.0)
