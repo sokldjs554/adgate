@@ -127,7 +127,7 @@ class TurnResult:
     status: Status
     message: str
     accepted: list[dict[str, Any]] = field(default_factory=list)
-    rejected: list[Rejected] = field(default_factory=list)
+    rejected: list[Rejected] = field(default_factory=list)   # 근거 검사가 거른 제안(인용·형식·주입)
     issues: list[Issue] = field(default_factory=list)
     questions: list[str] = field(default_factory=list)
     proposed: int = 0                       # 모델이 제안한 슬롯 수(근거 검사 전)
@@ -135,6 +135,7 @@ class TurnResult:
     fallback_reason: str | None = None
     llm_error: str | None = None
     state: dict[str, Any] = field(default_factory=dict)
+    blocked: list[Rejected] = field(default_factory=list)    # 근거는 맞지만 상태 전이가 안전하지 않아 코드가 막은 것(Agent.guard) — 근거 없는 제안이 아니다
 
 
 # --------------------------------------------------------------------------- 근거 검사
@@ -343,7 +344,6 @@ class Agent:
         s.notices = []
         intent, accepted, retract, rejected, proposed, err = self.understand(s, utterance)
         accepted, retract, blocked = self.guard(s, intent, accepted, retract)
-        rejected = [*rejected, *blocked]
         changed = False
         for a in accepted:
             old = s.slots.get(a["path"])
@@ -355,7 +355,7 @@ class Agent:
                 del s.slots[path]
                 changed = True
         res = self.respond(s, intent, accepted, utterance, changed=changed)
-        res.rejected, res.proposed, res.llm_error = rejected, proposed, err
+        res.rejected, res.blocked, res.proposed, res.llm_error = rejected, blocked, proposed, err
         return res
 
     def respond(self, s: Session, intent: str, accepted: list[dict[str, Any]], utterance: str, *, changed: bool) -> TurnResult:

@@ -96,6 +96,7 @@ def score_run(sc: Scenario, run: Run) -> dict[str, Any]:
         "redundant_questions": redundant, "too_many_questions": sum(len(r.questions) > 2 for r in run.results),
         "intent_ok": intents, "turns": len(run.results),
         "rejected": dict(Counter(x.reason for r in run.results for x in r.rejected)),
+        "blocked": dict(Counter(x.reason for r in run.results for x in r.blocked)),
         "proposed": sum(r.proposed for r in run.results), "fallbacks": sum(r.used_fallback for r in run.results),
         "fallback_reasons": dict(Counter(r.fallback_reason for r in run.results if r.fallback_reason)),
         "llm_errors": sum(r.llm_error is not None for r in run.results),
@@ -164,6 +165,7 @@ def aggregate_closed(scores: list[dict[str, Any]]) -> dict[str, Any]:
         "redundant_questions": _sum(scores, "redundant_questions"), "too_many_questions": _sum(scores, "too_many_questions"),
         "intent": None if all(s["intent_ok"] is None for s in scores) else ratio(sum(s["intent_ok"] or 0 for s in scores), turns),
         "ungrounded_proposals": ratio(sum(sum(s["rejected"].values()) for s in scores), max(1, _sum(scores, "proposed"))),
+        "guard_blocks": dict(sum((Counter(s.get("blocked", {})) for s in scores), Counter())),   # 상태 전이 가드가 막은 제안 수(이유별)
         "reply_fallbacks": _sum(scores, "fallbacks"), "llm_errors": _sum(scores, "llm_errors"),
         "fallback_reasons": dict(sum((Counter(s.get("fallback_reasons", {})) for s in scores), Counter())),
         "by_trap": by_trap,

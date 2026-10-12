@@ -31,7 +31,7 @@ def test_a_restricted_category_cannot_be_downgraded_whatever_the_model_calls_the
     agent.step(s, ADULT_OPEN)
     r = agent.step(s, DOWNGRADE)
     assert s.slots["ad_category"].value == "adult" and r.status == "refused"
-    assert [x.reason for x in r.rejected] == ["restricted_category_downgrade"]
+    assert [x.reason for x in r.blocked] == ["restricted_category_downgrade"] and r.rejected == []
     assert "담당자" in r.message                                     # 광고주에게 왜 안 바뀌었고 어디로 가야 하는지 알린다
 
 
@@ -43,7 +43,7 @@ def test_retracting_a_restricted_category_is_blocked_too():
     agent.step(s, "카지노 사이트 광고하고 싶어요")
     r = agent.step(s, "아 업종은 없던 걸로 해주세요")
     assert s.slots["ad_category"].value == "gambling" and r.status == "refused"
-    assert [x.reason for x in r.rejected] == ["restricted_category_downgrade"]
+    assert [x.reason for x in r.blocked] == ["restricted_category_downgrade"] and r.rejected == []
 
 
 def test_the_block_is_per_slot_other_values_in_the_same_turn_still_apply():
@@ -66,13 +66,13 @@ def test_ordinary_category_corrections_are_not_blocked(first, second, quote):
     agent, s = agent_for({"slots": [slot("ad_category", first, "처음 업종")]}, {"intent": "correction", "slots": [slot("ad_category", second, quote)]})
     agent.step(s, "처음 업종 광고해요")
     r = agent.step(s, f"아니요 {quote} 입니다")
-    assert s.slots["ad_category"].value == second and not any(x.reason == "restricted_category_downgrade" for x in r.rejected)
+    assert s.slots["ad_category"].value == second and r.blocked == []
 
 
 def test_a_first_time_restricted_category_is_accepted_and_refused_as_before():
     agent, s = locked_session()
     r = agent.step(s, ADULT_OPEN)
-    assert s.slots["ad_category"].value == "adult" and r.status == "refused" and r.rejected == []
+    assert s.slots["ad_category"].value == "adult" and r.status == "refused" and r.rejected == [] and r.blocked == []
 
 
 def test_the_blocked_downgrade_survives_a_later_retry():
@@ -105,7 +105,7 @@ def test_a_value_proposed_on_a_question_turn_is_not_applied():
     agent.step(s, "영어학원 하는데요 상담신청 좀 받고싶어요 하루 1만5천원으로 하려구요")
     r = agent.step(s, "그럼 상담신청 말고 홈페이지 방문 늘리는걸로 하면 만원도 되나여?")
     assert s.slots["objective"].value == "lead"                                              # S-C02: 이게 traffic 으로 바뀌었다
-    assert [x.reason for x in r.rejected] == ["question_turn"] and r.accepted == []
+    assert [x.reason for x in r.blocked] == ["question_turn"] and r.accepted == [] and r.rejected == []
     assert NOTICE_TEXT["question_not_applied"] in r.message                                  # 광고주가 '반영된 줄' 알지 않게 알린다
 
 
@@ -133,7 +133,7 @@ def test_the_same_value_on_a_decision_turn_is_applied():
 def test_a_question_with_no_values_is_answered_as_before_without_the_notice():
     agent, s = agent_for({"intent": "question"})
     r = agent.step(s, "일 예산은 최소 얼마부터 되나요?")
-    assert r.rejected == [] and NOTICE_TEXT["question_not_applied"] not in r.message and "최소" in r.message
+    assert r.blocked == [] and NOTICE_TEXT["question_not_applied"] not in r.message and "최소" in r.message
 
 
 @pytest.mark.parametrize("intent", ["provide", "correction", "off_topic", "injection", "deny"])
