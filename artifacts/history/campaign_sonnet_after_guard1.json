@@ -1,0 +1,1884 @@
+{
+  "meta": {
+    "suite": "campaign",
+    "variant": "sonnet",
+    "model": "claude-sonnet-5-5",
+    "git_sha": "c440946",
+    "dirty": false,
+    "recording_sha256": "79f3101dcfe7a760ff467bb39285b2e73644bd30a445d4eeedc9f8d2f1acdca7",
+    "recorded_rows": 339,
+    "recorded_failures": {},
+    "cases": 40,
+    "case_errors": {},
+    "misses": 0,
+    "prereg": "docs/EVAL_SETUP.md"
+  },
+  "results": {
+    "note": "dev 는 설계자가 보았다(헤드라인 아님). 헤드라인은 test 의 첫 접촉이다.",
+    "dev": {
+      "cases": 10,
+      "failed": [],
+      "teacher_forced": {
+        "turns": 42,
+        "slots": {
+          "precision": 0.9855,
+          "recall": 0.9855,
+          "f1": 0.9855,
+          "tp": 68,
+          "fp": 1,
+          "fn": 1
+        },
+        "intent": {
+          "k": 41,
+          "n": 42,
+          "value": 0.9762,
+          "ci": [
+            0.8768,
+            0.9958
+          ]
+        },
+        "ungrounded_proposals": {
+          "k": 0,
+          "n": 69,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.0527
+          ]
+        },
+        "forbidden_extracted": 3,
+        "llm_errors": 0,
+        "by_trap": {
+          "correction": {
+            "turns": 9,
+            "recall": 0.9231,
+            "precision": 1.0
+          },
+          "derived_budget": {
+            "turns": 8,
+            "recall": 1.0,
+            "precision": 1.0
+          },
+          "injection": {
+            "turns": 4,
+            "recall": 1.0,
+            "precision": 1.0
+          },
+          "missing_landing": {
+            "turns": 9,
+            "recall": 1.0,
+            "precision": 1.0
+          },
+          "multi_slot": {
+            "turns": 29,
+            "recall": 1.0,
+            "precision": 0.9831
+          },
+          "out_of_scope": {
+            "turns": 9,
+            "recall": 1.0,
+            "precision": 1.0
+          },
+          "plain": {
+            "turns": 8,
+            "recall": 1.0,
+            "precision": 0.9412
+          },
+          "relative_date": {
+            "turns": 9,
+            "recall": 1.0,
+            "precision": 0.9565
+          },
+          "typo_informal": {
+            "turns": 35,
+            "recall": 0.9815,
+            "precision": 0.9815
+          },
+          "unrealistic_budget": {
+            "turns": 8,
+            "recall": 0.9091,
+            "precision": 1.0
+          },
+          "vague": {
+            "turns": 9,
+            "recall": 1.0,
+            "precision": 1.0
+          }
+        }
+      },
+      "closed_loop": {
+        "n": 10,
+        "status_ok": {
+          "k": 10,
+          "n": 10,
+          "value": 1.0,
+          "ci": [
+            0.7225,
+            1.0
+          ]
+        },
+        "status_lenient_ok": {
+          "k": 10,
+          "n": 10,
+          "value": 1.0,
+          "ci": [
+            0.7225,
+            1.0
+          ]
+        },
+        "errors_ok": {
+          "k": 10,
+          "n": 10,
+          "value": 1.0,
+          "ci": [
+            0.7225,
+            1.0
+          ]
+        },
+        "slots": {
+          "precision": 1.0,
+          "recall": 0.9848,
+          "f1": 0.9924,
+          "tp": 65,
+          "fp": 0,
+          "fn": 1
+        },
+        "exact": {
+          "k": 9,
+          "n": 10,
+          "value": 0.9,
+          "ci": [
+            0.5958,
+            0.9821
+          ]
+        },
+        "false_ready": {
+          "k": 0,
+          "n": 4,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.4899
+          ]
+        },
+        "missed_ready": {
+          "k": 0,
+          "n": 6,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.3903
+          ]
+        },
+        "forbidden_scenarios": {
+          "k": 0,
+          "n": 10,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.2775
+          ]
+        },
+        "redundant_questions": 1,
+        "too_many_questions": 0,
+        "intent": {
+          "k": 41,
+          "n": 42,
+          "value": 0.9762,
+          "ci": [
+            0.8768,
+            0.9958
+          ]
+        },
+        "ungrounded_proposals": {
+          "k": 0,
+          "n": 68,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.0535
+          ]
+        },
+        "guard_blocks": {},
+        "reply_fallbacks": 0,
+        "llm_errors": 0,
+        "fallback_reasons": {},
+        "by_trap": {
+          "correction": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            }
+          },
+          "derived_budget": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            }
+          },
+          "injection": {
+            "n": 1,
+            "status_ok": {
+              "k": 1,
+              "n": 1,
+              "value": 1.0,
+              "ci": [
+                0.2065,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 1,
+              "n": 1,
+              "value": 1.0,
+              "ci": [
+                0.2065,
+                1.0
+              ]
+            }
+          },
+          "missing_landing": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            }
+          },
+          "multi_slot": {
+            "n": 7,
+            "status_ok": {
+              "k": 7,
+              "n": 7,
+              "value": 1.0,
+              "ci": [
+                0.6457,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 7,
+              "n": 7,
+              "value": 1.0,
+              "ci": [
+                0.6457,
+                1.0
+              ]
+            }
+          },
+          "out_of_scope": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            }
+          },
+          "plain": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            }
+          },
+          "relative_date": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            }
+          },
+          "typo_informal": {
+            "n": 8,
+            "status_ok": {
+              "k": 8,
+              "n": 8,
+              "value": 1.0,
+              "ci": [
+                0.6756,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 7,
+              "n": 8,
+              "value": 0.875,
+              "ci": [
+                0.5291,
+                0.9776
+              ]
+            }
+          },
+          "unrealistic_budget": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            }
+          },
+          "vague": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            }
+          }
+        },
+        "failures": []
+      },
+      "single_shot": {
+        "n": 10,
+        "status_ok": {
+          "k": 5,
+          "n": 10,
+          "value": 0.5,
+          "ci": [
+            0.2366,
+            0.7634
+          ]
+        },
+        "status_lenient_ok": {
+          "k": 5,
+          "n": 10,
+          "value": 0.5,
+          "ci": [
+            0.2366,
+            0.7634
+          ]
+        },
+        "errors_ok": {
+          "k": 10,
+          "n": 10,
+          "value": 1.0,
+          "ci": [
+            0.7225,
+            1.0
+          ]
+        },
+        "slots": {
+          "precision": 0.9552,
+          "recall": 0.9697,
+          "f1": 0.9624,
+          "tp": 64,
+          "fp": 3,
+          "fn": 2
+        },
+        "exact": {
+          "k": 7,
+          "n": 10,
+          "value": 0.7,
+          "ci": [
+            0.3968,
+            0.8922
+          ]
+        },
+        "false_ready": {
+          "k": 0,
+          "n": 4,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.4899
+          ]
+        },
+        "missed_ready": {
+          "k": 3,
+          "n": 6,
+          "value": 0.5,
+          "ci": [
+            0.1876,
+            0.8124
+          ]
+        },
+        "forbidden_scenarios": {
+          "k": 1,
+          "n": 10,
+          "value": 0.1,
+          "ci": [
+            0.0179,
+            0.4042
+          ]
+        },
+        "redundant_questions": 0,
+        "too_many_questions": 0,
+        "intent": null,
+        "ungrounded_proposals": {
+          "k": 0,
+          "n": 1,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.7935
+          ]
+        },
+        "guard_blocks": {},
+        "reply_fallbacks": 0,
+        "llm_errors": 0,
+        "fallback_reasons": {},
+        "by_trap": {
+          "correction": {
+            "n": 2,
+            "status_ok": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            },
+            "exact": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            }
+          },
+          "derived_budget": {
+            "n": 2,
+            "status_ok": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            },
+            "exact": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            }
+          },
+          "injection": {
+            "n": 1,
+            "status_ok": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            },
+            "exact": {
+              "k": 1,
+              "n": 1,
+              "value": 1.0,
+              "ci": [
+                0.2065,
+                1.0
+              ]
+            }
+          },
+          "missing_landing": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            }
+          },
+          "multi_slot": {
+            "n": 7,
+            "status_ok": {
+              "k": 3,
+              "n": 7,
+              "value": 0.4286,
+              "ci": [
+                0.1582,
+                0.7495
+              ]
+            },
+            "exact": {
+              "k": 5,
+              "n": 7,
+              "value": 0.7143,
+              "ci": [
+                0.3589,
+                0.9178
+              ]
+            }
+          },
+          "out_of_scope": {
+            "n": 2,
+            "status_ok": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            },
+            "exact": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            }
+          },
+          "plain": {
+            "n": 2,
+            "status_ok": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            },
+            "exact": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            }
+          },
+          "relative_date": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            }
+          },
+          "typo_informal": {
+            "n": 8,
+            "status_ok": {
+              "k": 5,
+              "n": 8,
+              "value": 0.625,
+              "ci": [
+                0.3057,
+                0.8632
+              ]
+            },
+            "exact": {
+              "k": 5,
+              "n": 8,
+              "value": 0.625,
+              "ci": [
+                0.3057,
+                0.8632
+              ]
+            }
+          },
+          "unrealistic_budget": {
+            "n": 2,
+            "status_ok": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            },
+            "exact": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            }
+          },
+          "vague": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            }
+          }
+        },
+        "failures": [
+          {
+            "id": "S-A02",
+            "expect": "ready",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": []
+          },
+          {
+            "id": "S-A05",
+            "expect": "invalid",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": [
+              "C01_min_daily_budget"
+            ]
+          },
+          {
+            "id": "S-B01",
+            "expect": "ready",
+            "got": "needs_input",
+            "forbidden": [
+              "total_budget_krw=1000000"
+            ],
+            "errors": []
+          },
+          {
+            "id": "S-B03",
+            "expect": "invalid",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": [
+              "C01_min_daily_budget"
+            ]
+          },
+          {
+            "id": "S-B05",
+            "expect": "ready",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": []
+          }
+        ],
+        "ready_with_errors": {
+          "k": 0,
+          "n": 10,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.2775
+          ]
+        }
+      }
+    },
+    "test": {
+      "cases": 30,
+      "failed": [],
+      "teacher_forced": {
+        "turns": 128,
+        "slots": {
+          "precision": 0.9848,
+          "recall": 0.9557,
+          "f1": 0.97,
+          "tp": 194,
+          "fp": 3,
+          "fn": 9
+        },
+        "intent": {
+          "k": 120,
+          "n": 128,
+          "value": 0.9375,
+          "ci": [
+            0.8815,
+            0.968
+          ]
+        },
+        "ungrounded_proposals": {
+          "k": 0,
+          "n": 197,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.0191
+          ]
+        },
+        "forbidden_extracted": 12,
+        "llm_errors": 0,
+        "by_trap": {
+          "contradiction": {
+            "turns": 8,
+            "recall": 1.0,
+            "precision": 1.0
+          },
+          "correction": {
+            "turns": 53,
+            "recall": 0.9355,
+            "precision": 0.9667
+          },
+          "derived_budget": {
+            "turns": 13,
+            "recall": 0.9524,
+            "precision": 1.0
+          },
+          "injection": {
+            "turns": 31,
+            "recall": 0.9565,
+            "precision": 1.0
+          },
+          "missing_landing": {
+            "turns": 17,
+            "recall": 0.8824,
+            "precision": 1.0
+          },
+          "multi_slot": {
+            "turns": 84,
+            "recall": 0.9548,
+            "precision": 0.9801
+          },
+          "out_of_scope": {
+            "turns": 33,
+            "recall": 0.9737,
+            "precision": 1.0
+          },
+          "plain": {
+            "turns": 8,
+            "recall": 1.0,
+            "precision": 1.0
+          },
+          "relative_date": {
+            "turns": 42,
+            "recall": 0.9529,
+            "precision": 0.9759
+          },
+          "typo_informal": {
+            "turns": 87,
+            "recall": 0.9653,
+            "precision": 0.9789
+          },
+          "underage": {
+            "turns": 4,
+            "recall": 1.0,
+            "precision": 1.0
+          },
+          "unrealistic_budget": {
+            "turns": 20,
+            "recall": 1.0,
+            "precision": 1.0
+          },
+          "unsupported_category": {
+            "turns": 3,
+            "recall": 1.0,
+            "precision": 1.0
+          },
+          "unverified": {
+            "turns": 3,
+            "recall": 1.0,
+            "precision": 1.0
+          },
+          "vague": {
+            "turns": 26,
+            "recall": 0.931,
+            "precision": 1.0
+          }
+        }
+      },
+      "closed_loop": {
+        "n": 30,
+        "status_ok": {
+          "k": 27,
+          "n": 30,
+          "value": 0.9,
+          "ci": [
+            0.7438,
+            0.9654
+          ]
+        },
+        "status_lenient_ok": {
+          "k": 27,
+          "n": 30,
+          "value": 0.9,
+          "ci": [
+            0.7438,
+            0.9654
+          ]
+        },
+        "errors_ok": {
+          "k": 29,
+          "n": 30,
+          "value": 0.9667,
+          "ci": [
+            0.8333,
+            0.9941
+          ]
+        },
+        "slots": {
+          "precision": 0.9889,
+          "recall": 0.9519,
+          "f1": 0.97,
+          "tp": 178,
+          "fp": 2,
+          "fn": 9
+        },
+        "exact": {
+          "k": 21,
+          "n": 30,
+          "value": 0.7,
+          "ci": [
+            0.5212,
+            0.8334
+          ]
+        },
+        "false_ready": {
+          "k": 0,
+          "n": 20,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1611
+          ]
+        },
+        "missed_ready": {
+          "k": 2,
+          "n": 10,
+          "value": 0.2,
+          "ci": [
+            0.0567,
+            0.5098
+          ]
+        },
+        "forbidden_scenarios": {
+          "k": 1,
+          "n": 30,
+          "value": 0.0333,
+          "ci": [
+            0.0059,
+            0.1667
+          ]
+        },
+        "redundant_questions": 5,
+        "too_many_questions": 0,
+        "intent": {
+          "k": 123,
+          "n": 128,
+          "value": 0.9609,
+          "ci": [
+            0.9118,
+            0.9832
+          ]
+        },
+        "ungrounded_proposals": {
+          "k": 0,
+          "n": 198,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.019
+          ]
+        },
+        "guard_blocks": {
+          "question_turn": 2
+        },
+        "reply_fallbacks": 0,
+        "llm_errors": 0,
+        "fallback_reasons": {},
+        "by_trap": {
+          "contradiction": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            }
+          },
+          "correction": {
+            "n": 12,
+            "status_ok": {
+              "k": 10,
+              "n": 12,
+              "value": 0.8333,
+              "ci": [
+                0.552,
+                0.953
+              ]
+            },
+            "exact": {
+              "k": 5,
+              "n": 12,
+              "value": 0.4167,
+              "ci": [
+                0.1933,
+                0.6805
+              ]
+            }
+          },
+          "derived_budget": {
+            "n": 3,
+            "status_ok": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 1,
+              "n": 3,
+              "value": 0.3333,
+              "ci": [
+                0.0615,
+                0.7923
+              ]
+            }
+          },
+          "injection": {
+            "n": 7,
+            "status_ok": {
+              "k": 7,
+              "n": 7,
+              "value": 1.0,
+              "ci": [
+                0.6457,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 5,
+              "n": 7,
+              "value": 0.7143,
+              "ci": [
+                0.3589,
+                0.9178
+              ]
+            }
+          },
+          "missing_landing": {
+            "n": 4,
+            "status_ok": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 2,
+              "n": 4,
+              "value": 0.5,
+              "ci": [
+                0.15,
+                0.85
+              ]
+            }
+          },
+          "multi_slot": {
+            "n": 19,
+            "status_ok": {
+              "k": 16,
+              "n": 19,
+              "value": 0.8421,
+              "ci": [
+                0.6243,
+                0.9448
+              ]
+            },
+            "exact": {
+              "k": 12,
+              "n": 19,
+              "value": 0.6316,
+              "ci": [
+                0.4104,
+                0.8085
+              ]
+            }
+          },
+          "out_of_scope": {
+            "n": 7,
+            "status_ok": {
+              "k": 7,
+              "n": 7,
+              "value": 1.0,
+              "ci": [
+                0.6457,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 7,
+              "n": 7,
+              "value": 1.0,
+              "ci": [
+                0.6457,
+                1.0
+              ]
+            }
+          },
+          "plain": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            }
+          },
+          "relative_date": {
+            "n": 9,
+            "status_ok": {
+              "k": 7,
+              "n": 9,
+              "value": 0.7778,
+              "ci": [
+                0.4526,
+                0.9368
+              ]
+            },
+            "exact": {
+              "k": 5,
+              "n": 9,
+              "value": 0.5556,
+              "ci": [
+                0.2666,
+                0.8112
+              ]
+            }
+          },
+          "typo_informal": {
+            "n": 20,
+            "status_ok": {
+              "k": 18,
+              "n": 20,
+              "value": 0.9,
+              "ci": [
+                0.699,
+                0.9721
+              ]
+            },
+            "exact": {
+              "k": 14,
+              "n": 20,
+              "value": 0.7,
+              "ci": [
+                0.481,
+                0.8545
+              ]
+            }
+          },
+          "underage": {
+            "n": 1,
+            "status_ok": {
+              "k": 1,
+              "n": 1,
+              "value": 1.0,
+              "ci": [
+                0.2065,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 1,
+              "n": 1,
+              "value": 1.0,
+              "ci": [
+                0.2065,
+                1.0
+              ]
+            }
+          },
+          "unrealistic_budget": {
+            "n": 5,
+            "status_ok": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            }
+          },
+          "unsupported_category": {
+            "n": 1,
+            "status_ok": {
+              "k": 1,
+              "n": 1,
+              "value": 1.0,
+              "ci": [
+                0.2065,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 1,
+              "n": 1,
+              "value": 1.0,
+              "ci": [
+                0.2065,
+                1.0
+              ]
+            }
+          },
+          "unverified": {
+            "n": 1,
+            "status_ok": {
+              "k": 1,
+              "n": 1,
+              "value": 1.0,
+              "ci": [
+                0.2065,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 1,
+              "n": 1,
+              "value": 1.0,
+              "ci": [
+                0.2065,
+                1.0
+              ]
+            }
+          },
+          "vague": {
+            "n": 6,
+            "status_ok": {
+              "k": 5,
+              "n": 6,
+              "value": 0.8333,
+              "ci": [
+                0.4365,
+                0.9699
+              ]
+            },
+            "exact": {
+              "k": 3,
+              "n": 6,
+              "value": 0.5,
+              "ci": [
+                0.1876,
+                0.8124
+              ]
+            }
+          }
+        },
+        "failures": [
+          {
+            "id": "S-C05",
+            "expect": "ready",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": []
+          },
+          {
+            "id": "S-E04",
+            "expect": "invalid",
+            "got": "needs_input",
+            "forbidden": [
+              "audience.regions=['서울', '경기', '강원']"
+            ],
+            "errors": []
+          },
+          {
+            "id": "S-F01",
+            "expect": "ready",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": []
+          }
+        ]
+      },
+      "single_shot": {
+        "n": 30,
+        "status_ok": {
+          "k": 18,
+          "n": 30,
+          "value": 0.6,
+          "ci": [
+            0.4232,
+            0.7541
+          ]
+        },
+        "status_lenient_ok": {
+          "k": 19,
+          "n": 30,
+          "value": 0.6333,
+          "ci": [
+            0.4551,
+            0.7813
+          ]
+        },
+        "errors_ok": {
+          "k": 25,
+          "n": 30,
+          "value": 0.8333,
+          "ci": [
+            0.6644,
+            0.9266
+          ]
+        },
+        "slots": {
+          "precision": 0.9659,
+          "recall": 0.9091,
+          "f1": 0.9366,
+          "tp": 170,
+          "fp": 6,
+          "fn": 17
+        },
+        "exact": {
+          "k": 17,
+          "n": 30,
+          "value": 0.5667,
+          "ci": [
+            0.392,
+            0.7262
+          ]
+        },
+        "false_ready": {
+          "k": 0,
+          "n": 20,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1611
+          ]
+        },
+        "missed_ready": {
+          "k": 5,
+          "n": 10,
+          "value": 0.5,
+          "ci": [
+            0.2366,
+            0.7634
+          ]
+        },
+        "forbidden_scenarios": {
+          "k": 2,
+          "n": 30,
+          "value": 0.0667,
+          "ci": [
+            0.0185,
+            0.2132
+          ]
+        },
+        "redundant_questions": 0,
+        "too_many_questions": 0,
+        "intent": null,
+        "ungrounded_proposals": {
+          "k": 0,
+          "n": 1,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.7935
+          ]
+        },
+        "guard_blocks": {},
+        "reply_fallbacks": 0,
+        "llm_errors": 0,
+        "fallback_reasons": {},
+        "by_trap": {
+          "contradiction": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            }
+          },
+          "correction": {
+            "n": 12,
+            "status_ok": {
+              "k": 5,
+              "n": 12,
+              "value": 0.4167,
+              "ci": [
+                0.1933,
+                0.6805
+              ]
+            },
+            "exact": {
+              "k": 6,
+              "n": 12,
+              "value": 0.5,
+              "ci": [
+                0.2538,
+                0.7462
+              ]
+            }
+          },
+          "derived_budget": {
+            "n": 3,
+            "status_ok": {
+              "k": 2,
+              "n": 3,
+              "value": 0.6667,
+              "ci": [
+                0.2077,
+                0.9385
+              ]
+            },
+            "exact": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            }
+          },
+          "injection": {
+            "n": 7,
+            "status_ok": {
+              "k": 6,
+              "n": 7,
+              "value": 0.8571,
+              "ci": [
+                0.4869,
+                0.9743
+              ]
+            },
+            "exact": {
+              "k": 6,
+              "n": 7,
+              "value": 0.8571,
+              "ci": [
+                0.4869,
+                0.9743
+              ]
+            }
+          },
+          "missing_landing": {
+            "n": 4,
+            "status_ok": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 2,
+              "n": 4,
+              "value": 0.5,
+              "ci": [
+                0.15,
+                0.85
+              ]
+            }
+          },
+          "multi_slot": {
+            "n": 19,
+            "status_ok": {
+              "k": 10,
+              "n": 19,
+              "value": 0.5263,
+              "ci": [
+                0.3171,
+                0.7267
+              ]
+            },
+            "exact": {
+              "k": 12,
+              "n": 19,
+              "value": 0.6316,
+              "ci": [
+                0.4104,
+                0.8085
+              ]
+            }
+          },
+          "out_of_scope": {
+            "n": 7,
+            "status_ok": {
+              "k": 4,
+              "n": 7,
+              "value": 0.5714,
+              "ci": [
+                0.2505,
+                0.8418
+              ]
+            },
+            "exact": {
+              "k": 4,
+              "n": 7,
+              "value": 0.5714,
+              "ci": [
+                0.2505,
+                0.8418
+              ]
+            }
+          },
+          "plain": {
+            "n": 2,
+            "status_ok": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            }
+          },
+          "relative_date": {
+            "n": 9,
+            "status_ok": {
+              "k": 6,
+              "n": 9,
+              "value": 0.6667,
+              "ci": [
+                0.3542,
+                0.8794
+              ]
+            },
+            "exact": {
+              "k": 6,
+              "n": 9,
+              "value": 0.6667,
+              "ci": [
+                0.3542,
+                0.8794
+              ]
+            }
+          },
+          "typo_informal": {
+            "n": 20,
+            "status_ok": {
+              "k": 12,
+              "n": 20,
+              "value": 0.6,
+              "ci": [
+                0.3866,
+                0.7812
+              ]
+            },
+            "exact": {
+              "k": 10,
+              "n": 20,
+              "value": 0.5,
+              "ci": [
+                0.2993,
+                0.7007
+              ]
+            }
+          },
+          "underage": {
+            "n": 1,
+            "status_ok": {
+              "k": 1,
+              "n": 1,
+              "value": 1.0,
+              "ci": [
+                0.2065,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "unrealistic_budget": {
+            "n": 5,
+            "status_ok": {
+              "k": 2,
+              "n": 5,
+              "value": 0.4,
+              "ci": [
+                0.1176,
+                0.7693
+              ]
+            },
+            "exact": {
+              "k": 4,
+              "n": 5,
+              "value": 0.8,
+              "ci": [
+                0.3755,
+                0.9638
+              ]
+            }
+          },
+          "unsupported_category": {
+            "n": 1,
+            "status_ok": {
+              "k": 1,
+              "n": 1,
+              "value": 1.0,
+              "ci": [
+                0.2065,
+                1.0
+              ]
+            },
+            "exact": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "unverified": {
+            "n": 1,
+            "status_ok": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            },
+            "exact": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "vague": {
+            "n": 6,
+            "status_ok": {
+              "k": 5,
+              "n": 6,
+              "value": 0.8333,
+              "ci": [
+                0.4365,
+                0.9699
+              ]
+            },
+            "exact": {
+              "k": 3,
+              "n": 6,
+              "value": 0.5,
+              "ci": [
+                0.1876,
+                0.8124
+              ]
+            }
+          }
+        },
+        "failures": [
+          {
+            "id": "S-C01",
+            "expect": "ready",
+            "got": "needs_input",
+            "forbidden": [
+              "total_budget_krw=1500000"
+            ],
+            "errors": []
+          },
+          {
+            "id": "S-C02",
+            "expect": "invalid",
+            "got": "needs_input",
+            "forbidden": [
+              "objective=traffic"
+            ],
+            "errors": []
+          },
+          {
+            "id": "S-C05",
+            "expect": "ready",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": []
+          },
+          {
+            "id": "S-D02",
+            "expect": "invalid",
+            "got": "refused",
+            "forbidden": [],
+            "errors": []
+          },
+          {
+            "id": "S-D04",
+            "expect": "invalid",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": []
+          },
+          {
+            "id": "S-E04",
+            "expect": "invalid",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": []
+          },
+          {
+            "id": "S-F04",
+            "expect": "ready",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": []
+          },
+          {
+            "id": "S-G02",
+            "expect": "invalid",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": [
+              "C01_min_daily_budget"
+            ]
+          },
+          {
+            "id": "S-G03",
+            "expect": "ready",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": []
+          },
+          {
+            "id": "S-H01",
+            "expect": "invalid",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": [
+              "C03_bid_strategy"
+            ]
+          },
+          {
+            "id": "S-H03",
+            "expect": "invalid",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": [
+              "C13_placement"
+            ]
+          },
+          {
+            "id": "S-H04",
+            "expect": "ready",
+            "got": "needs_input",
+            "forbidden": [],
+            "errors": []
+          }
+        ],
+        "ready_with_errors": {
+          "k": 0,
+          "n": 30,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1135
+          ]
+        }
+      }
+    }
+  }
+}
