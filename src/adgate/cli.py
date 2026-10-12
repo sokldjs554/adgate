@@ -614,6 +614,10 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--seed", type=int, default=7)
     s.set_defaults(fn=cmd_judge_export)
 
+    from .catalog.cli import register as register_catalog
+
+    register_catalog(sub)
+
     s = sub.add_parser("serve", help="API 서버")
     s.add_argument("--host", default="127.0.0.1")
     s.add_argument("--port", type=int, default=8000)

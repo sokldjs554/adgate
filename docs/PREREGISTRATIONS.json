@@ -54,5 +54,13 @@
     "sha256": "29efb2c24b03fbc0d420f34b1d0b4f3332969b38dcc7ed57f22186e9ac07136c",
     "registered": "2026-10-12",
     "note": ""
+  },
+  {
+    "doc": "docs/EVAL_LABELING.md",
+    "start": "## 1.",
+    "end": "## 7.",
+    "sha256": "2e86fc88792b2f01330b19049947c0addf6d7e833113aae9c64416e76b8bb789",
+    "registered": "2026-10-12",
+    "note": ""
   }
 ]
