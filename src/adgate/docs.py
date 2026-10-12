@@ -457,8 +457,12 @@ def gather(root: Path) -> dict[str, Any]:
         k: _load(art / "history" / f) for k, f in (
             ("test_v0", "test_v0_first_contact.json"), ("test_v01", "test_v01_after_t048_fix.json"),
             ("redteam_v0", "redteam_first_contact.json"), ("redteam_v1", "redteam_after_fixes.json"),
+            ("gray_v0", "gray_first_contact.json"), ("gray_v1", "gray_after_fixes.json"),
         )
     }
+    # 모듈별 산출물: artifacts/*.json 과 artifacts/history/*.json 을 파일 이름(stem)으로 표식에서 읽는다 — `res.<stem>.…`, `hist.<stem>.…`
+    src["_res"] = {p.stem: _load(p) for p in sorted(art.glob("*.json")) if p.is_file()}
+    src["_hist"] = {p.stem: _load(p) for p in sorted((art / "history").glob("*.json"))} if (art / "history").exists() else {}
     return src
 
 
@@ -473,6 +477,8 @@ def lookup_sources(src: dict[str, Any]) -> dict[str, Any]:
             hist[k] = {ds: systems for ds, systems in v["results"].items()}
     tree["history"] = hist
     tree["sensitivity"] = src.get("sensitivity", {})
+    tree["res"] = src.get("_res", {})
+    tree["hist"] = src.get("_hist", {})
     if "judge" in src:
         tree["judge"] = {**src["judge"], "pooled": pooled_judge(src["judge"])}
     if "judge_live" in src:
@@ -492,12 +498,14 @@ def build(root: Path) -> dict[Path, str]:
     if "agreement" in src or "agreement_redteam" in src:
         files[root / "docs/LABELER_AGREEMENT.md"] = agreement_md(src.get("agreement"), src.get("agreement_redteam"))
     tree = lookup_sources(src)
-    for path in (
-        root / "README.md", root / "docs/DECISIONS.md", root / "docs/FAILURES.md", root / "docs/LIMITATIONS.md", root / "docs/JUDGE_REPLAY.md",
-        root / "docs/JUDGE_LIVE.md",
-    ):
-        if path.exists():
-            files[path] = fill_markers(path.read_text(encoding="utf-8"), tree)
+    # 표식이 있는 문서는 모두 채운다(통째로 생성하는 RESULTS.md·LABELER_AGREEMENT.md 는 제외).
+    candidates = [root / "README.md", *sorted((root / "docs").glob("*.md"))]
+    for path in candidates:
+        if path in files or not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        if "<!-- num:" in text:
+            files[path] = fill_markers(text, tree)
     return files
 
 

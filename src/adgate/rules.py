@@ -111,11 +111,27 @@ def _substantiated(scan: Scan, nv: Normalized, a: int, b: int) -> bool:
     return False
 
 
+def _inside_advertiser_name(scan: Scan, nv: Normalized, a: int, b: int) -> bool:
+    """매치가 광고주 상호의 *글자 구간 안*에 있고 상호가 매치보다 긴가('최고수산' 속 '최고'). 상호 밖에서 또 쓰이면 그 매치는 따로 걸린다."""
+    name = scan.creative.advertiser.name.strip()
+    s, e = nv.orig_span_from_tight(a, b)
+    if len(name) <= e - s:
+        return False
+    at = nv.original.find(name)
+    while at >= 0:
+        if at <= s and e <= at + len(name):
+            return True
+        at = nv.original.find(name, at + 1)
+    return False
+
+
 def detect_abs(scan: Scan, field: str, nv: Normalized) -> list[Finding]:
     out: list[Finding] = []
     for pat in lx.ABS:
         for m in pat.rx.finditer(nv.tight):
             if scan.cfg.exceptions and _is_range_expression(pat.name, nv.tight, m.end()):
+                continue
+            if scan.cfg.exceptions and _inside_advertiser_name(scan, nv, m.start(), m.end()):
                 continue
             ok = scan.cfg.exceptions and _substantiated(scan, nv, m.start(), m.end())
             code = "substantiated_needs_check" if ok else "unsubstantiated"
@@ -206,6 +222,8 @@ def detect_frd(scan: Scan, field: str, nv: Normalized) -> list[Finding]:
             if scan.cfg.exceptions and pat.negatable and (
                 lx.negated(nv.tight, m.end(), without=True) or lx.negated_request(nv.tight, m.end())
             ):
+                continue
+            if scan.cfg.exceptions and lx.warned_about(nv.tight, m.end()):
                 continue
             out.append(_hit(scan, "AD-FRD-01", "deceptive_solicitation", field, nv, m.start(), m.end(), note=f"pattern:{pat.name}"))
     return out
