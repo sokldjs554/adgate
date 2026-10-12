@@ -121,7 +121,12 @@ def draw_text(
     w, h = x1 - x0, y1 - y0
     iw, ih = w - 2 * pad, h - 2 * pad
     if size == "auto":
-        s, lines = fit(text, iw, ih, bold)
+        fw, fh = iw, ih
+        if rotate:  # 회전한 글자 덩어리의 바깥 사각형이 칸 안에 들어오도록 맞춤 영역을 줄인다(그렇지 않으면 모서리가 칸 밖으로 삐져나온다)
+            c, sn = abs(math.cos(math.radians(rotate))), abs(math.sin(math.radians(rotate)))
+            k = min(1.0, w / (fw * c + fh * sn), h / (fw * sn + fh * c))
+            fw, fh = fw * k, fh * k
+        s, lines = fit(text, fw, fh, bold)
     else:
         s = int(size)
         lines = wrap(text, font(s, bold), iw)
@@ -343,7 +348,7 @@ def render(spec: ImageSpec) -> Image.Image:
     return img.convert("RGB")
 
 
-RENDERER_VERSION = "vision-v1"  # 그림이 달라지는 변경(레이아웃·색·글꼴)이 있으면 올린다. 녹음의 열쇠(RenderedImage)에 들어간다
+RENDERER_VERSION = "vision-v2"  # 그림이 달라지는 변경(레이아웃·색·글꼴)이 있으면 올린다. 녹음의 열쇠(RenderedImage)에 들어간다
 
 
 def render_png_bytes(spec_json: str) -> bytes:

@@ -64,7 +64,7 @@ class RenderedImage:
     """
 
     spec: str                      # ImageSpec 의 JSON 문자열(정규화돼 있어야 열쇠가 안정적이다)
-    renderer: str = "vision-v1"
+    renderer: str = "vision-v2"
     media_type: str = "image/png"
 
 
