@@ -3,7 +3,7 @@
     "suite": "campaign",
     "variant": "sonnet",
     "model": "claude-sonnet-5-5",
-    "git_sha": "9db503a",
+    "git_sha": "b83e517",
     "dirty": false,
     "recording_sha256": "79f3101dcfe7a760ff467bb39285b2e73644bd30a445d4eeedc9f8d2f1acdca7",
     "recorded_rows": 339,
@@ -199,6 +199,7 @@
             0.0535
           ]
         },
+        "guard_blocks": {},
         "reply_fallbacks": 0,
         "llm_errors": 0,
         "fallback_reasons": {},
@@ -522,6 +523,7 @@
             0.7935
           ]
         },
+        "guard_blocks": {},
         "reply_fallbacks": 0,
         "llm_errors": 0,
         "fallback_reasons": {},
@@ -926,39 +928,39 @@
       "closed_loop": {
         "n": 30,
         "status_ok": {
-          "k": 26,
+          "k": 27,
           "n": 30,
-          "value": 0.8667,
+          "value": 0.9,
           "ci": [
-            0.7032,
-            0.9469
+            0.7438,
+            0.9654
           ]
         },
         "status_lenient_ok": {
-          "k": 26,
+          "k": 27,
           "n": 30,
-          "value": 0.8667,
+          "value": 0.9,
           "ci": [
-            0.7032,
-            0.9469
+            0.7438,
+            0.9654
           ]
         },
         "errors_ok": {
-          "k": 28,
+          "k": 29,
           "n": 30,
-          "value": 0.9333,
+          "value": 0.9667,
           "ci": [
-            0.7868,
-            0.9815
+            0.8333,
+            0.9941
           ]
         },
         "slots": {
-          "precision": 0.9834,
-          "recall": 0.9519,
-          "f1": 0.9674,
-          "tp": 178,
-          "fp": 3,
-          "fn": 9
+          "precision": 0.989,
+          "recall": 0.9572,
+          "f1": 0.9728,
+          "tp": 179,
+          "fp": 2,
+          "fn": 8
         },
         "exact": {
           "k": 21,
@@ -988,12 +990,12 @@
           ]
         },
         "forbidden_scenarios": {
-          "k": 2,
+          "k": 1,
           "n": 30,
-          "value": 0.0667,
+          "value": 0.0333,
           "ci": [
-            0.0185,
-            0.2132
+            0.0059,
+            0.1667
           ]
         },
         "redundant_questions": 5,
@@ -1015,6 +1017,9 @@
             0.0,
             0.019
           ]
+        },
+        "guard_blocks": {
+          "question_turn": 1
         },
         "reply_fallbacks": 0,
         "llm_errors": 0,
@@ -1044,12 +1049,12 @@
           "correction": {
             "n": 12,
             "status_ok": {
-              "k": 9,
+              "k": 10,
               "n": 12,
-              "value": 0.75,
+              "value": 0.8333,
               "ci": [
-                0.4677,
-                0.9111
+                0.552,
+                0.953
               ]
             },
             "exact": {
@@ -1128,12 +1133,12 @@
           "multi_slot": {
             "n": 19,
             "status_ok": {
-              "k": 15,
+              "k": 16,
               "n": 19,
-              "value": 0.7895,
+              "value": 0.8421,
               "ci": [
-                0.5667,
-                0.9149
+                0.6243,
+                0.9448
               ]
             },
             "exact": {
@@ -1212,12 +1217,12 @@
           "typo_informal": {
             "n": 20,
             "status_ok": {
-              "k": 17,
+              "k": 18,
               "n": 20,
-              "value": 0.85,
+              "value": 0.9,
               "ci": [
-                0.6396,
-                0.9476
+                0.699,
+                0.9721
               ]
             },
             "exact": {
@@ -1338,15 +1343,6 @@
         },
         "failures": [
           {
-            "id": "S-C02",
-            "expect": "invalid",
-            "got": "needs_input",
-            "forbidden": [
-              "objective=traffic"
-            ],
-            "errors": []
-          },
-          {
             "id": "S-C05",
             "expect": "ready",
             "got": "needs_input",
@@ -1456,6 +1452,7 @@
             0.7935
           ]
         },
+        "guard_blocks": {},
         "reply_fallbacks": 0,
         "llm_errors": 0,
         "fallback_reasons": {},

@@ -188,3 +188,32 @@ A1 의 금지 값 2건은 S-C02·S-E04, A2 의 2건은 S-E04·S-G04 다. 성격�
 3. **전환 이벤트 파생.** 사양의 공백(15·17)을 *사양에서* 정한다 — 목표를 말한 문구에서 이벤트가 유일하게 정해질 때 코드가 목표의 인용으로 이벤트를 `derived` 로 채우고 요약에서 확인을 받는다. 이 결정은 정답 시나리오와 프롬프트를 함께 고쳐야 하므로 **새 사전등록 + 새 독립 시나리오**로 한다.
 
 세 항목은 구현 뒤 새 시나리오(독립 작성자)에서 *수정 전·후*를 같은 녹음으로 재현해 잰다 — 이 40건에서 수정 뒤 수치만 보고 '좋아졌다'고 쓰지 않는다.
+
+## 11. 결과 (3): 상태 전이 가드를 넣은 뒤 — 수정 후, holdout 아님 (`artifacts/history/campaign_*_after_guard*.json`)
+
+10.5 의 1·2(제한 업종 하향 금지, 질문 턴의 값 보류)를 구현했다([F-30](FAILURES.md) 후속, [D-19](DECISIONS.md)). 3(전환 이벤트 파생)은 정답 시나리오와 프롬프트를 함께 고쳐야 하므로 새 사전등록이 필요해 하지 않았다.
+녹음은 그대로 두고 고친 코드로 다시 재생했다(`adgate llm replay campaign`, 깨끗한 작업트리). 열쇠가 입력의 해시이므로 가드가 상태를 바꾸면 그 뒤 호출의 입력이 달라져 재생할 수 없을 수 있는데, 이번에는 두 모델 모두 40건이 전부 재생됐다.
+
+**이 표는 holdout 이 아니다.** 고친 두 시나리오(S-G04 · S-C02)는 첫 접촉에서 실패한 것을 보고 가드를 설계한 바로 그 소재다. 첫 접촉 수치는 `artifacts/history/campaign_*_first_contact*` 에 그대로 있다.
+
+| 지표 (test 30건, 닫힌 고리) | haiku 첫 접촉 → 가드 뒤 | sonnet 첫 접촉 → 가드 뒤 |
+|---|---|---|
+| 상태 정확(status_ok) | <!-- num:hist.campaign_haiku_first_contact.results.test.closed_loop.status_ok|rpct1 -->86.7% (26/30)<!-- /num --> → <!-- num:hist.campaign_haiku_after_guards.results.test.closed_loop.status_ok|rpct1 -->90.0% (27/30)<!-- /num --> | <!-- num:hist.campaign_sonnet_first_contact.results.test.closed_loop.status_ok|rpct1 -->86.7% (26/30)<!-- /num --> → <!-- num:hist.campaign_sonnet_after_guards.results.test.closed_loop.status_ok|rpct1 -->90.0% (27/30)<!-- /num --> |
+| 검증기 오류 정확(errors_ok) | <!-- num:hist.campaign_haiku_first_contact.results.test.closed_loop.errors_ok|rpct1 -->93.3% (28/30)<!-- /num --> → <!-- num:hist.campaign_haiku_after_guards.results.test.closed_loop.errors_ok|rpct1 -->96.7% (29/30)<!-- /num --> | <!-- num:hist.campaign_sonnet_first_contact.results.test.closed_loop.errors_ok|rpct1 -->93.3% (28/30)<!-- /num --> → <!-- num:hist.campaign_sonnet_after_guards.results.test.closed_loop.errors_ok|rpct1 -->96.7% (29/30)<!-- /num --> |
+| 사양 완전 일치(exact) | <!-- num:hist.campaign_haiku_first_contact.results.test.closed_loop.exact|rpct1 -->60.0% (18/30)<!-- /num --> → <!-- num:hist.campaign_haiku_after_guards.results.test.closed_loop.exact|rpct1 -->63.3% (19/30)<!-- /num --> | <!-- num:hist.campaign_sonnet_first_contact.results.test.closed_loop.exact|rpct1 -->70.0% (21/30)<!-- /num --> → <!-- num:hist.campaign_sonnet_after_guards.results.test.closed_loop.exact|rpct1 -->70.0% (21/30)<!-- /num --> |
+| 금지 값이 들어간 시나리오 | <!-- num:hist.campaign_haiku_first_contact.results.test.closed_loop.forbidden_scenarios|rpct1 -->6.7% (2/30)<!-- /num --> → <!-- num:hist.campaign_haiku_after_guards.results.test.closed_loop.forbidden_scenarios|rpct1 -->3.3% (1/30)<!-- /num --> | <!-- num:hist.campaign_sonnet_first_contact.results.test.closed_loop.forbidden_scenarios|rpct1 -->6.7% (2/30)<!-- /num --> → <!-- num:hist.campaign_sonnet_after_guards.results.test.closed_loop.forbidden_scenarios|rpct1 -->3.3% (1/30)<!-- /num --> |
+| 슬롯 재현율 | <!-- num:hist.campaign_haiku_first_contact.results.test.closed_loop.slots.recall|f3 -->0.936<!-- /num --> → <!-- num:hist.campaign_haiku_after_guards.results.test.closed_loop.slots.recall|f3 -->0.941<!-- /num --> | <!-- num:hist.campaign_sonnet_first_contact.results.test.closed_loop.slots.recall|f3 -->0.952<!-- /num --> → <!-- num:hist.campaign_sonnet_after_guards.results.test.closed_loop.slots.recall|f3 -->0.957<!-- /num --> |
+| 슬롯 정밀도 | <!-- num:hist.campaign_haiku_first_contact.results.test.closed_loop.slots.precision|f3 -->0.983<!-- /num --> → <!-- num:hist.campaign_haiku_after_guards.results.test.closed_loop.slots.precision|f3 -->0.989<!-- /num --> | <!-- num:hist.campaign_sonnet_first_contact.results.test.closed_loop.slots.precision|f3 -->0.983<!-- /num --> → <!-- num:hist.campaign_sonnet_after_guards.results.test.closed_loop.slots.precision|f3 -->0.989<!-- /num --> |
+
+(사양 완전 일치(exact)는 sonnet 에서 달라지지 않았다 — S-C02 는 사양의 공백(`conversion_event`)이 그대로라 완전 일치는 아니다.)
+
+- **고쳐진 것**: haiku 는 S-G04 — 제한 업종(성인)을 ‘생활용품 쇼핑몰’로 *내려 등록*하자는 요청을 코드가 막아(가드 차단 <!-- num:hist.campaign_haiku_after_guards.results.test.closed_loop.guard_blocks.restricted_category_downgrade|int -->1<!-- /num -->건) 상태가 refused 에 머물고, 답변이 ‘담당자 검토를 요청하라’고 알린다.
+  sonnet 은 S-C02 — ‘홈페이지 방문 늘리는걸로 하면 만원도 되나여?’ 의 가정이 목표를 바꾸지 못한다(가드 차단 <!-- num:hist.campaign_sonnet_after_guards.results.test.closed_loop.guard_blocks.question_turn|int -->1<!-- /num -->건). 금지 값 시나리오가 둘 다 2 → 1 로 줄었다. 오프라인 휴리스틱 팔(B1)도 같은 두 가드가 한 번씩 작동했다(<!-- num:hist.campaign_offline_after_guards.results.B1_heuristic.test.closed_loop.guard_blocks.question_turn|int -->1<!-- /num -->·<!-- num:hist.campaign_offline_after_guards.results.B1_heuristic.test.closed_loop.guard_blocks.restricted_category_downgrade|int -->1<!-- /num -->).
+  정답 추출을 그대로 주는 오라클 팔은 가드가 한 번도 작동하지 않아 수치가 같다(정답 작성자도 질문 턴에 값을 넣지 않았다).
+- **내 수정이 만든 회귀를 재생이 잡았다**: 1차 가드는 질문 턴의 값을 *모두* 버렸다. 그러자 sonnet 의 S-H05(‘알아서 적당히 잡아주시면 안돼요? … 목표 CPA는 1만2천원으로 잡을 거구요’ — 위임을 묻고 같은 발화에서 목표 CPA 를 정한다)에서 정상 값 `target_cpa_krw=12000` 이 빠졌다
+  (`artifacts/history/campaign_sonnet_after_guard1_analysis.json`). S-C02 의 이득이 슬롯 합계에서 이 손실을 가려 합계만 봤다면 못 봤을 회귀다 — 시나리오 단위 비교(`closed_failures`)에서 보였다. 또 haiku 의 S-D05 는 가드가 뒤 호출의 입력을 바꿔 재생할 수 없게 됐다.
+  질문 턴의 값을 *물음·가정 문장*의 값으로 좁혀서(문장 단위, D-19) 두 문제가 모두 사라졌다. 1차 수치는 지우지 않았다(`*_after_guard1*`; 회색지대의 fix1·fixes 와 같은 방식).
+- **회귀 없음**: 시나리오 단위로 가드 뒤에 새로 실패한 시나리오는 없고(haiku · sonnet 모두 ‘가드 뒤에만 실패’ 목록이 비어 있다), 바뀐 것은 S-G04(haiku)와 S-C02(sonnet)뿐이다.
+- **고치지 않은 것**: ① **S-E04 — 모순을 조용히 정리하는 모델**(둘 다): ‘전국으로 해주시고 서울 경기 강원도는 꼭’ 에서 모델이 `전국` 을 지우고 지역 목록만 내서 검증기의 C07 오류가 사라진다. 코드가 볼 수 있는 구조(모델 출력이 한 발화의 두 인용을 합쳐 버린 것)가 아니라 모델의 *판단*이라 가드로 못 막는다 — 추출 지시를 바꾸는 새 사전등록 감이다.
+  ② **`conversion_event` 사양 공백**(10.5-3). ③ 답변 다듬기(`campaign_reply`): S-C02 의 계획에 ‘아직 넣지 않았다’ 알림이 붙어 그 한 건의 입력이 달라졌다 — 12건 중 11건만 재생된다(<!-- num:hist.campaign_reply_sonnet_after_guards.meta.misses|int -->1<!-- /num -->건 녹음 없음). 새 호출(약 $0.02)이 필요해 승인 대기 중이다.
+- **이 수정이 보이지 않는 것**: 가드가 *새 시나리오*에서 정상 대화를 얼마나 막는지는 모른다. 질문 턴의 문장 판별은 물음 어미·조건 연결어미 목록이라 새 말투에서 틀릴 수 있다(예: 결정과 물음을 한 문장에 이어 쓰면 값을 버리고 광고주에게 알린다 — 보수적 방향). 새 독립 시나리오로 가드 전·후를 같은 녹음으로 재현해 재야 한다.
