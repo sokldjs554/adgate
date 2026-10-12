@@ -4,8 +4,8 @@
     "source": "data/llm/<suite>/<variant>.calls.jsonl"
   },
   "total": {
-    "calls": 1523,
-    "usd": 5.680329
+    "calls": 1624,
+    "usd": 5.941767
   },
   "suites": {
     "campaign": {
@@ -43,6 +43,26 @@
           "p50": 1487,
           "p95": 5012,
           "max": 11860
+        }
+      }
+    },
+    "campaign_reply": {
+      "sonnet": {
+        "model": "claude-sonnet-5-5",
+        "calls": 101,
+        "ok": 101,
+        "failed": 0,
+        "cases": 12,
+        "input_tokens": 35640,
+        "output_tokens": 14327,
+        "cache_write_tokens": 0,
+        "cache_read_tokens": 234442,
+        "usd": 0.261438,
+        "usd_per_call": 0.002588,
+        "latency_ms": {
+          "p50": 1681,
+          "p95": 2959,
+          "max": 6820
         }
       }
     },
