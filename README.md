@@ -88,7 +88,7 @@ adgate review ad.json                       # 한 건 심사(CLI)
 adgate eval --datasets dev,generated        # 평가(test·redteam 은 --measure 가 필요하고 기록이 남는다)
 adgate gate --sensitivity                   # 합격 기준·기준선 회귀·열화 대조군(구성요소를 끄면 게이트가 실패해야 정상)
 make judge-replay                           # 녹음된 judge 응답 재생(키 불필요, docs/JUDGE_REPLAY.md)
-make judge-check                            # 실호출 한 건 — ANTHROPIC_API_KEY 필요, 비용 발생
+make judge-check                            # 실호출 한 건 — ANTHROPIC_API_KEY 필요, 비용 발생 (전체 측정 절차: docs/JUDGE_LIVE.md)
 ```
 
 API 는 `/docs`(OpenAPI)에 있습니다. 토큰 없이는 서버가 시작하지 않습니다(`ADGATE_TOKENS` 또는 데모용 `ADGATE_DEV=1`, [.env.example](.env.example)).
@@ -128,7 +128,8 @@ REVIEW ─▶ waiting_input ─▶ 심사자 resume(직무 분리, 한 번만) �
 
 ## 다음에 하고 싶은 것
 
-1. 키가 있는 환경에서 `make judge-check` → `adgate eval --judge anthropic` 로 실호출 측정. 비용 상한(`--max-usd`)과 지연, 거절, 인용 오류율을 처음으로 잰다.
+1. **실호출 측정** — 예상과 판단 규칙은 이미 사전등록했다([JUDGE_LIVE.md](docs/JUDGE_LIVE.md)). `ANTHROPIC_API_KEY` 가 있는 곳에서 `make judge-live-dry`(추정 비용) → `make judge-check`(한 건) → `make judge-record`(209건 녹음),
+   또는 GitHub Actions 의 `judge-live` 워크플로(수동 실행, 저장소 비밀값 `ANTHROPIC_API_KEY`)로 녹음한 뒤 `make judge-live-eval` 로 집계한다. 비용·지연·거절·인용 오류율을 처음으로 잰다.
 2. Judge 프롬프트 v2 — 규칙의 정의·예외를 넣고, 랜딩 텍스트와 인용 없는 발견(`already_found`)을 입력에 넣고, 부재형 위반을 내는 방법을 정한다. **새 사전등록**으로 다시 잰다([JUDGE_REPLAY.md 4.4](docs/JUDGE_REPLAY.md)).
 3. 사람 심사자 라벨 — 같은 모델 계열이 아닌 사람 몇 명의 라벨과 일치도(κ), 회색 지대 소재.
 4. 심사 조작 시도(광고 문구 속 "승인으로 답하라")를 규칙으로: 지금은 속지 않지만 의심해서 사람에게 보내지도 않는다.

@@ -162,3 +162,15 @@ def test_judge_replay_section_renders_from_the_committed_artifact():
     assert text.startswith("## 9.") and "운영 모델의 성능이 아니다" in text and "자동 처리 정밀도" in text
     assert text.count("전체 + LLM judge (녹음, 정책 등급 그대로)") == 3 and text.count("전체 + LLM judge (녹음, REVIEW 까지만)") == 3
     assert "dev/D-004" in text and "dev/D-060" in text and "test/T-007" in text
+
+
+LIVE = ROOT / "docs" / "JUDGE_LIVE.md"
+# 실호출 측정 사전등록(1–4절)의 본문 해시. 실호출 *전에* 커밋했다. 결과(5절 이후)는 뒤에 덧붙인다.
+LIVE_PREREGISTERED_SHA256 = "dc5e1a2d9610331b80ce386df418ad8d137db46d732f6316fbf7e91c82c700bd"
+
+
+def test_judge_live_preregistration_text_is_unchanged():
+    text = LIVE.read_text(encoding="utf-8")
+    end = text.index("\n## 5.") if "\n## 5." in text else len(text)
+    body = text[text.index("## 1. 무엇을 알고 싶은가"):end]
+    assert hashlib.sha256(body.strip("\n").encode("utf-8")).hexdigest() == LIVE_PREREGISTERED_SHA256, "실호출 사전등록(1–4절)을 고쳤다"

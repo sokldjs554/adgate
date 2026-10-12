@@ -1,4 +1,4 @@
-.PHONY: install test lint type check eval gate sensitivity demo docs judge-replay judge-export judge-check eval-llm e2e clean
+.PHONY: install test lint type check eval gate sensitivity demo docs judge-replay judge-export judge-live-dry judge-check judge-record judge-live-eval eval-llm e2e clean
 
 PY ?= python
 VENV ?= .venv
@@ -46,6 +46,21 @@ judge-replay:
 # 모델에게 보낼 프롬프트 조각을 내보낸다(새로 녹음하려면). 탐지기가 바뀌었으면 data/judge_replay/ 의 녹음은 낡았다.
 judge-export:
 	adgate judge-export --datasets dev,test,redteam --out-dir var/judge_prompts --shards 9
+
+# --- 실호출 측정(사전등록: docs/JUDGE_LIVE.md). 아래는 ANTHROPIC_API_KEY 가 필요하고 judge-live-dry 만 빼고 비용이 든다.
+# 순서: judge-live-dry(추정 비용) → judge-check(한 건) → judge-record(209건 녹음) → 녹음을 커밋 → 깨끗한 작업트리에서 judge-live-eval 한 번.
+judge-live-dry:
+	adgate judge-record --dry-run
+
+judge-record:
+	adgate judge-record --max-usd 12
+
+# 녹음을 재생·집계하고 대역과 견준다(키 불필요). test·redteam 이 들어 있어 측정 기록이 남으므로 사전등록대로 한 번만 돌린다.
+judge-live-eval:
+	adgate eval --datasets dev,test,redteam --measure --judge recorded --judge-file data/judge_live/recording.jsonl \
+	  --out artifacts/results_judge_live.json --errors-out artifacts/results_judge_live_errors.json \
+	  --note "judge 실호출 녹음 재생(사전등록 docs/JUDGE_LIVE.md)"
+	adgate judge-compare --out artifacts/judge_compare.json
 
 # 아래 둘은 ANTHROPIC_API_KEY(또는 ant auth login)가 필요하고 비용이 든다
 judge-check:
