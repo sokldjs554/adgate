@@ -1,5 +1,7 @@
 # adgate
 
+[![ci](https://github.com/sokldjs554/adgate/actions/workflows/ci.yml/badge.svg)](https://github.com/sokldjs554/adgate/actions/workflows/ci.yml)
+
 **광고 소재 심사 파이프라인 — 원문 인용이 붙은 반려 사유, 결정론적 판정, 수정안 재심사, 사전등록 평가**
 
 > 모든 광고는 **합성**이고 정책은 **가상**입니다(실제 업체·심사 기준·법령과 무관). 공개된 'AI 광고 심사 자동화' 직무 설명을 읽고 만든 개인 프로젝트이며 어느 회사의 구현도 아닙니다.
@@ -118,11 +120,11 @@ REVIEW ─▶ waiting_input ─▶ 심사자 resume(직무 분리, 한 번만) �
 ## 검증한 것과 못 한 것
 
 **확인함**: 단위·속성 기반·API·평가 하니스·수정안·Judge 계약 테스트, 정규식 증가율 테스트(입력 4배 → 시간), 우회 행렬(위반 문구 16종 × 우회 연산자 16종), 독립 리뷰 재현 사례 72개,
-실제 Chromium e2e(콘솔 8개), 비편집 설치와 토큰 없는 시작 거부, 동시 `resume`·동시 멱등 제출의 경쟁. 문서의 수치는 산출물과 같은지 `adgate docs --check` 가 검사하고, 사전등록 본문의 해시도 테스트가 고정합니다.
+실제 Chromium e2e(콘솔 8개), 비편집 설치와 토큰 없는 시작 거부, 동시 `resume`·동시 멱등 제출의 경쟁.
+**GitHub Actions 에서도 통과합니다**: 파이썬 3.11–3.13 의 ruff · mypy · pytest · 게이트 · 열화 대조군 · 문서 검사, Docker 이미지 빌드·기동·헬스체크·토큰 없는 시작 거부, 브라우저 e2e. 처음 올린 CI 는 3.11 에서 2차 시간 결함을 잡았습니다([F-21](docs/FAILURES.md)). 문서의 수치는 산출물과 같은지 `adgate docs --check` 가 검사하고, 사전등록 본문의 해시도 테스트가 고정합니다.
 
 **못 함**(자세히는 [LIMITATIONS.md](docs/LIMITATIONS.md)):
 - LLM judge 의 **실제 호출·정확도·비용·지연**(키가 없었다). 녹음 재생은 대리 측정일 뿐입니다.
-- Docker 이미지 빌드(데몬이 없었다)와 GitHub Actions 실행(저장소가 올라간 뒤에야 알 수 있다). 같은 명령은 로컬에서 돌려 통과를 확인했습니다.
 - 실제 광고 데이터, 실제 심사자와의 일치도, 이미지 이해, 부하 시험, 요청 단위 CPU 예산(정규식 하나가 GIL 을 쥐면 서버가 선다).
 - 모든 데이터·정답·라벨러가 설계자와 **같은 모델 계열**입니다. 독립 라벨러와의 일치도(`test` <!-- num:agreement.decision_agreement|rpct1 -->98.7% (76/77)<!-- /num -->, `redteam` <!-- num:agreement_redteam.decision_agreement|rpct1 -->100.0% (72/72)<!-- /num -->)는 정책이 명확하다는 증거일 수도, 같은 방식으로 읽는다는 증거일 수도 있습니다.
 
