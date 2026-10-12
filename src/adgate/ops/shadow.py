@@ -7,7 +7,11 @@
 게이트 규칙(측정 전에 정했다, docs/EVAL_OPS.md):
 * 판정이 달라진 소재가 0건이면 통과(동일 후보).
 * 달라진 비율이 ``max_disagreement`` 를 넘으면 스팟체크 없이 막는다(너무 많이 바뀌면 사람이 확인할 수 없다).
-* 스팟체크에서 ``cand_wrong - prod_wrong > tolerance`` 이면 막는다. 아니면 통과.
+* 스팟체크에서 ``cand_cost - prod_cost > tolerance`` 이면 막는다. 아니면 통과.
+
+**손실(loss)**: ``exact`` 는 정답과 다르면 1(방향을 보지 않는다 — 사전등록한 첫 접촉이 쓴 것). ``safety`` 는 안전 방향으로 비대칭이다:
+위험 소재를 승인하면 정답 REJECT 3 · REVIEW 2, 정상 소재를 반려하면 2, 정상 소재를 보류하면 1, 반려↔보류 혼동은 1. 첫 접촉에서 ``exact`` 손실이 위험 소재를 REVIEW 에서 APPROVE 로
+바꾸는 후보(둘 다 정답 REJECT 와 다르다)를 '똑같이 틀림'으로 보고 통과시켰다(docs/FAILURES.md F-24). 기본값을 ``safety`` 로 바꿨다.
 """
 
 from __future__ import annotations
@@ -65,12 +69,24 @@ def compare(stream: Sequence[Example], prod: Engine, cand: Engine) -> ShadowRepo
     return ShadowReport(len(stream), len(ids), dict(sorted(trans.items())), safer, looser, ids)
 
 
+COST = {
+    ("REJECT", "APPROVE"): 3, ("REVIEW", "APPROVE"): 2, ("APPROVE", "REJECT"): 2, ("APPROVE", "REVIEW"): 1, ("REJECT", "REVIEW"): 1, ("REVIEW", "REJECT"): 1,
+}
+
+
+def cost(gold: str, pred: str, loss: str) -> int:
+    if gold == pred:
+        return 0
+    return 1 if loss == "exact" else COST[(gold, pred)]
+
+
 @dataclass(frozen=True)
 class GateRule:
     max_disagreement: float = 0.10
     spot_n: int = 40
     tolerance: int = 0
     reviewer_error: float = 0.0
+    loss: str = "safety"        # "exact" | "safety"
 
 
 @dataclass
@@ -90,26 +106,29 @@ def promote_gate(stream: Sequence[Example], prod: Engine, cand: Engine, rule: Ga
     rng = random.Random(seed)
     by_id = {e.id: e for e in stream}
     pick = rng.sample(rep.ids, min(rule.spot_n, len(rep.ids)))
-    prod_wrong = cand_wrong = 0
+    prod_wrong = cand_wrong = prod_cost = cand_cost = 0
     for i in pick:
         e = by_id[i]
         truth: str = e.gold.decision
         if rng.random() < rule.reviewer_error:                 # 검토자가 틀릴 수 있다: 정답이 아닌 판정을 정답으로 본다
             truth = rng.choice([o for o in _RANK if o != truth])
-        prod_wrong += prod(e) != truth
-        cand_wrong += cand(e) != truth
-    spot = {"checked": len(pick), "prod_wrong": prod_wrong, "cand_wrong": cand_wrong}
-    if cand_wrong - prod_wrong > rule.tolerance:
-        return GateDecision(False, f"스팟체크에서 후보가 {cand_wrong - prod_wrong}건 더 틀렸다", rep, spot)
+        pa, ca = prod(e), cand(e)
+        prod_wrong += pa != truth
+        cand_wrong += ca != truth
+        prod_cost += cost(truth, pa, rule.loss)
+        cand_cost += cost(truth, ca, rule.loss)
+    spot = {"checked": len(pick), "prod_wrong": prod_wrong, "cand_wrong": cand_wrong, "prod_cost": prod_cost, "cand_cost": cand_cost}
+    if cand_cost - prod_cost > rule.tolerance:
+        return GateDecision(False, f"스팟체크에서 후보의 손실이 {cand_cost - prod_cost} 더 크다({rule.loss})", rep, spot)
     return GateDecision(True, "스팟체크 통과", rep, spot)
 
 
 # --- 평가 ---------------------------------------------------------------------------------------------------------------------------
 
 
-def _truth_gap(stream: Sequence[Example], prod: Engine, cand: Engine) -> int:
-    """정답 기준으로 후보가 운영보다 몇 건 더 틀렸는가(음수면 더 맞는다). 게이트 판단의 기준(oracle)이다."""
-    return sum(cand(e) != e.gold.decision for e in stream) - sum(prod(e) != e.gold.decision for e in stream)
+def _truth_gap(stream: Sequence[Example], prod: Engine, cand: Engine, loss: str = "exact") -> int:
+    """정답 기준으로 후보가 운영보다 손실이 얼마나 더 큰가(음수면 더 낫다). 게이트 판단의 기준(oracle)이다. 같은 손실을 쓴다."""
+    return sum(cost(e.gold.decision, cand(e), loss) for e in stream) - sum(cost(e.gold.decision, prod(e), loss) for e in stream)
 
 
 def candidates() -> dict[str, ReviewConfig]:
@@ -144,7 +163,7 @@ def evaluate_shadow(pool: Sequence[Example], *, reps: int = 20, sample: int = 15
             d = promote_gate(stream, p, c, rule, seed=r)
             allowed += d.allow
             blocked += not d.allow
-            gap = _truth_gap(stream, p, c)
+            gap = _truth_gap(stream, p, c, rule.loss)
             should_allow = gap <= rule.tolerance
             right += d.allow == should_allow
             flips.append(d.report.disagree)
@@ -152,4 +171,4 @@ def evaluate_shadow(pool: Sequence[Example], *, reps: int = 20, sample: int = 15
             "candidate": name, "kind": kind, "streams": reps, "allowed": allowed, "blocked": blocked, "right": right,
             "disagree_mean": round(sum(flips) / len(flips), 2),
         })
-    return {"sample": sample, "reps": reps, "rule": {"max_disagreement": rule.max_disagreement, "spot_n": rule.spot_n, "tolerance": rule.tolerance}, "rows": rows}
+    return {"sample": sample, "reps": reps, "rule": {"max_disagreement": rule.max_disagreement, "spot_n": rule.spot_n, "tolerance": rule.tolerance, "loss": rule.loss}, "rows": rows}

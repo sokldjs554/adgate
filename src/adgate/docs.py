@@ -31,6 +31,8 @@ def lookup(sources: dict[str, Any], path: str) -> Any:
     for part in path.split("."):
         if isinstance(cur, dict) and part in cur:
             cur = cur[part]
+        elif isinstance(cur, list) and part.isdigit() and int(part) < len(cur):
+            cur = cur[int(part)]
         else:
             raise KeyError(f"{path}: '{part}' 없음")
     return cur

@@ -42,3 +42,16 @@ def ops() -> Suite:
 @register("ops_load")
 def ops_load() -> Suite:
     return _suite("ops_load", "운영 리허설(벽시계): 부하 · 소음 이웃 · judge 장애 격리 — 이 기계의 수치", lambda: rehearse_all(pool()))
+
+
+@register("ops_summary")
+def ops_summary() -> Suite:
+    from .summary import summarize
+
+    return _suite("ops_summary", "운영 리허설 요약: 보존된 첫 접촉 산출물을 문서용으로 정리(새로 재지 않는다)", summarize)
+
+
+@register("ops_shadow_safety")
+def ops_shadow_safety() -> Suite:
+    """수정 후(holdout 아님): 섀도 게이트의 손실을 안전 방향으로 비대칭인 ``safety`` 로 바꾼 뒤 같은 후보·같은 스트림으로 다시 잰다(docs/FAILURES.md F-24)."""
+    return _suite("ops_shadow_safety", "섀도 게이트: 안전 방향 손실로 수정한 뒤(holdout 아님)", lambda: evaluate_shadow(pool()))

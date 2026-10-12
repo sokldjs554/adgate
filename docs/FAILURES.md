@@ -224,3 +224,14 @@
   주입 방어에 새 노출은 없다: 랜딩 글은 LLM 이 아니라 결정론 규칙 엔진만 읽는다. 이미지 속 위반 주장은 이제 랜딩 위반(사람 검토)으로 잡힌다 — 의도한 변화다.
 - **흔적**: 대출·투자 조각 작성자는 같은 문제를 피하려고 이미지 전용 사실에서 수치를 뺐다고 보고했다. 이 흠이 정답 셋의 *구성*(이미지 전용 사실에 수치가 드묾)에 남았다 — [data/product/README.md](../data/product/README.md).
 - **교훈**: 모델 없는 팔로 측정 전에 점검한 것이 설계 흠을 잡았다. ‘이미지를 읽는다’는 기능은 읽은 내용을 검증 경로에도 넣어야 의미가 있다.
+
+## 14. 운영 리허설
+
+### F-24. 섀도 승격 게이트가 '더 위험한 후보'를 20 스트림 모두 통과시켰다 — 손실이 안전 방향을 못 봤다
+- **무슨 일**: [EVAL_OPS.md](EVAL_OPS.md) O7 은 구성요소를 하나씩 끈 후보 4종을 게이트가 각각 18/20 이상 막을 것이라고 예상했다. 셋은 막았고 **도전자(`challenge`)를 끈 후보는 <!-- num:res.ops_summary.results.shadow.no_challenge.allowed|rpct1 -->100.0% (20/20)<!-- /num --> 통과했다**(사전등록 6절 R2 발동: 게이트 결함).
+- **원인**: 그 후보는 풀 전체 <!-- num:res.ops_summary.results.shadow_flips.pool|int -->329<!-- /num -->건 중 <!-- num:res.ops_summary.results.shadow_flips.flips|int -->6<!-- /num -->건의 판정만 바꾼다. 모두 정답이 REJECT 인 소재를 REVIEW(사람이 본다)에서 APPROVE(통과)로 바꾸는 것이다(<!-- num:res.ops_summary.results.shadow_flips.unsafe_approvals_added|int -->6<!-- /num -->건의 위험 승인 추가).
+  스팟체크는 '정답과 다르면 1'로 셌다. 운영도 후보도 이 6건에서 정답(REJECT)과 다르다(<!-- num:res.ops_summary.results.shadow_flips.exact_prod_wrong|int -->6<!-- /num -->건 대 <!-- num:res.ops_summary.results.shadow_flips.exact_cand_wrong|int -->6<!-- /num -->건) → '똑같이 틀림' → 통과. 정확도 손실은 *어느 방향으로 틀렸는가*를 보지 않는다.
+- **조치**: 손실을 안전 방향으로 비대칭인 `safety` 로 바꿨다([D-15](DECISIONS.md)). 같은 후보·같은 스트림으로 다시 재면(수정 후, holdout 아님) 이 후보는 <!-- num:hist.ops_shadow_after_safety_loss.results.rows.3.blocked|int -->20<!-- /num -->/<!-- num:hist.ops_shadow_after_safety_loss.results.rows.3.streams|int -->20<!-- /num --> 막힌다. 안전 손실로 본 같은 6건의 손실은 운영 <!-- num:res.ops_summary.results.shadow_flips.safety_cost_prod|int -->6<!-- /num --> 대 후보 <!-- num:res.ops_summary.results.shadow_flips.safety_cost_cand|int -->18<!-- /num --> 이다.
+  정확도 손실로 첫 접촉을 재현하는 시험(`test_exact_loss_reproduces_the_preserved_first_contact_rows`)이 보존된 산출물과 같음을 지킨다.
+- **두 번째 발견(고치지 않았다)**: 개선 후보 `fix_no_exceptions`(예외를 끈 운영을 기본 엔진으로 바꾸는 쪽)는 판정이 크게 달라져(150건 중 평균 <!-- num:res.ops_summary.results.shadow.fix_no_exceptions.disagree_mean|f2 -->26.70<!-- /num -->건) 크기 제한(10%)에 걸려 <!-- num:res.ops_summary.results.shadow.fix_no_exceptions.blocked|rpct1 -->100.0% (20/20)<!-- /num --> 막혔다. 안전 쪽 실패는 아니라서(사전등록 R2) 설계 한계로 적는다: 큰 개선은 사람이 확인할 수 없어 단계적 승격(카나리)이 필요하다.
+- **교훈**: ① 비교 손실을 정할 때 오류의 *방향*을 정해야 한다 — 정확도는 안전을 재지 못한다. ② 이 결함은 사전등록한 '열화 후보를 막는가' 시험이 있었기 때문에 잡혔다. 게이트가 같은 후보를 통과시키는지만 봤다면 못 봤다.

@@ -1,0 +1,233 @@
+{
+  "meta": {
+    "suite": "ops_load",
+    "git": "3067eac",
+    "dirty": true,
+    "prereg": "docs/EVAL_OPS.md"
+  },
+  "results": {
+    "machine": {
+      "cpus": 4,
+      "python": "3.13.16",
+      "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+      "note": "서버·클라이언트가 한 프로세스(루프백). 이 기계의 수치다."
+    },
+    "load": {
+      "1": {
+        "requests": 600,
+        "seconds": 5.374,
+        "throughput_rps": 111.6,
+        "p50_ms": 8.21,
+        "p95_ms": 13.93,
+        "p99_ms": 19.55,
+        "mean_ms": 8.85,
+        "status": {
+          "201": 600
+        },
+        "conn_errors": 0,
+        "available": 1.0,
+        "rate_limited": 0
+      },
+      "8": {
+        "requests": 600,
+        "seconds": 6.762,
+        "throughput_rps": 88.7,
+        "p50_ms": 63.98,
+        "p95_ms": 200.44,
+        "p99_ms": 273.44,
+        "mean_ms": 84.33,
+        "status": {
+          "201": 600
+        },
+        "conn_errors": 0,
+        "available": 1.0,
+        "rate_limited": 0
+      },
+      "32": {
+        "requests": 600,
+        "seconds": 8.058,
+        "throughput_rps": 74.5,
+        "p50_ms": 266.18,
+        "p95_ms": 788.23,
+        "p99_ms": 1114.48,
+        "mean_ms": 329.69,
+        "status": {
+          "201": 600
+        },
+        "conn_errors": 0,
+        "available": 1.0,
+        "rate_limited": 0
+      },
+      "128": {
+        "requests": 1280,
+        "seconds": 22.854,
+        "throughput_rps": 56.0,
+        "p50_ms": 1358.15,
+        "p95_ms": 2253.92,
+        "p99_ms": 2739.41,
+        "mean_ms": 1456.22,
+        "status": {
+          "201": 1280
+        },
+        "conn_errors": 0,
+        "available": 1.0,
+        "rate_limited": 0
+      }
+    },
+    "slo": {
+      "1": {
+        "p95": true,
+        "p99": true,
+        "availability": true
+      },
+      "8": {
+        "p95": true,
+        "p99": true,
+        "availability": true
+      },
+      "32": {
+        "p95": false,
+        "p99": false,
+        "availability": true
+      },
+      "128": {
+        "p95": false,
+        "p99": false,
+        "availability": true
+      }
+    },
+    "slo_targets": {
+      "p95_ms": 250.0,
+      "p99_ms": 1000.0,
+      "availability": 0.999
+    },
+    "neighbor": {
+      "steady_alone": {
+        "requests": 100,
+        "seconds": 5.215,
+        "throughput_rps": 19.2,
+        "p50_ms": 8.84,
+        "p95_ms": 15.73,
+        "p99_ms": 19.45,
+        "mean_ms": 11.25,
+        "status": {
+          "201": 100
+        },
+        "conn_errors": 0,
+        "available": 1.0,
+        "rate_limited": 0
+      },
+      "steady_during_flood": {
+        "requests": 100,
+        "seconds": 13.248,
+        "throughput_rps": 7.5,
+        "p50_ms": 9.39,
+        "p95_ms": 342.91,
+        "p99_ms": 503.45,
+        "mean_ms": 74.9,
+        "status": {
+          "201": 100
+        },
+        "conn_errors": 0,
+        "available": 1.0,
+        "rate_limited": 0
+      },
+      "flooder": {
+        "requests": 1500,
+        "seconds": 9.637,
+        "throughput_rps": 155.7,
+        "p50_ms": 113.92,
+        "p95_ms": 521.03,
+        "p99_ms": 998.3,
+        "mean_ms": 165.3,
+        "status": {
+          "201": 300,
+          "429": 1200
+        },
+        "conn_errors": 0,
+        "available": 1.0,
+        "rate_limited": 1200
+      },
+      "p95_inflation": 21.8
+    },
+    "judge_outage": {
+      "judge_delay_s": 1.0,
+      "guard_timeout_s": 0.25,
+      "no_judge": {
+        "requests": 40,
+        "seconds": 0.405,
+        "throughput_rps": 98.8,
+        "p50_ms": 7.66,
+        "p95_ms": 12.69,
+        "p99_ms": 15.62,
+        "mean_ms": 8.46,
+        "status": {
+          "201": 40
+        },
+        "conn_errors": 0,
+        "available": 1.0,
+        "rate_limited": 0,
+        "first6_ms": [
+          16,
+          11,
+          9,
+          6,
+          7,
+          8
+        ],
+        "after_first6_p95_ms": 12.69,
+        "outcomes_review_share": null
+      },
+      "unguarded": {
+        "requests": 12,
+        "seconds": 12.171,
+        "throughput_rps": 1.0,
+        "p50_ms": 1009.78,
+        "p95_ms": 1014.72,
+        "p99_ms": 1014.72,
+        "mean_ms": 1010.29,
+        "status": {
+          "201": 12
+        },
+        "conn_errors": 0,
+        "available": 1.0,
+        "rate_limited": 0,
+        "first6_ms": [
+          1015,
+          1013,
+          1009,
+          1010,
+          1008,
+          1008
+        ],
+        "after_first6_p95_ms": 1011.99,
+        "outcomes_review_share": null
+      },
+      "guarded": {
+        "requests": 40,
+        "seconds": 1.104,
+        "throughput_rps": 36.2,
+        "p50_ms": 6.53,
+        "p95_ms": 260.22,
+        "p99_ms": 266.25,
+        "mean_ms": 25.96,
+        "status": {
+          "201": 40
+        },
+        "conn_errors": 0,
+        "available": 1.0,
+        "rate_limited": 0,
+        "first6_ms": [
+          266,
+          262,
+          260,
+          8,
+          8,
+          8
+        ],
+        "after_first6_p95_ms": 11.81,
+        "outcomes_review_share": null
+      }
+    }
+  }
+}

@@ -1,0 +1,1896 @@
+{
+  "meta": {
+    "suite": "ops_summary",
+    "git": "3067eac",
+    "dirty": true,
+    "prereg": "docs/EVAL_OPS.md"
+  },
+  "results": {
+    "drift": {
+      "system": {
+        "null": {
+          "v200": {
+            "k": 0,
+            "n": 30,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.1135
+            ]
+          },
+          "v1000": {
+            "k": 0,
+            "n": 30,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.1135
+            ]
+          }
+        },
+        "cells": {
+          "category_shift": {
+            "v200": {
+              "m10": {
+                "detected": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                },
+                "delay_median": null,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              },
+              "m25": {
+                "detected": {
+                  "k": 30,
+                  "n": 30,
+                  "value": 1.0,
+                  "ci": [
+                    0.8865,
+                    1.0
+                  ]
+                },
+                "delay_median": 1.0,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              },
+              "m50": {
+                "detected": {
+                  "k": 30,
+                  "n": 30,
+                  "value": 1.0,
+                  "ci": [
+                    0.8865,
+                    1.0
+                  ]
+                },
+                "delay_median": 1.0,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              }
+            },
+            "v1000": {
+              "m10": {
+                "detected": {
+                  "k": 30,
+                  "n": 30,
+                  "value": 1.0,
+                  "ci": [
+                    0.8865,
+                    1.0
+                  ]
+                },
+                "delay_median": 2.5,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              },
+              "m25": {
+                "detected": {
+                  "k": 30,
+                  "n": 30,
+                  "value": 1.0,
+                  "ci": [
+                    0.8865,
+                    1.0
+                  ]
+                },
+                "delay_median": 1.0,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              },
+              "m50": {
+                "detected": {
+                  "k": 30,
+                  "n": 30,
+                  "value": 1.0,
+                  "ci": [
+                    0.8865,
+                    1.0
+                  ]
+                },
+                "delay_median": 1.0,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              }
+            }
+          },
+          "attack_wave": {
+            "v200": {
+              "m10": {
+                "detected": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                },
+                "delay_median": null,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              },
+              "m25": {
+                "detected": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                },
+                "delay_median": null,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              },
+              "m50": {
+                "detected": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                },
+                "delay_median": null,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              }
+            },
+            "v1000": {
+              "m10": {
+                "detected": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                },
+                "delay_median": null,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              },
+              "m25": {
+                "detected": {
+                  "k": 2,
+                  "n": 30,
+                  "value": 0.0667,
+                  "ci": [
+                    0.0185,
+                    0.2132
+                  ]
+                },
+                "delay_median": 4.0,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              },
+              "m50": {
+                "detected": {
+                  "k": 30,
+                  "n": 30,
+                  "value": 1.0,
+                  "ci": [
+                    0.8865,
+                    1.0
+                  ]
+                },
+                "delay_median": 1.0,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              }
+            }
+          },
+          "obfuscation_surge": {
+            "v200": {
+              "m10": {
+                "detected": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                },
+                "delay_median": null,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              },
+              "m25": {
+                "detected": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                },
+                "delay_median": null,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              },
+              "m50": {
+                "detected": {
+                  "k": 24,
+                  "n": 30,
+                  "value": 0.8,
+                  "ci": [
+                    0.6269,
+                    0.905
+                  ]
+                },
+                "delay_median": 8.0,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              }
+            },
+            "v1000": {
+              "m10": {
+                "detected": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                },
+                "delay_median": null,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              },
+              "m25": {
+                "detected": {
+                  "k": 29,
+                  "n": 30,
+                  "value": 0.9667,
+                  "ci": [
+                    0.8333,
+                    0.9941
+                  ]
+                },
+                "delay_median": 2,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              },
+              "m50": {
+                "detected": {
+                  "k": 30,
+                  "n": 30,
+                  "value": 1.0,
+                  "ci": [
+                    0.8865,
+                    1.0
+                  ]
+                },
+                "delay_median": 1.0,
+                "early": {
+                  "k": 0,
+                  "n": 30,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.1135
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "naive": {
+        "null": {
+          "v200": {
+            "k": 10,
+            "n": 30,
+            "value": 0.3333,
+            "ci": [
+              0.1923,
+              0.5122
+            ]
+          },
+          "v1000": {
+            "k": 14,
+            "n": 30,
+            "value": 0.4667,
+            "ci": [
+              0.3023,
+              0.6386
+            ]
+          }
+        },
+        "cells": {
+          "category_shift": {
+            "v200": {
+              "m10": {
+                "detected": {
+                  "k": 27,
+                  "n": 30,
+                  "value": 0.9,
+                  "ci": [
+                    0.7438,
+                    0.9654
+                  ]
+                },
+                "delay_median": 1,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              },
+              "m25": {
+                "detected": {
+                  "k": 27,
+                  "n": 30,
+                  "value": 0.9,
+                  "ci": [
+                    0.7438,
+                    0.9654
+                  ]
+                },
+                "delay_median": 0,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              },
+              "m50": {
+                "detected": {
+                  "k": 27,
+                  "n": 30,
+                  "value": 0.9,
+                  "ci": [
+                    0.7438,
+                    0.9654
+                  ]
+                },
+                "delay_median": 0,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              }
+            },
+            "v1000": {
+              "m10": {
+                "detected": {
+                  "k": 27,
+                  "n": 30,
+                  "value": 0.9,
+                  "ci": [
+                    0.7438,
+                    0.9654
+                  ]
+                },
+                "delay_median": 0,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              },
+              "m25": {
+                "detected": {
+                  "k": 27,
+                  "n": 30,
+                  "value": 0.9,
+                  "ci": [
+                    0.7438,
+                    0.9654
+                  ]
+                },
+                "delay_median": 0,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              },
+              "m50": {
+                "detected": {
+                  "k": 27,
+                  "n": 30,
+                  "value": 0.9,
+                  "ci": [
+                    0.7438,
+                    0.9654
+                  ]
+                },
+                "delay_median": 0,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              }
+            }
+          },
+          "attack_wave": {
+            "v200": {
+              "m10": {
+                "detected": {
+                  "k": 13,
+                  "n": 30,
+                  "value": 0.4333,
+                  "ci": [
+                    0.2738,
+                    0.608
+                  ]
+                },
+                "delay_median": 8,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              },
+              "m25": {
+                "detected": {
+                  "k": 25,
+                  "n": 30,
+                  "value": 0.8333,
+                  "ci": [
+                    0.6644,
+                    0.9266
+                  ]
+                },
+                "delay_median": 3,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              },
+              "m50": {
+                "detected": {
+                  "k": 27,
+                  "n": 30,
+                  "value": 0.9,
+                  "ci": [
+                    0.7438,
+                    0.9654
+                  ]
+                },
+                "delay_median": 0,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              }
+            },
+            "v1000": {
+              "m10": {
+                "detected": {
+                  "k": 17,
+                  "n": 30,
+                  "value": 0.5667,
+                  "ci": [
+                    0.392,
+                    0.7262
+                  ]
+                },
+                "delay_median": 4,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              },
+              "m25": {
+                "detected": {
+                  "k": 27,
+                  "n": 30,
+                  "value": 0.9,
+                  "ci": [
+                    0.7438,
+                    0.9654
+                  ]
+                },
+                "delay_median": 0,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              },
+              "m50": {
+                "detected": {
+                  "k": 27,
+                  "n": 30,
+                  "value": 0.9,
+                  "ci": [
+                    0.7438,
+                    0.9654
+                  ]
+                },
+                "delay_median": 0,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              }
+            }
+          },
+          "obfuscation_surge": {
+            "v200": {
+              "m10": {
+                "detected": {
+                  "k": 15,
+                  "n": 30,
+                  "value": 0.5,
+                  "ci": [
+                    0.3315,
+                    0.6685
+                  ]
+                },
+                "delay_median": 6,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              },
+              "m25": {
+                "detected": {
+                  "k": 27,
+                  "n": 30,
+                  "value": 0.9,
+                  "ci": [
+                    0.7438,
+                    0.9654
+                  ]
+                },
+                "delay_median": 1,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              },
+              "m50": {
+                "detected": {
+                  "k": 27,
+                  "n": 30,
+                  "value": 0.9,
+                  "ci": [
+                    0.7438,
+                    0.9654
+                  ]
+                },
+                "delay_median": 0,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              }
+            },
+            "v1000": {
+              "m10": {
+                "detected": {
+                  "k": 26,
+                  "n": 30,
+                  "value": 0.8667,
+                  "ci": [
+                    0.7032,
+                    0.9469
+                  ]
+                },
+                "delay_median": 3.0,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              },
+              "m25": {
+                "detected": {
+                  "k": 27,
+                  "n": 30,
+                  "value": 0.9,
+                  "ci": [
+                    0.7438,
+                    0.9654
+                  ]
+                },
+                "delay_median": 0,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              },
+              "m50": {
+                "detected": {
+                  "k": 27,
+                  "n": 30,
+                  "value": 0.9,
+                  "ci": [
+                    0.7438,
+                    0.9654
+                  ]
+                },
+                "delay_median": 0,
+                "early": {
+                  "k": 3,
+                  "n": 30,
+                  "value": 0.1,
+                  "ci": [
+                    0.0346,
+                    0.2562
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "shadow": {
+      "same": {
+        "kind": "same",
+        "allowed": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "blocked": {
+          "k": 0,
+          "n": 20,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1611
+          ]
+        },
+        "right": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "disagree_mean": 0.0
+      },
+      "no_normalize": {
+        "kind": "degraded",
+        "allowed": {
+          "k": 0,
+          "n": 20,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1611
+          ]
+        },
+        "blocked": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "right": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "disagree_mean": 5.45
+      },
+      "no_exceptions": {
+        "kind": "degraded",
+        "allowed": {
+          "k": 0,
+          "n": 20,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1611
+          ]
+        },
+        "blocked": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "right": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "disagree_mean": 26.7
+      },
+      "no_challenge": {
+        "kind": "degraded",
+        "allowed": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "blocked": {
+          "k": 0,
+          "n": 20,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1611
+          ]
+        },
+        "right": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "disagree_mean": 2.5
+      },
+      "no_landing": {
+        "kind": "degraded",
+        "allowed": {
+          "k": 0,
+          "n": 20,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1611
+          ]
+        },
+        "blocked": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "right": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "disagree_mean": 13.95
+      },
+      "fix_no_normalize": {
+        "kind": "improved",
+        "allowed": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "blocked": {
+          "k": 0,
+          "n": 20,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1611
+          ]
+        },
+        "right": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "disagree_mean": 5.45
+      },
+      "fix_no_exceptions": {
+        "kind": "improved",
+        "allowed": {
+          "k": 0,
+          "n": 20,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1611
+          ]
+        },
+        "blocked": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "right": {
+          "k": 0,
+          "n": 20,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1611
+          ]
+        },
+        "disagree_mean": 26.7
+      },
+      "fix_no_challenge": {
+        "kind": "improved",
+        "allowed": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "blocked": {
+          "k": 0,
+          "n": 20,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1611
+          ]
+        },
+        "right": {
+          "k": 20,
+          "n": 20,
+          "value": 1.0,
+          "ci": [
+            0.8389,
+            1.0
+          ]
+        },
+        "disagree_mean": 2.5
+      },
+      "fix_no_landing": {
+        "kind": "improved",
+        "allowed": {
+          "k": 15,
+          "n": 20,
+          "value": 0.75,
+          "ci": [
+            0.5313,
+            0.8881
+          ]
+        },
+        "blocked": {
+          "k": 5,
+          "n": 20,
+          "value": 0.25,
+          "ci": [
+            0.1119,
+            0.4687
+          ]
+        },
+        "right": {
+          "k": 15,
+          "n": 20,
+          "value": 0.75,
+          "ci": [
+            0.5313,
+            0.8881
+          ]
+        },
+        "disagree_mean": 13.95
+      },
+      "_all": {
+        "right": {
+          "k": 155,
+          "n": 180,
+          "value": 0.8611,
+          "ci": [
+            0.803,
+            0.9041
+          ]
+        }
+      },
+      "_sample": 150
+    },
+    "alerting": {
+      "burn": {
+        "rpm5": {
+          "false_page": 0,
+          "false_ticket": 26,
+          "streams": 5,
+          "hard_outage_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 1
+          },
+          "hard_outage_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 4
+          },
+          "partial_degradation_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 36
+          },
+          "partial_degradation_ticket": {
+            "alerted": {
+              "k": 2,
+              "n": 5,
+              "value": 0.4,
+              "ci": [
+                0.1176,
+                0.7693
+              ]
+            },
+            "delay_median": 164.0
+          },
+          "slow_burn_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 312
+          },
+          "slow_burn_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 772
+          },
+          "brief_blip_page": {
+            "alerted": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "delay_median": null
+          },
+          "brief_blip_ticket": {
+            "alerted": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "delay_median": null
+          }
+        },
+        "rpm60": {
+          "false_page": 0,
+          "false_ticket": 2,
+          "streams": 5,
+          "hard_outage_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 1
+          },
+          "hard_outage_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 5
+          },
+          "partial_degradation_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 41
+          },
+          "partial_degradation_ticket": {
+            "alerted": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "delay_median": null
+          },
+          "slow_burn_page": {
+            "alerted": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "delay_median": null
+          },
+          "slow_burn_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 889
+          },
+          "brief_blip_page": {
+            "alerted": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "delay_median": null
+          },
+          "brief_blip_ticket": {
+            "alerted": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "delay_median": null
+          }
+        },
+        "rpm600": {
+          "false_page": 0,
+          "false_ticket": 1,
+          "streams": 5,
+          "hard_outage_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 1
+          },
+          "hard_outage_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 5
+          },
+          "partial_degradation_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 43
+          },
+          "partial_degradation_ticket": {
+            "alerted": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "delay_median": null
+          },
+          "slow_burn_page": {
+            "alerted": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "delay_median": null
+          },
+          "slow_burn_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 903
+          },
+          "brief_blip_page": {
+            "alerted": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "delay_median": null
+          },
+          "brief_blip_ticket": {
+            "alerted": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "delay_median": null
+          }
+        }
+      },
+      "naive": {
+        "rpm5": {
+          "false_page": 168,
+          "false_ticket": 44,
+          "streams": 5,
+          "hard_outage_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 0
+          },
+          "hard_outage_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 0
+          },
+          "partial_degradation_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 9
+          },
+          "partial_degradation_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 9
+          },
+          "slow_burn_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 45
+          },
+          "slow_burn_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 45
+          },
+          "brief_blip_page": {
+            "alerted": {
+              "k": 4,
+              "n": 5,
+              "value": 0.8,
+              "ci": [
+                0.3755,
+                0.9638
+              ]
+            },
+            "delay_median": 0.0
+          },
+          "brief_blip_ticket": {
+            "alerted": {
+              "k": 2,
+              "n": 5,
+              "value": 0.4,
+              "ci": [
+                0.1176,
+                0.7693
+              ]
+            },
+            "delay_median": 1.0
+          }
+        },
+        "rpm60": {
+          "false_page": 13,
+          "false_ticket": 1,
+          "streams": 5,
+          "hard_outage_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 0
+          },
+          "hard_outage_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 0
+          },
+          "partial_degradation_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 2
+          },
+          "partial_degradation_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 12
+          },
+          "slow_burn_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 14
+          },
+          "slow_burn_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 125
+          },
+          "brief_blip_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 0
+          },
+          "brief_blip_ticket": {
+            "alerted": {
+              "k": 1,
+              "n": 5,
+              "value": 0.2,
+              "ci": [
+                0.0362,
+                0.6245
+              ]
+            },
+            "delay_median": 37
+          }
+        },
+        "rpm600": {
+          "false_page": 0,
+          "false_ticket": 0,
+          "streams": 5,
+          "hard_outage_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 0
+          },
+          "hard_outage_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 0
+          },
+          "partial_degradation_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 2
+          },
+          "partial_degradation_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 13
+          },
+          "slow_burn_page": {
+            "alerted": {
+              "k": 3,
+              "n": 5,
+              "value": 0.6,
+              "ci": [
+                0.2307,
+                0.8824
+              ]
+            },
+            "delay_median": 122
+          },
+          "slow_burn_ticket": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 1806
+          },
+          "brief_blip_page": {
+            "alerted": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "delay_median": 0
+          },
+          "brief_blip_ticket": {
+            "alerted": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "delay_median": null
+          }
+        }
+      }
+    },
+    "load": {
+      "machine": {
+        "cpus": 4,
+        "python": "3.13.16",
+        "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
+        "note": "서버·클라이언트가 한 프로세스(루프백). 이 기계의 수치다."
+      },
+      "levels": {
+        "c1": {
+          "requests": 600,
+          "throughput_rps": 111.6,
+          "p50_ms": 8.21,
+          "p95_ms": 13.93,
+          "p99_ms": 19.55,
+          "conn_errors": 0,
+          "available": 1.0,
+          "errors_5xx": 0
+        },
+        "c8": {
+          "requests": 600,
+          "throughput_rps": 88.7,
+          "p50_ms": 63.98,
+          "p95_ms": 200.44,
+          "p99_ms": 273.44,
+          "conn_errors": 0,
+          "available": 1.0,
+          "errors_5xx": 0
+        },
+        "c32": {
+          "requests": 600,
+          "throughput_rps": 74.5,
+          "p50_ms": 266.18,
+          "p95_ms": 788.23,
+          "p99_ms": 1114.48,
+          "conn_errors": 0,
+          "available": 1.0,
+          "errors_5xx": 0
+        },
+        "c128": {
+          "requests": 1280,
+          "throughput_rps": 56.0,
+          "p50_ms": 1358.15,
+          "p95_ms": 2253.92,
+          "p99_ms": 2739.41,
+          "conn_errors": 0,
+          "available": 1.0,
+          "errors_5xx": 0
+        }
+      },
+      "slo_met": {
+        "c1": {
+          "p95": 1,
+          "p99": 1,
+          "availability": 1
+        },
+        "c8": {
+          "p95": 1,
+          "p99": 1,
+          "availability": 1
+        },
+        "c32": {
+          "p95": 0,
+          "p99": 0,
+          "availability": 1
+        },
+        "c128": {
+          "p95": 0,
+          "p99": 0,
+          "availability": 1
+        }
+      },
+      "neighbor": {
+        "alone_p95_ms": 15.73,
+        "flood_p50_ms": 9.39,
+        "flood_p95_ms": 342.91,
+        "flood_p99_ms": 503.45,
+        "p95_inflation": 21.8,
+        "steady_errors": 0,
+        "flooder_limited": {
+          "k": 1200,
+          "n": 1500,
+          "value": 0.8,
+          "ci": [
+            0.779,
+            0.8195
+          ]
+        }
+      },
+      "judge_outage": {
+        "judge_delay_s": 1.0,
+        "guard_timeout_s": 0.25,
+        "no_judge": {
+          "p50_ms": 7.66,
+          "p95_ms": 12.69,
+          "after_first6_p95_ms": 12.69,
+          "first3_ms": [
+            16,
+            11,
+            9
+          ],
+          "ok": 40,
+          "requests": 40
+        },
+        "unguarded": {
+          "p50_ms": 1009.78,
+          "p95_ms": 1014.72,
+          "after_first6_p95_ms": 1011.99,
+          "first3_ms": [
+            1015,
+            1013,
+            1009
+          ],
+          "ok": 12,
+          "requests": 12
+        },
+        "guarded": {
+          "p50_ms": 6.53,
+          "p95_ms": 260.22,
+          "after_first6_p95_ms": 11.81,
+          "first3_ms": [
+            266,
+            262,
+            260
+          ],
+          "ok": 40,
+          "requests": 40
+        }
+      }
+    },
+    "shadow_flips": {
+      "pool": 329,
+      "flips": 6,
+      "gold_reject_review_to_approve": 6,
+      "unsafe_approvals_added": 6,
+      "exact_prod_wrong": 6,
+      "exact_cand_wrong": 6,
+      "safety_cost_prod": 6,
+      "safety_cost_cand": 18
+    }
+  }
+}

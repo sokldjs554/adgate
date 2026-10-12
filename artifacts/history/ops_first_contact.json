@@ -1,0 +1,886 @@
+{
+  "meta": {
+    "suite": "ops",
+    "git": "3067eac",
+    "dirty": false,
+    "prereg": "docs/EVAL_OPS.md"
+  },
+  "results": {
+    "pool": 329,
+    "drift": {
+      "seeds": 30,
+      "days": 35,
+      "start_day": 14,
+      "arms": {
+        "system": {
+          "null": {
+            "200": {
+              "streams": 30,
+              "with_alarm": 0
+            },
+            "1000": {
+              "streams": 30,
+              "with_alarm": 0
+            }
+          },
+          "drift": {
+            "category_shift/200/0.1": {
+              "streams": 30,
+              "detected": 0,
+              "missed": 30,
+              "early_false_alarm": 0,
+              "delay_median": null,
+              "delay_p90": null
+            },
+            "category_shift/200/0.25": {
+              "streams": 30,
+              "detected": 30,
+              "missed": 0,
+              "early_false_alarm": 0,
+              "delay_median": 1.0,
+              "delay_p90": 2
+            },
+            "category_shift/200/0.5": {
+              "streams": 30,
+              "detected": 30,
+              "missed": 0,
+              "early_false_alarm": 0,
+              "delay_median": 1.0,
+              "delay_p90": 1
+            },
+            "category_shift/1000/0.1": {
+              "streams": 30,
+              "detected": 30,
+              "missed": 0,
+              "early_false_alarm": 0,
+              "delay_median": 2.5,
+              "delay_p90": 7
+            },
+            "category_shift/1000/0.25": {
+              "streams": 30,
+              "detected": 30,
+              "missed": 0,
+              "early_false_alarm": 0,
+              "delay_median": 1.0,
+              "delay_p90": 1
+            },
+            "category_shift/1000/0.5": {
+              "streams": 30,
+              "detected": 30,
+              "missed": 0,
+              "early_false_alarm": 0,
+              "delay_median": 1.0,
+              "delay_p90": 1
+            },
+            "attack_wave/200/0.1": {
+              "streams": 30,
+              "detected": 0,
+              "missed": 30,
+              "early_false_alarm": 0,
+              "delay_median": null,
+              "delay_p90": null
+            },
+            "attack_wave/200/0.25": {
+              "streams": 30,
+              "detected": 0,
+              "missed": 30,
+              "early_false_alarm": 0,
+              "delay_median": null,
+              "delay_p90": null
+            },
+            "attack_wave/200/0.5": {
+              "streams": 30,
+              "detected": 0,
+              "missed": 30,
+              "early_false_alarm": 0,
+              "delay_median": null,
+              "delay_p90": null
+            },
+            "attack_wave/1000/0.1": {
+              "streams": 30,
+              "detected": 0,
+              "missed": 30,
+              "early_false_alarm": 0,
+              "delay_median": null,
+              "delay_p90": null
+            },
+            "attack_wave/1000/0.25": {
+              "streams": 30,
+              "detected": 2,
+              "missed": 28,
+              "early_false_alarm": 0,
+              "delay_median": 4.0,
+              "delay_p90": 4
+            },
+            "attack_wave/1000/0.5": {
+              "streams": 30,
+              "detected": 30,
+              "missed": 0,
+              "early_false_alarm": 0,
+              "delay_median": 1.0,
+              "delay_p90": 1
+            },
+            "obfuscation_surge/200/0.1": {
+              "streams": 30,
+              "detected": 0,
+              "missed": 30,
+              "early_false_alarm": 0,
+              "delay_median": null,
+              "delay_p90": null
+            },
+            "obfuscation_surge/200/0.25": {
+              "streams": 30,
+              "detected": 0,
+              "missed": 30,
+              "early_false_alarm": 0,
+              "delay_median": null,
+              "delay_p90": null
+            },
+            "obfuscation_surge/200/0.5": {
+              "streams": 30,
+              "detected": 24,
+              "missed": 6,
+              "early_false_alarm": 0,
+              "delay_median": 8.0,
+              "delay_p90": 15
+            },
+            "obfuscation_surge/1000/0.1": {
+              "streams": 30,
+              "detected": 0,
+              "missed": 30,
+              "early_false_alarm": 0,
+              "delay_median": null,
+              "delay_p90": null
+            },
+            "obfuscation_surge/1000/0.25": {
+              "streams": 30,
+              "detected": 29,
+              "missed": 1,
+              "early_false_alarm": 0,
+              "delay_median": 2,
+              "delay_p90": 10
+            },
+            "obfuscation_surge/1000/0.5": {
+              "streams": 30,
+              "detected": 30,
+              "missed": 0,
+              "early_false_alarm": 0,
+              "delay_median": 1.0,
+              "delay_p90": 1
+            }
+          },
+          "config": {
+            "z_alert": 4.0,
+            "persist": 2,
+            "deff": 1.5,
+            "ref_days": 7
+          }
+        },
+        "naive": {
+          "null": {
+            "200": {
+              "streams": 30,
+              "with_alarm": 10
+            },
+            "1000": {
+              "streams": 30,
+              "with_alarm": 14
+            }
+          },
+          "drift": {
+            "category_shift/200/0.1": {
+              "streams": 30,
+              "detected": 27,
+              "missed": 0,
+              "early_false_alarm": 3,
+              "delay_median": 1,
+              "delay_p90": 9
+            },
+            "category_shift/200/0.25": {
+              "streams": 30,
+              "detected": 27,
+              "missed": 0,
+              "early_false_alarm": 3,
+              "delay_median": 0,
+              "delay_p90": 0
+            },
+            "category_shift/200/0.5": {
+              "streams": 30,
+              "detected": 27,
+              "missed": 0,
+              "early_false_alarm": 3,
+              "delay_median": 0,
+              "delay_p90": 0
+            },
+            "category_shift/1000/0.1": {
+              "streams": 30,
+              "detected": 27,
+              "missed": 0,
+              "early_false_alarm": 3,
+              "delay_median": 0,
+              "delay_p90": 0
+            },
+            "category_shift/1000/0.25": {
+              "streams": 30,
+              "detected": 27,
+              "missed": 0,
+              "early_false_alarm": 3,
+              "delay_median": 0,
+              "delay_p90": 0
+            },
+            "category_shift/1000/0.5": {
+              "streams": 30,
+              "detected": 27,
+              "missed": 0,
+              "early_false_alarm": 3,
+              "delay_median": 0,
+              "delay_p90": 0
+            },
+            "attack_wave/200/0.1": {
+              "streams": 30,
+              "detected": 13,
+              "missed": 14,
+              "early_false_alarm": 3,
+              "delay_median": 8,
+              "delay_p90": 15
+            },
+            "attack_wave/200/0.25": {
+              "streams": 30,
+              "detected": 25,
+              "missed": 2,
+              "early_false_alarm": 3,
+              "delay_median": 3,
+              "delay_p90": 10
+            },
+            "attack_wave/200/0.5": {
+              "streams": 30,
+              "detected": 27,
+              "missed": 0,
+              "early_false_alarm": 3,
+              "delay_median": 0,
+              "delay_p90": 2
+            },
+            "attack_wave/1000/0.1": {
+              "streams": 30,
+              "detected": 17,
+              "missed": 10,
+              "early_false_alarm": 3,
+              "delay_median": 4,
+              "delay_p90": 16
+            },
+            "attack_wave/1000/0.25": {
+              "streams": 30,
+              "detected": 27,
+              "missed": 0,
+              "early_false_alarm": 3,
+              "delay_median": 0,
+              "delay_p90": 1
+            },
+            "attack_wave/1000/0.5": {
+              "streams": 30,
+              "detected": 27,
+              "missed": 0,
+              "early_false_alarm": 3,
+              "delay_median": 0,
+              "delay_p90": 0
+            },
+            "obfuscation_surge/200/0.1": {
+              "streams": 30,
+              "detected": 15,
+              "missed": 12,
+              "early_false_alarm": 3,
+              "delay_median": 6,
+              "delay_p90": 18
+            },
+            "obfuscation_surge/200/0.25": {
+              "streams": 30,
+              "detected": 27,
+              "missed": 0,
+              "early_false_alarm": 3,
+              "delay_median": 1,
+              "delay_p90": 4
+            },
+            "obfuscation_surge/200/0.5": {
+              "streams": 30,
+              "detected": 27,
+              "missed": 0,
+              "early_false_alarm": 3,
+              "delay_median": 0,
+              "delay_p90": 0
+            },
+            "obfuscation_surge/1000/0.1": {
+              "streams": 30,
+              "detected": 26,
+              "missed": 1,
+              "early_false_alarm": 3,
+              "delay_median": 3.0,
+              "delay_p90": 9
+            },
+            "obfuscation_surge/1000/0.25": {
+              "streams": 30,
+              "detected": 27,
+              "missed": 0,
+              "early_false_alarm": 3,
+              "delay_median": 0,
+              "delay_p90": 0
+            },
+            "obfuscation_surge/1000/0.5": {
+              "streams": 30,
+              "detected": 27,
+              "missed": 0,
+              "early_false_alarm": 3,
+              "delay_median": 0,
+              "delay_p90": 0
+            }
+          },
+          "config": {
+            "z_alert": 3.0,
+            "persist": 1,
+            "deff": 1.0,
+            "ref_days": 7
+          }
+        }
+      }
+    },
+    "shadow": {
+      "sample": 150,
+      "reps": 20,
+      "rule": {
+        "max_disagreement": 0.1,
+        "spot_n": 40,
+        "tolerance": 0
+      },
+      "rows": [
+        {
+          "candidate": "same",
+          "kind": "same",
+          "streams": 20,
+          "allowed": 20,
+          "blocked": 0,
+          "right": 20,
+          "disagree_mean": 0.0
+        },
+        {
+          "candidate": "no_normalize",
+          "kind": "degraded",
+          "streams": 20,
+          "allowed": 0,
+          "blocked": 20,
+          "right": 20,
+          "disagree_mean": 5.45
+        },
+        {
+          "candidate": "no_exceptions",
+          "kind": "degraded",
+          "streams": 20,
+          "allowed": 0,
+          "blocked": 20,
+          "right": 20,
+          "disagree_mean": 26.7
+        },
+        {
+          "candidate": "no_challenge",
+          "kind": "degraded",
+          "streams": 20,
+          "allowed": 20,
+          "blocked": 0,
+          "right": 20,
+          "disagree_mean": 2.5
+        },
+        {
+          "candidate": "no_landing",
+          "kind": "degraded",
+          "streams": 20,
+          "allowed": 0,
+          "blocked": 20,
+          "right": 20,
+          "disagree_mean": 13.95
+        },
+        {
+          "candidate": "fix_no_normalize",
+          "kind": "improved",
+          "streams": 20,
+          "allowed": 20,
+          "blocked": 0,
+          "right": 20,
+          "disagree_mean": 5.45
+        },
+        {
+          "candidate": "fix_no_exceptions",
+          "kind": "improved",
+          "streams": 20,
+          "allowed": 0,
+          "blocked": 20,
+          "right": 0,
+          "disagree_mean": 26.7
+        },
+        {
+          "candidate": "fix_no_challenge",
+          "kind": "improved",
+          "streams": 20,
+          "allowed": 20,
+          "blocked": 0,
+          "right": 20,
+          "disagree_mean": 2.5
+        },
+        {
+          "candidate": "fix_no_landing",
+          "kind": "improved",
+          "streams": 20,
+          "allowed": 15,
+          "blocked": 5,
+          "right": 15,
+          "disagree_mean": 13.95
+        }
+      ]
+    },
+    "alerting": {
+      "slo": {
+        "objective": 0.999,
+        "window_days": 30
+      },
+      "days": 28,
+      "seeds": 5,
+      "rows": [
+        {
+          "policy": "burn",
+          "rpm": 5,
+          "incidents": {
+            "hard_outage": {
+              "page": [
+                0,
+                1,
+                1,
+                2,
+                1
+              ],
+              "ticket": [
+                5,
+                4,
+                3,
+                7,
+                2
+              ]
+            },
+            "partial_degradation": {
+              "page": [
+                36,
+                44,
+                23,
+                48,
+                19
+              ],
+              "ticket": [
+                150,
+                null,
+                178,
+                null,
+                null
+              ]
+            },
+            "slow_burn": {
+              "page": [
+                88,
+                73,
+                312,
+                1511,
+                375
+              ],
+              "ticket": [
+                685,
+                409,
+                858,
+                1148,
+                772
+              ]
+            },
+            "brief_blip": {
+              "page": [
+                null,
+                null,
+                null,
+                null,
+                null
+              ],
+              "ticket": [
+                null,
+                null,
+                null,
+                null,
+                null
+              ]
+            }
+          },
+          "false_page_episodes": 0,
+          "false_ticket_episodes": 26,
+          "streams": 5
+        },
+        {
+          "policy": "burn",
+          "rpm": 60,
+          "incidents": {
+            "hard_outage": {
+              "page": [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              "ticket": [
+                5,
+                5,
+                4,
+                4,
+                5
+              ]
+            },
+            "partial_degradation": {
+              "page": [
+                40,
+                40,
+                58,
+                46,
+                41
+              ],
+              "ticket": [
+                null,
+                null,
+                null,
+                null,
+                null
+              ]
+            },
+            "slow_burn": {
+              "page": [
+                null,
+                null,
+                null,
+                null,
+                null
+              ],
+              "ticket": [
+                829,
+                889,
+                869,
+                901,
+                1001
+              ]
+            },
+            "brief_blip": {
+              "page": [
+                null,
+                null,
+                null,
+                null,
+                null
+              ],
+              "ticket": [
+                null,
+                null,
+                null,
+                null,
+                null
+              ]
+            }
+          },
+          "false_page_episodes": 0,
+          "false_ticket_episodes": 2,
+          "streams": 5
+        },
+        {
+          "policy": "burn",
+          "rpm": 600,
+          "incidents": {
+            "hard_outage": {
+              "page": [
+                1,
+                1,
+                1,
+                1,
+                1
+              ],
+              "ticket": [
+                5,
+                5,
+                5,
+                5,
+                5
+              ]
+            },
+            "partial_degradation": {
+              "page": [
+                41,
+                46,
+                46,
+                43,
+                42
+              ],
+              "ticket": [
+                null,
+                null,
+                null,
+                null,
+                null
+              ]
+            },
+            "slow_burn": {
+              "page": [
+                null,
+                null,
+                null,
+                null,
+                null
+              ],
+              "ticket": [
+                921,
+                891,
+                905,
+                903,
+                883
+              ]
+            },
+            "brief_blip": {
+              "page": [
+                null,
+                null,
+                null,
+                null,
+                null
+              ],
+              "ticket": [
+                null,
+                null,
+                null,
+                null,
+                null
+              ]
+            }
+          },
+          "false_page_episodes": 0,
+          "false_ticket_episodes": 1,
+          "streams": 5
+        },
+        {
+          "policy": "naive",
+          "rpm": 5,
+          "incidents": {
+            "hard_outage": {
+              "page": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "ticket": [
+                0,
+                0,
+                0,
+                1,
+                0
+              ]
+            },
+            "partial_degradation": {
+              "page": [
+                13,
+                9,
+                3,
+                12,
+                9
+              ],
+              "ticket": [
+                17,
+                9,
+                3,
+                22,
+                9
+              ]
+            },
+            "slow_burn": {
+              "page": [
+                34,
+                45,
+                87,
+                237,
+                7
+              ],
+              "ticket": [
+                34,
+                45,
+                87,
+                237,
+                7
+              ]
+            },
+            "brief_blip": {
+              "page": [
+                0,
+                1,
+                0,
+                null,
+                0
+              ],
+              "ticket": [
+                null,
+                null,
+                1,
+                null,
+                1
+              ]
+            }
+          },
+          "false_page_episodes": 168,
+          "false_ticket_episodes": 44,
+          "streams": 5
+        },
+        {
+          "policy": "naive",
+          "rpm": 60,
+          "incidents": {
+            "hard_outage": {
+              "page": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "ticket": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "partial_degradation": {
+              "page": [
+                1,
+                0,
+                6,
+                2,
+                2
+              ],
+              "ticket": [
+                10,
+                12,
+                27,
+                13,
+                8
+              ]
+            },
+            "slow_burn": {
+              "page": [
+                14,
+                47,
+                2,
+                47,
+                5
+              ],
+              "ticket": [
+                125,
+                101,
+                59,
+                177,
+                937
+              ]
+            },
+            "brief_blip": {
+              "page": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "ticket": [
+                null,
+                null,
+                null,
+                null,
+                37
+              ]
+            }
+          },
+          "false_page_episodes": 13,
+          "false_ticket_episodes": 1,
+          "streams": 5
+        },
+        {
+          "policy": "naive",
+          "rpm": 600,
+          "incidents": {
+            "hard_outage": {
+              "page": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "ticket": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "partial_degradation": {
+              "page": [
+                2,
+                3,
+                2,
+                1,
+                2
+              ],
+              "ticket": [
+                13,
+                14,
+                15,
+                11,
+                13
+              ]
+            },
+            "slow_burn": {
+              "page": [
+                null,
+                null,
+                122,
+                292,
+                76
+              ],
+              "ticket": [
+                2765,
+                1806,
+                2759,
+                147,
+                124
+              ]
+            },
+            "brief_blip": {
+              "page": [
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "ticket": [
+                null,
+                null,
+                null,
+                null,
+                null
+              ]
+            }
+          },
+          "false_page_episodes": 0,
+          "false_ticket_episodes": 0,
+          "streams": 5
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "suite": "ops_shadow_safety",
+    "git": "3067eac",
+    "dirty": true,
+    "prereg": "docs/EVAL_OPS.md"
+  },
+  "results": {
+    "sample": 150,
+    "reps": 20,
+    "rule": {
+      "max_disagreement": 0.1,
+      "spot_n": 40,
+      "tolerance": 0,
+      "loss": "safety"
+    },
+    "rows": [
+      {
+        "candidate": "same",
+        "kind": "same",
+        "streams": 20,
+        "allowed": 20,
+        "blocked": 0,
+        "right": 20,
+        "disagree_mean": 0.0
+      },
+      {
+        "candidate": "no_normalize",
+        "kind": "degraded",
+        "streams": 20,
+        "allowed": 0,
+        "blocked": 20,
+        "right": 20,
+        "disagree_mean": 5.45
+      },
+      {
+        "candidate": "no_exceptions",
+        "kind": "degraded",
+        "streams": 20,
+        "allowed": 0,
+        "blocked": 20,
+        "right": 20,
+        "disagree_mean": 26.7
+      },
+      {
+        "candidate": "no_challenge",
+        "kind": "degraded",
+        "streams": 20,
+        "allowed": 0,
+        "blocked": 20,
+        "right": 20,
+        "disagree_mean": 2.5
+      },
+      {
+        "candidate": "no_landing",
+        "kind": "degraded",
+        "streams": 20,
+        "allowed": 0,
+        "blocked": 20,
+        "right": 20,
+        "disagree_mean": 13.95
+      },
+      {
+        "candidate": "fix_no_normalize",
+        "kind": "improved",
+        "streams": 20,
+        "allowed": 20,
+        "blocked": 0,
+        "right": 20,
+        "disagree_mean": 5.45
+      },
+      {
+        "candidate": "fix_no_exceptions",
+        "kind": "improved",
+        "streams": 20,
+        "allowed": 0,
+        "blocked": 20,
+        "right": 0,
+        "disagree_mean": 26.7
+      },
+      {
+        "candidate": "fix_no_challenge",
+        "kind": "improved",
+        "streams": 20,
+        "allowed": 20,
+        "blocked": 0,
+        "right": 20,
+        "disagree_mean": 2.5
+      },
+      {
+        "candidate": "fix_no_landing",
+        "kind": "improved",
+        "streams": 20,
+        "allowed": 15,
+        "blocked": 5,
+        "right": 15,
+        "disagree_mean": 13.95
+      }
+    ]
+  }
+}

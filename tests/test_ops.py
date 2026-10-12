@@ -121,9 +121,33 @@ def test_gate_allows_identical_blocks_degraded_and_allows_improved() -> None:
     good, no_norm = shadow.engine_of(ReviewConfig()), shadow.engine_of(ReviewConfig().without("normalize"))
     assert shadow.promote_gate(stream, good, good).allow and shadow.promote_gate(stream, good, good).reason == "동일"
     bad = shadow.promote_gate(stream, good, no_norm)
-    assert not bad.allow and bad.spot["cand_wrong"] > bad.spot["prod_wrong"]
+    assert not bad.allow and bad.spot["cand_cost"] > bad.spot["prod_cost"]
     better = shadow.promote_gate(stream, no_norm, good)
-    assert better.allow and better.spot["cand_wrong"] <= better.spot["prod_wrong"]
+    assert better.allow and better.spot["cand_cost"] <= better.spot["prod_cost"]
+
+
+def test_exact_loss_cannot_see_the_safety_direction_but_the_safety_loss_can() -> None:
+    """F-24: 정답 REJECT 인 소재를 운영은 REVIEW(안전), 후보는 APPROVE(위험)로 판정한다. 둘 다 정답과 다르므로 정확도 손실로는 '똑같이 틀림'이다."""
+    from adgate.eval.dataset import Example, Gold
+
+    items = [Example(id=f"X{i}", creative=POOL[0].creative, gold=Gold(decision="REJECT", violations=[], tags=[])) for i in range(30)]
+    prod, cand = (lambda e: "REVIEW"), (lambda e: "APPROVE")
+    exact = shadow.promote_gate(items, prod, cand, shadow.GateRule(loss="exact", max_disagreement=1.0))
+    safe = shadow.promote_gate(items, prod, cand, shadow.GateRule(loss="safety", max_disagreement=1.0))
+    assert exact.allow and exact.spot["prod_wrong"] == exact.spot["cand_wrong"]                   # 정확도 손실: 통과(위험한 후보를 놓친다)
+    assert not safe.allow and safe.spot["cand_cost"] > safe.spot["prod_cost"]                      # 안전 손실: 막는다
+    assert shadow.promote_gate(items, cand, prod, shadow.GateRule(loss="safety", max_disagreement=1.0)).allow   # 반대 방향(더 안전하게 바뀜)은 통과
+    assert shadow.cost("APPROVE", "REJECT", "safety") > shadow.cost("APPROVE", "REVIEW", "safety") and shadow.cost("REJECT", "REJECT", "safety") == 0
+
+
+def test_exact_loss_reproduces_the_preserved_first_contact_rows() -> None:
+    """사전등록한 첫 접촉은 정확도 손실(exact)이었다. 같은 규칙으로 다시 돌리면 보존된 산출물과 같아야 한다 — 손실을 바꾸면서 첫 접촉을 못 재현하는 일이 없게."""
+    import json
+    from pathlib import Path
+
+    kept = json.loads((Path(__file__).resolve().parents[1] / "artifacts/history/ops_first_contact.json").read_text(encoding="utf-8"))["results"]["shadow"]["rows"]
+    now = shadow.evaluate_shadow(POOL, rule=shadow.GateRule(loss="exact"))["rows"]
+    assert [(r["candidate"], r["allowed"], r["blocked"], r["right"], r["disagree_mean"]) for r in now] == [(r["candidate"], r["allowed"], r["blocked"], r["right"], r["disagree_mean"]) for r in kept]
 
 
 def test_gate_refuses_when_too_many_decisions_flip_without_a_spot_check() -> None:
