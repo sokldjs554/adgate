@@ -71,3 +71,47 @@
 ## 6. 주장하지 않는 것
 
 실제 광고에서의 정확도, 사람 심사자와의 일치도, 정책의 법적 적합성. 작성자·라벨러·judge 가 모두 같은 모델 계열이라 낙관 쪽 편향이 남는다.
+
+---
+
+> 아래는 **측정 뒤에 덧붙인 결과**다. 1–4절(사전등록)은 고치지 않았다(`adgate prereg` 가 해시를 검사한다). 예상이 틀린 곳은 '빗나감'이라 적는다.
+
+## 7. 결과 (1): 결정론 첫 접촉과 라벨러 일치
+
+### 7.1 결정론 `full` — 첫 접촉 (E1, 탐지기 변경 없음)
+
+| 지표 | 사전 예상 | 측정 | 판정 |
+|---|---|---|---|
+| 정확도 | 45–65% (점 55%) | <!-- num:hist.gray_first_contact.results.gray.full.accuracy|rpct1 -->63.3% (76/120)<!-- /num --> | 범위 안(위쪽 끝) |
+| 위험 승인율 | 35–60% (점 48%) | <!-- num:hist.gray_first_contact.results.gray.full.unsafe_approve|rpct1 -->34.3% (24/70)<!-- /num --> | **빗나감** — 예상보다 낮다(좋은 쪽) |
+| 정상 오반려 | ≤ 6% | <!-- num:hist.gray_first_contact.results.gray.full.false_reject|rpct1 -->14.0% (7/50)<!-- /num --> | **빗나감** — 예상보다 높다 → 4절 R3 발동 |
+| 정상 오보류 | 10–25% | <!-- num:hist.gray_first_contact.results.gray.full.over_review|rpct1 -->6.0% (3/50)<!-- /num --> | **빗나감** — 예상보다 낮다 |
+
+- 위험 승인율이 예상보다 낮은 이유는 확인하지 않았다. 회색지대 소재의 정답이 REVIEW 인 경우가 많아(36/120) 결정론이 '아무것도 못 찾음'(APPROVE)보다 '무언가 찾음'으로 기운 것일 수 있다.
+  정답 REVIEW 36건 중 <!-- num:hist.gray_first_contact.results.gray.full.confusion.REVIEW.APPROVE|int -->12<!-- /num -->건을 승인했고, 정답 REJECT 34건 중 <!-- num:hist.gray_first_contact.results.gray.full.confusion.REJECT.APPROVE|int -->12<!-- /num -->건을 승인했다.
+- 정상 오반려의 원인 분석과 수정은 [FAILURES.md F-22](FAILURES.md). 7건 중 4건은 문형·구조(예외로 닫을 수 있음), 3건은 의미 범위(닫지 않음).
+
+### 7.2 수정 뒤 (holdout 아님)
+
+| 시점 | 정확도 | 위험 승인율 | 정상 오반려 | 정상 오보류 | 규칙 F1 |
+|---|---|---|---|---|---|
+| 첫 접촉 | <!-- num:hist.gray_first_contact.results.gray.full.accuracy|rpct1 -->63.3% (76/120)<!-- /num --> | <!-- num:hist.gray_first_contact.results.gray.full.unsafe_approve|rpct1 -->34.3% (24/70)<!-- /num --> | <!-- num:hist.gray_first_contact.results.gray.full.false_reject|rpct1 -->14.0% (7/50)<!-- /num --> | <!-- num:hist.gray_first_contact.results.gray.full.over_review|rpct1 -->6.0% (3/50)<!-- /num --> | <!-- num:hist.gray_first_contact.results.gray.full.rule.micro.f1|f3 -->0.723<!-- /num --> |
+| 수정 1차 (부정 문형·경고 소개문·상호 전체) | <!-- num:hist.gray_after_fix1.results.gray.full.accuracy|rpct1 -->65.8% (79/120)<!-- /num --> | <!-- num:hist.gray_after_fix1.results.gray.full.unsafe_approve|rpct1 -->34.3% (24/70)<!-- /num --> | <!-- num:hist.gray_after_fix1.results.gray.full.false_reject|rpct1 -->8.0% (4/50)<!-- /num --> | <!-- num:hist.gray_after_fix1.results.gray.full.over_review|rpct1 -->6.0% (3/50)<!-- /num --> | <!-- num:hist.gray_after_fix1.results.gray.full.rule.micro.f1|f3 -->0.739<!-- /num --> |
+| 수정 2차 (상호 낱말 기준) | <!-- num:hist.gray_after_fixes.results.gray.full.accuracy|rpct1 -->66.7% (80/120)<!-- /num --> | <!-- num:hist.gray_after_fixes.results.gray.full.unsafe_approve|rpct1 -->34.3% (24/70)<!-- /num --> | <!-- num:hist.gray_after_fixes.results.gray.full.false_reject|rpct1 -->6.0% (3/50)<!-- /num --> | <!-- num:hist.gray_after_fixes.results.gray.full.over_review|rpct1 -->6.0% (3/50)<!-- /num --> | <!-- num:hist.gray_after_fixes.results.gray.full.rule.micro.f1|f3 -->0.745<!-- /num --> |
+
+위험 승인율은 수정으로 **바뀌지 않았다**: 수정은 오반려를 줄이는 방향(예외)뿐이고, 위험 소재를 더 잡는 수정은 하지 않았다. 의미를 돌려 말한 위반은 어휘로 막지 않는다([D-11](DECISIONS.md)).
+수정 뒤 수치는 실패 사례를 본 뒤 고친 결과라 holdout 이 아니다.
+
+### 7.3 독립 라벨러 일치 (E2) — `artifacts/agreement_gray.json`
+
+| 지표 | 사전 예상 | 측정 | 판정 |
+|---|---|---|---|
+| 라벨러 판정이 작성자 정답과 일치(3명 평균) | 70–88% | <!-- num:res.agreement_gray.mean_agreement_with_author|pct1 -->89.5%<!-- /num --> | **빗나감** — 예상보다 높다 |
+| 다중 라벨러 κ (Fleiss, 라벨러 3명) | 0.55–0.82 | <!-- num:res.agreement_gray.fleiss_kappa_labelers|f2 -->0.93<!-- /num --> (작성자 포함 <!-- num:res.agreement_gray.fleiss_kappa_with_author|f2 -->0.89<!-- /num -->) | **빗나감** — 예상보다 높다 |
+| `disputed` (라벨러 2명 이상이 작성자와 다름) | ≥ 8건 | <!-- num:res.agreement_gray.disputed.n|int -->12<!-- /num -->건 | 충족 |
+
+- 슬라이스: `clear` 와 `normal` 은 라벨러 3명 모두 작성자와 100% 일치했다. 갈린 것은 모두 `gray`(작성자 지시로 넣은 60건)이고, 그 일치도는 <!-- num:res.agreement_gray.slices.gray.mean_agreement_with_author|pct1 -->78.9%<!-- /num --> 다.
+- 라벨러 표 <!-- num:res.agreement_gray.lenient_agreement_with_author_or_alt.n|int -->360<!-- /num -->개 **전부**가 작성자 정답 *또는* 작성자가 노트에 적은 대안 판정이었다(관대한 일치 <!-- num:res.agreement_gray.lenient_agreement_with_author_or_alt.value|pct1 -->100.0%<!-- /num -->).
+  즉 갈린 곳은 작성자가 미리 '갈릴 수 있다'고 적은 바로 그 소재들이다. 작성자와 라벨러가 같은 모델 계열이라는 한계(6절)는 그대로다 — 이 일치를 '사람 심사자도 이렇게 갈린다'로 읽지 않는다.
+- R4(분쟁 20건 초과 시 POLICY_GAPS 에 열림으로 적는다): 12건이라 발동하지 않았다.
+
