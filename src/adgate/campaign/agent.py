@@ -408,7 +408,8 @@ class Agent:
     def _plan(self, s: Session, intent: str, status: Status, issues: list[Issue], accepted: list[dict[str, Any]], questions: list[str], utterance: str) -> dict[str, Any]:
         plan: dict[str, Any] = {"status": status, "off_topic": intent in ("off_topic", "injection"), "first_turn": s.turn == 1}
         plan["ack"] = [f"{LABEL[a['path']]}: {display(a['path'], a['value'])}" for a in accepted]
-        plan["notices"] = list(s.notices)
+        if s.notices:                      # 비어 있으면 키를 넣지 않는다 — 답변 과제의 입력이 같아야 이전 녹음의 열쇠가 그대로 맞는다
+            plan["notices"] = list(s.notices)
         plan["issues"] = [
             {"code": i.code, "severity": i.severity, "path": i.path, "message": i.message, "help": ISSUE_HELP.get(i.code, "")}
             for i in issues if i.severity == "error" or (i.code == "C12_high_budget_confirm")
