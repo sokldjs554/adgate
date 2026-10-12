@@ -1,0 +1,361 @@
+{
+  "meta": {
+    "suite": "vision",
+    "variant": "haiku",
+    "model": "claude-haiku-5-5",
+    "git_sha": "e9f9392",
+    "dirty": true,
+    "recording_sha256": "ad9114b0d92139a30439c23679908a67b70535d814971660d4111c17d8d62aad",
+    "prereg": "docs/EVAL_VISION.md"
+  },
+  "analysis": {
+    "decision_errors": {
+      "read": [
+        {
+          "id": "V-B03",
+          "gold": "REJECT",
+          "pred": "APPROVE",
+          "tags": [
+            "image_only",
+            "tiny_print",
+            "result_guarantee"
+          ],
+          "gold_violations": [
+            [
+              "AD-GUA-01",
+              "image_text",
+              "3주 만에 체중 8kg 감량을 보장합니다"
+            ]
+          ],
+          "pred_findings": []
+        },
+        {
+          "id": "V-C08",
+          "gold": "REVIEW",
+          "pred": "APPROVE",
+          "tags": [
+            "visual_cue",
+            "timer",
+            "urgency_no_basis"
+          ],
+          "gold_violations": [
+            [
+              "AD-URG-01",
+              "image_text",
+              "세일 마감까지 02:14:09"
+            ]
+          ],
+          "pred_findings": []
+        },
+        {
+          "id": "V-D07",
+          "gold": "APPROVE",
+          "pred": "REJECT",
+          "tags": [
+            "benign_image",
+            "benign_lookalike",
+            "range_expression",
+            "transaction_guarantee",
+            "price_display",
+            "tiny_print"
+          ],
+          "gold_violations": [],
+          "pred_findings": [
+            [
+              "AD-ABS-01",
+              "image_text",
+              "최고",
+              "reject"
+            ]
+          ]
+        },
+        {
+          "id": "V-D08",
+          "gold": "REJECT",
+          "pred": "APPROVE",
+          "tags": [
+            "visual_cue",
+            "fake_popup",
+            "tiny_print"
+          ],
+          "gold_violations": [
+            [
+              "AD-FRD-01",
+              "image_text",
+              "원격제어 앱을 설치"
+            ]
+          ],
+          "pred_findings": []
+        },
+        {
+          "id": "V-E05",
+          "gold": "APPROVE",
+          "pred": "REJECT",
+          "tags": [
+            "benign_image",
+            "negation",
+            "rotated",
+            "tiny_print"
+          ],
+          "gold_violations": [],
+          "pred_findings": [
+            [
+              "AD-FRD-01",
+              "image_text",
+              "선입금",
+              "reject"
+            ]
+          ]
+        },
+        {
+          "id": "V-E08",
+          "gold": "REJECT",
+          "pred": "APPROVE",
+          "tags": [
+            "visual_cue",
+            "fake_sms",
+            "tiny_print"
+          ],
+          "gold_violations": [
+            [
+              "AD-FRD-01",
+              "image_text",
+              "인증번호 6자리를 아래 번호로 회신해 주세요"
+            ]
+          ],
+          "pred_findings": []
+        },
+        {
+          "id": "V-F09",
+          "gold": "REJECT",
+          "pred": "APPROVE",
+          "tags": [
+            "visual_cue",
+            "fake_popup",
+            "tiny_print"
+          ],
+          "gold_violations": [
+            [
+              "AD-FRD-01",
+              "image_text",
+              "원격 제어 앱을 설치해야 제거할 수 있습니다"
+            ]
+          ],
+          "pred_findings": []
+        }
+      ],
+      "oracle": [
+        {
+          "id": "V-B03",
+          "gold": "REJECT",
+          "pred": "APPROVE",
+          "tags": [
+            "image_only",
+            "tiny_print",
+            "result_guarantee"
+          ],
+          "gold_violations": [
+            [
+              "AD-GUA-01",
+              "image_text",
+              "3주 만에 체중 8kg 감량을 보장합니다"
+            ]
+          ],
+          "pred_findings": []
+        },
+        {
+          "id": "V-C08",
+          "gold": "REVIEW",
+          "pred": "APPROVE",
+          "tags": [
+            "visual_cue",
+            "timer",
+            "urgency_no_basis"
+          ],
+          "gold_violations": [
+            [
+              "AD-URG-01",
+              "image_text",
+              "세일 마감까지 02:14:09"
+            ]
+          ],
+          "pred_findings": []
+        },
+        {
+          "id": "V-D07",
+          "gold": "APPROVE",
+          "pred": "REJECT",
+          "tags": [
+            "benign_image",
+            "benign_lookalike",
+            "range_expression",
+            "transaction_guarantee",
+            "price_display",
+            "tiny_print"
+          ],
+          "gold_violations": [],
+          "pred_findings": [
+            [
+              "AD-ABS-01",
+              "image_text",
+              "최고",
+              "reject"
+            ]
+          ]
+        },
+        {
+          "id": "V-D08",
+          "gold": "REJECT",
+          "pred": "APPROVE",
+          "tags": [
+            "visual_cue",
+            "fake_popup",
+            "tiny_print"
+          ],
+          "gold_violations": [
+            [
+              "AD-FRD-01",
+              "image_text",
+              "원격제어 앱을 설치"
+            ]
+          ],
+          "pred_findings": []
+        },
+        {
+          "id": "V-E05",
+          "gold": "APPROVE",
+          "pred": "REJECT",
+          "tags": [
+            "benign_image",
+            "negation",
+            "rotated",
+            "tiny_print"
+          ],
+          "gold_violations": [],
+          "pred_findings": [
+            [
+              "AD-FRD-01",
+              "image_text",
+              "선입금",
+              "reject"
+            ]
+          ]
+        },
+        {
+          "id": "V-E08",
+          "gold": "REJECT",
+          "pred": "APPROVE",
+          "tags": [
+            "visual_cue",
+            "fake_sms",
+            "tiny_print"
+          ],
+          "gold_violations": [
+            [
+              "AD-FRD-01",
+              "image_text",
+              "인증번호 6자리를 아래 번호로 회신해 주세요"
+            ]
+          ],
+          "pred_findings": []
+        },
+        {
+          "id": "V-F09",
+          "gold": "REJECT",
+          "pred": "APPROVE",
+          "tags": [
+            "visual_cue",
+            "fake_popup",
+            "tiny_print"
+          ],
+          "gold_violations": [
+            [
+              "AD-FRD-01",
+              "image_text",
+              "원격 제어 앱을 설치해야 제거할 수 있습니다"
+            ]
+          ],
+          "pred_findings": []
+        }
+      ]
+    },
+    "read_worse_than_oracle": [],
+    "read_better_than_oracle": [],
+    "both_wrong": [
+      "V-B03",
+      "V-C08",
+      "V-D07",
+      "V-D08",
+      "V-E05",
+      "V-E08",
+      "V-F09"
+    ],
+    "reading_misses": [
+      {
+        "id": "V-D08",
+        "missed": [],
+        "extra": [
+          "x"
+        ]
+      },
+      {
+        "id": "V-D09",
+        "missed": [],
+        "extra": [
+          "X"
+        ]
+      },
+      {
+        "id": "V-E01",
+        "missed": [
+          "혼자 끊기 어렵다면,",
+          "먼저 이야기해 주세요"
+        ],
+        "extra": [
+          "혼자 끊기 어렵다면,\n먼저 이야기해 주세요"
+        ]
+      },
+      {
+        "id": "V-E08",
+        "missed": [],
+        "extra": [
+          "x"
+        ]
+      },
+      {
+        "id": "V-E09",
+        "missed": [],
+        "extra": [
+          "x"
+        ]
+      },
+      {
+        "id": "V-F09",
+        "missed": [],
+        "extra": [
+          "X"
+        ]
+      }
+    ],
+    "flag_false_positives": {
+      "award_badge": [
+        "V-C07",
+        "V-D01",
+        "V-E10"
+      ],
+      "rating_stars": [
+        "V-E03"
+      ]
+    },
+    "flag_false_negatives": {
+      "low_contrast": [
+        "V-A06",
+        "V-B07",
+        "V-C02",
+        "V-D10",
+        "V-E10",
+        "V-F08"
+      ]
+    }
+  }
+}
