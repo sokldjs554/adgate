@@ -1,8 +1,8 @@
 {
   "meta": {
     "suite": "ops_summary",
-    "git": "3067eac",
-    "dirty": true,
+    "git": "b00c39c",
+    "dirty": false,
     "prereg": "docs/EVAL_OPS.md"
   },
   "results": {
