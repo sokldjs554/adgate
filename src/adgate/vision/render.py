@@ -343,6 +343,23 @@ def render(spec: ImageSpec) -> Image.Image:
     return img.convert("RGB")
 
 
+RENDERER_VERSION = "vision-v1"  # 그림이 달라지는 변경(레이아웃·색·글꼴)이 있으면 올린다. 녹음의 열쇠(RenderedImage)에 들어간다
+
+
+def render_png_bytes(spec_json: str) -> bytes:
+    """사양 JSON → PNG 바이트(``RenderedImage`` 를 API 로 보낼 때)."""
+    import io
+
+    buf = io.BytesIO()
+    render(ImageSpec.model_validate_json(spec_json)).save(buf, format="PNG")
+    return buf.getvalue()
+
+
+def spec_json(spec: ImageSpec) -> str:
+    """열쇠가 안정적이도록 정규화한 사양 JSON."""
+    return json.dumps(spec.model_dump(mode="json"), sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+
+
 def render_png(spec: ImageSpec, path: str | Path) -> Path:
     out = Path(path)
     out.parent.mkdir(parents=True, exist_ok=True)

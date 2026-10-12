@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import threading
 import time
 from collections.abc import Sequence
@@ -26,6 +25,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from .judge import ProposedFinding
+from .llm.safety import safe_json
 from .llm.spend import BudgetExceededError
 from .llm.spend import Spend as _BaseSpend
 from .models import AD_FIELDS, Creative
@@ -127,14 +127,7 @@ def system_prompt(policy: Policy) -> str:
 6. 최대 {MAX_FINDINGS}건. 후보가 없으면 `findings` 를 빈 배열로 둡니다."""
 
 
-_INVISIBLE = re.compile(r"[\u00ad\u034f\u061c\u115f\u1160\u17b4\u17b5\u180b-\u180f\u200b-\u200f\u202a-\u202e\u2060-\u206f\u2800\u3164\ufe00-\ufe0f\ufeff\uffa0\U000e0000-\U000e007f]")
-
-
-def _safe_json(value: Any) -> str:
-    """JSON 으로 직렬화하되 `<` `>` 를 이스케이프해서, 광고 문구 속 '</creative>' 가 구분자를 흉내 내지 못하게 한다.
-    사람 눈에 안 보이는 서식·채움·태그 문자(예: U+E0000 대역으로 쓴 숨은 지시)는 \\uXXXX 로 풀어 모델에게도 *보이게* 한다(독립 리뷰 L5)."""
-    out = json.dumps(value, ensure_ascii=False).replace("<", "\\u003c").replace(">", "\\u003e")
-    return _INVISIBLE.sub(lambda m: json.dumps(m.group())[1:-1], out)
+_safe_json = safe_json  # 공통 계층(llm/safety.py)으로 옮겼다. 이름은 호환을 위해 남긴다
 
 
 def user_content(creative: Creative, already: Sequence[dict[str, Any]]) -> str:

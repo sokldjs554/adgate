@@ -27,6 +27,7 @@ from .core import (
     LLMTask,
     LLMTruncated,
     Part,
+    RenderedImage,
     parts_of,
 )
 from .spend import Spend
@@ -80,6 +81,12 @@ class AnthropicClient:
         return dict(getattr(self._tls, "meta", {}))
 
     def _block(self, part: Part) -> dict[str, Any]:
+        if isinstance(part, RenderedImage):
+            # 지연 임포트: 실제 호출 때만 그린다(재생에는 Pillow 도 필요 없다)
+            from ..vision.render import render_png_bytes
+
+            data = base64.standard_b64encode(render_png_bytes(part.spec)).decode("ascii")
+            return {"type": "image", "source": {"type": "base64", "media_type": part.media_type, "data": data}}
         if isinstance(part, Image):
             data = base64.standard_b64encode((self.base_dir / part.path).read_bytes()).decode("ascii")
             return {"type": "image", "source": {"type": "base64", "media_type": part.media_type, "data": data}}
@@ -100,7 +107,7 @@ class AnthropicClient:
         return kwargs
 
     def estimate(self, task: LLMTask, user: str | Sequence[Part]) -> float:
-        chars = len(task.system) + sum(IMAGE_CHARS if isinstance(p, Image) else len(p) for p in parts_of(user))
+        chars = len(task.system) + sum(len(p) if isinstance(p, str) else IMAGE_CHARS for p in parts_of(user))
         return self.spend.estimate(chars, expected_output_tokens=task.expected_output_tokens)
 
     def call(self, task: LLMTask, user: str | Sequence[Part]) -> LLMResult:

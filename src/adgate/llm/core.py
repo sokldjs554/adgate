@@ -55,7 +55,20 @@ class Image:
     media_type: str = "image/png"
 
 
-Part = str | Image
+@dataclass(frozen=True)
+class RenderedImage:
+    """사양(JSON)으로 그려질 이미지. 열쇠가 *파일 바이트*가 아니라 사양과 렌더러 버전으로 정해진다.
+
+    그린 PNG 의 바이트는 Pillow/FreeType 버전마다 조금씩 달라서, 바이트로 열쇠를 만들면 다른 환경에서 녹음을 재생하지 못한다.
+    사양이 같으면 같은 이미지로 본다(렌더러가 바뀌면 ``renderer`` 를 올려 낡은 녹음을 막는다). 실제 호출 때만 그린다.
+    """
+
+    spec: str                      # ImageSpec 의 JSON 문자열(정규화돼 있어야 열쇠가 안정적이다)
+    renderer: str = "vision-v1"
+    media_type: str = "image/png"
+
+
+Part = str | Image | RenderedImage
 
 
 @dataclass(frozen=True)
@@ -105,6 +118,8 @@ def task_key(task: LLMTask, user: str | Sequence[Part], base_dir: Path | None = 
     for p in parts_of(user):
         if isinstance(p, Image):
             shown.append({"img": image_digest(base / p.path), "type": p.media_type})
+        elif isinstance(p, RenderedImage):
+            shown.append({"rendered": hashlib.sha256(p.spec.encode("utf-8")).hexdigest()[:16], "renderer": p.renderer, "type": p.media_type})
         else:
             shown.append({"t": p})
     payload = {"task": task.name, "version": task.version, "system": task.system, "schema": task.schema, "user": shown}
