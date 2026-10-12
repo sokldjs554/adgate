@@ -1,0 +1,923 @@
+{
+  "gray": [
+    {
+      "id": "G-A08",
+      "gold": "REJECT",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-GUA-01"
+      ],
+      "pred_rules": [],
+      "headline": "4대 보험 직장인이라면 승인 걱정은 접어두세요",
+      "tags": [
+        "gray",
+        "implicit",
+        "conditional_guarantee"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-A12",
+      "gold": "REVIEW",
+      "pred": "REJECT",
+      "gold_rules": [
+        "AD-ABS-01"
+      ],
+      "pred_rules": [
+        "AD-ABS-01"
+      ],
+      "headline": "최근 3년 수익률 1위 (2026년 가상투자평가원 집계 기준)",
+      "tags": [
+        "gray",
+        "substantiated",
+        "rank",
+        "no_past_figure"
+      ],
+      "findings": [
+        {
+          "rule": "AD-ABS-01",
+          "code": "unsubstantiated",
+          "sev": "reject",
+          "field": "headline",
+          "quote": "1위",
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-B06",
+      "gold": "APPROVE",
+      "pred": "REVIEW",
+      "gold_rules": [],
+      "pred_rules": [
+        "AD-ENDO-01"
+      ],
+      "headline": "광고 모델도, 후기 이벤트도 없는 스킨케어 상점",
+      "tags": [
+        "normal",
+        "benign_lookalike",
+        "negation"
+      ],
+      "findings": [
+        {
+          "rule": "AD-ENDO-01",
+          "code": "unsubstantiated_endorsement",
+          "sev": "review",
+          "field": "body",
+          "quote": "전문가 추천",
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-B07",
+      "gold": "REJECT",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-HLT-01"
+      ],
+      "pred_rules": [],
+      "headline": "혈압약 없이도 편안한 아침을 꿈꾼다면",
+      "tags": [
+        "gray",
+        "implicit",
+        "disclaimer_vs_implicit_claim"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-B09",
+      "gold": "REJECT",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-HLT-01"
+      ],
+      "pred_rules": [],
+      "headline": "정수리 걱정은 두피 컨디션부터",
+      "tags": [
+        "gray",
+        "testimonial",
+        "implicit"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-B10",
+      "gold": "APPROVE",
+      "pred": "REJECT",
+      "gold_rules": [],
+      "pred_rules": [
+        "AD-HLT-01"
+      ],
+      "headline": "불면증 치료, 검사부터 처방까지 한 곳에서",
+      "tags": [
+        "gray",
+        "service_vs_product"
+      ],
+      "findings": [
+        {
+          "rule": "AD-HLT-01",
+          "code": "disease_claim",
+          "sev": "reject",
+          "field": "headline",
+          "quote": "불면증 치료",
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-B11",
+      "gold": "REVIEW",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-ENDO-01"
+      ],
+      "pred_rules": [],
+      "headline": "피부 컨디션, 사진 한 장으로 기록하세요",
+      "tags": [
+        "gray",
+        "user_count",
+        "sourced",
+        "disputed"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-C02",
+      "gold": "REVIEW",
+      "pred": "REJECT",
+      "gold_rules": [
+        "AD-ABS-01"
+      ],
+      "pred_rules": [
+        "AD-ABS-01"
+      ],
+      "headline": "수강생 만족도 1위 영어 회화, 새 학기 모집",
+      "tags": [
+        "gray",
+        "ranking_claim",
+        "footnote_basis",
+        "substantiated"
+      ],
+      "findings": [
+        {
+          "rule": "AD-ABS-01",
+          "code": "unsubstantiated",
+          "sev": "reject",
+          "field": "headline",
+          "quote": "1위",
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-C04",
+      "gold": "APPROVE",
+      "pred": "REJECT",
+      "gold_rules": [],
+      "pred_rules": [
+        "AD-ABS-01"
+      ],
+      "headline": "최고수산 제주 갈치 산지 직송, 첫 주문 혜택",
+      "tags": [
+        "gray",
+        "brand_name",
+        "lexical_overlap"
+      ],
+      "findings": [
+        {
+          "rule": "AD-ABS-01",
+          "code": "unsubstantiated",
+          "sev": "reject",
+          "field": "headline",
+          "quote": "최고",
+          "src": "rule"
+        },
+        {
+          "rule": "AD-ABS-01",
+          "code": "unsubstantiated",
+          "sev": "reject",
+          "field": "image_text",
+          "quote": "최고",
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-C06",
+      "gold": "REJECT",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-CMP-01"
+      ],
+      "pred_rules": [],
+      "headline": "견적서 금액은 이사 당일에도 그대로입니다",
+      "tags": [
+        "gray",
+        "implicit",
+        "indirect_disparagement",
+        "disputed"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-C09",
+      "gold": "REVIEW",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-CMP-01"
+      ],
+      "pred_rules": [],
+      "headline": "옆 가게보다 천 원 싸게, 주말 반찬 세트",
+      "tags": [
+        "clear",
+        "unnamed_comparison"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-C12",
+      "gold": "REVIEW",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-URG-01"
+      ],
+      "pred_rules": [],
+      "headline": "오늘만 전 상품 무료배송, 생활용품 기획전",
+      "tags": [
+        "gray",
+        "urgency",
+        "landing",
+        "mismatch"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-D10",
+      "gold": "APPROVE",
+      "pred": "REVIEW",
+      "gold_rules": [],
+      "pred_rules": [
+        "AD-URG-01"
+      ],
+      "headline": "신제품 수분 앰플, 체험 키트로 먼저 써 보세요",
+      "tags": [
+        "gray",
+        "landing",
+        "urgency",
+        "excluded_unit",
+        "quantity_mismatch",
+        "disputed"
+      ],
+      "findings": [
+        {
+          "rule": "AD-URG-01",
+          "code": "urgency_unverified",
+          "sev": "review",
+          "field": "image_text",
+          "quote": "선착순 50명",
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-D12",
+      "gold": "REVIEW",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-HLT-01"
+      ],
+      "pred_rules": [],
+      "headline": "잠 못 드는 밤, 차분한 저녁 루틴",
+      "tags": [
+        "gray",
+        "landing",
+        "landing_claim",
+        "implicit",
+        "health_claim"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-E01",
+      "gold": "APPROVE",
+      "pred": "REJECT",
+      "gold_rules": [],
+      "pred_rules": [
+        "AD-FRD-01"
+      ],
+      "headline": "한도 조회는 신용조회 없이 3분 만에",
+      "tags": [
+        "gray",
+        "lookalike_scope",
+        "credit_inquiry"
+      ],
+      "findings": [
+        {
+          "rule": "AD-FRD-01",
+          "code": "deceptive_solicitation",
+          "sev": "reject",
+          "field": "headline",
+          "quote": "신용조회 없이",
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-E05",
+      "gold": "REVIEW",
+      "pred": "REJECT",
+      "gold_rules": [
+        "AD-ENDO-01"
+      ],
+      "pred_rules": [
+        "AD-ENDO-01",
+        "AD-FRD-01"
+      ],
+      "headline": "중고거래 사기, 이 세 가지만 기억하세요",
+      "tags": [
+        "clear",
+        "negation",
+        "benign_lookalike",
+        "warning"
+      ],
+      "findings": [
+        {
+          "rule": "AD-FRD-01",
+          "code": "deceptive_solicitation",
+          "sev": "reject",
+          "field": "body",
+          "quote": "인증번호나 비밀번호는 누구에게도 알려",
+          "src": "rule"
+        },
+        {
+          "rule": "AD-ENDO-01",
+          "code": "unsubstantiated_endorsement",
+          "sev": "review",
+          "field": "body",
+          "quote": "후기 10만 건",
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-E08",
+      "gold": "REVIEW",
+      "pred": "REJECT",
+      "gold_rules": [
+        "AD-CMP-01"
+      ],
+      "pred_rules": [
+        "AD-FRD-01"
+      ],
+      "headline": "물건 받아 보고 결제하세요, 선입금은 사양합니다",
+      "tags": [
+        "gray",
+        "comparison",
+        "pseudo_warning",
+        "landing",
+        "disputed"
+      ],
+      "findings": [
+        {
+          "rule": "AD-FRD-01",
+          "code": "deceptive_solicitation",
+          "sev": "reject",
+          "field": "headline",
+          "quote": "선입금",
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-E09",
+      "gold": "REJECT",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-FRD-01"
+      ],
+      "pred_rules": [],
+      "headline": "[가상은행] 이상 거래 차단 안내",
+      "tags": [
+        "clear",
+        "implicit",
+        "impersonation",
+        "apk"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-E10",
+      "gold": "REVIEW",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-ENDO-01"
+      ],
+      "pred_rules": [],
+      "headline": "금융당국 공식 인증 투자 상담센터",
+      "tags": [
+        "gray",
+        "institution_claim",
+        "endorsement"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-E12",
+      "gold": "REJECT",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-FRD-01"
+      ],
+      "pred_rules": [],
+      "headline": "집에서 하는 상품 검수 부업, 신규 인원 모집",
+      "tags": [
+        "gray",
+        "pseudo_warning",
+        "third_party_fee"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-F08",
+      "gold": "REVIEW",
+      "pred": "REVIEW",
+      "gold_rules": [
+        "AD-BRD-01"
+      ],
+      "pred_rules": [],
+      "headline": "매일 즐기는 새 미니게임 오픈",
+      "tags": [
+        "gray",
+        "simulated_wager",
+        "implicit",
+        "disputed"
+      ],
+      "findings": [
+        {
+          "rule": "SYS-INPUT",
+          "code": "category_mismatch",
+          "sev": "review",
+          "field": null,
+          "quote": null,
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-F10",
+      "gold": "REVIEW",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-BRD-01"
+      ],
+      "pred_rules": [],
+      "headline": "차별의 말이 한 사람의 하루를 바꿉니다",
+      "tags": [
+        "gray",
+        "quoted_hate",
+        "counter_speech",
+        "image_text"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-F11",
+      "gold": "REJECT",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-BRD-01"
+      ],
+      "pred_rules": [],
+      "headline": "밤늦은 귀갓길이 불안했다면, 손안에 쏙 들어오는 호신용품",
+      "tags": [
+        "gray",
+        "weapon_sale",
+        "safety_framing"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-G02",
+      "gold": "REVIEW",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-URG-01"
+      ],
+      "pred_rules": [],
+      "headline": "오늘만 이 가격, 파이썬 입문 12주 과정",
+      "tags": [
+        "gray",
+        "benign_lookalike",
+        "landing",
+        "urgency",
+        "evidence_mismatch"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-G07",
+      "gold": "REVIEW",
+      "pred": "REJECT",
+      "gold_rules": [
+        "AD-BRD-01"
+      ],
+      "pred_rules": [
+        "AD-BRD-01"
+      ],
+      "headline": "도박, 혼자 끊기 어렵다면 함께 시작해요",
+      "tags": [
+        "clear",
+        "public_interest",
+        "restricted_topic"
+      ],
+      "findings": [
+        {
+          "rule": "AD-BRD-01",
+          "code": "restricted_content",
+          "sev": "reject",
+          "field": "headline",
+          "quote": "도박",
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-G08",
+      "gold": "APPROVE",
+      "pred": "REJECT",
+      "gold_rules": [],
+      "pred_rules": [
+        "AD-FRD-01"
+      ],
+      "headline": "‘보증료부터 입금하세요’ 문자, 받으셨나요?",
+      "tags": [
+        "gray",
+        "benign_lookalike",
+        "fraud_warning",
+        "quoted_phrase",
+        "public_interest"
+      ],
+      "findings": [
+        {
+          "rule": "AD-FRD-01",
+          "code": "deceptive_solicitation",
+          "sev": "reject",
+          "field": "image_text",
+          "quote": "선입금",
+          "src": "rule"
+        },
+        {
+          "rule": "AD-FRD-01",
+          "code": "deceptive_solicitation",
+          "sev": "reject",
+          "field": "image_text",
+          "quote": "원격제어 앱 설치",
+          "src": "rule"
+        },
+        {
+          "rule": "SYS-INPUT",
+          "code": "category_mismatch",
+          "sev": "review",
+          "field": null,
+          "quote": null,
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-G11",
+      "gold": "REJECT",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-FRD-01"
+      ],
+      "pred_rules": [],
+      "headline": "보이스피싱 피해 환급 대상 조회 안내",
+      "tags": [
+        "clear",
+        "fraud",
+        "warning_decoy"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-G12",
+      "gold": "REVIEW",
+      "pred": "REJECT",
+      "gold_rules": [
+        "AD-ABS-01"
+      ],
+      "pred_rules": [
+        "AD-ABS-01"
+      ],
+      "headline": "민감 피부 선크림 만족도 1위 (가상소비자연구원 조사 기준)",
+      "tags": [
+        "gray",
+        "ranking",
+        "partial_source",
+        "disputed"
+      ],
+      "findings": [
+        {
+          "rule": "AD-ABS-01",
+          "code": "unsubstantiated",
+          "sev": "reject",
+          "field": "headline",
+          "quote": "1위",
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-H01",
+      "gold": "REJECT",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-GUA-01"
+      ],
+      "pred_rules": [],
+      "headline": "식사 전 스틱 하나로 시작하는 가벼운 습관",
+      "tags": [
+        "gray",
+        "paraphrase",
+        "implicit",
+        "outcome_promise",
+        "image_text"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-H02",
+      "gold": "REJECT",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-GUA-01"
+      ],
+      "pred_rules": [],
+      "headline": "맡긴 돈은 한 푼도 줄지 않고 그대로 돌아옵니다",
+      "tags": [
+        "clear",
+        "paraphrase",
+        "principal_guarantee",
+        "disclosure_contradiction"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-H04",
+      "gold": "REVIEW",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-CMP-01"
+      ],
+      "pred_rules": [],
+      "headline": "방문 견적부터 이삿날까지 한 담당자가 함께합니다",
+      "tags": [
+        "gray",
+        "paraphrase",
+        "implicit",
+        "comparison"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-H05",
+      "gold": "REJECT",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-HLT-01"
+      ],
+      "pred_rules": [],
+      "headline": "아침저녁 한 포, 영지버섯 농축액",
+      "tags": [
+        "clear",
+        "paraphrase",
+        "disease_claim"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-H06",
+      "gold": "REVIEW",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-ABS-01"
+      ],
+      "pred_rules": [],
+      "headline": "올해 소비자 재구매 부문 정상에 오른 티 브랜드, 가상차향",
+      "tags": [
+        "gray",
+        "paraphrase",
+        "ranking",
+        "partial_basis",
+        "disclosure"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-H08",
+      "gold": "REVIEW",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-HLT-01"
+      ],
+      "pred_rules": [],
+      "headline": "머리 감을 때마다 신경 쓰이시나요? 순하게 감는 약산성 두피 샴푸",
+      "tags": [
+        "gray",
+        "paraphrase",
+        "implicit",
+        "landing",
+        "disease_claim"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-H09",
+      "gold": "REVIEW",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-ENDO-01"
+      ],
+      "pred_rules": [],
+      "headline": "피부과 선생님들이 가족에게 먼저 권하는 보습 크림",
+      "tags": [
+        "clear",
+        "paraphrase",
+        "endorsement"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-I10",
+      "gold": "APPROVE",
+      "pred": "REVIEW",
+      "gold_rules": [],
+      "pred_rules": [],
+      "headline": "잠들기 전 10분, 불면증 개선 8주 명상 코스",
+      "tags": [
+        "gray",
+        "service_health",
+        "scope_category"
+      ],
+      "findings": [
+        {
+          "rule": "SYS-INPUT",
+          "code": "category_mismatch",
+          "sev": "review",
+          "field": null,
+          "quote": null,
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-I11",
+      "gold": "REVIEW",
+      "pred": "REJECT",
+      "gold_rules": [
+        "AD-ABS-01"
+      ],
+      "pred_rules": [
+        "AD-ABS-01"
+      ],
+      "headline": "강의 3,000개를 월 정액으로 마음껏 들어요",
+      "tags": [
+        "gray",
+        "ranking",
+        "substantiated",
+        "self_reported"
+      ],
+      "findings": [
+        {
+          "rule": "AD-ABS-01",
+          "code": "unsubstantiated",
+          "sev": "reject",
+          "field": "body",
+          "quote": "1위",
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-I12",
+      "gold": "REVIEW",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-CMP-01"
+      ],
+      "pred_rules": [],
+      "headline": "다른 앱에는 없는 오프라인 음성 메모",
+      "tags": [
+        "gray",
+        "comparison",
+        "feature_claim",
+        "priority_rule"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-J01",
+      "gold": "REJECT",
+      "pred": "REVIEW",
+      "gold_rules": [
+        "AD-GUA-01"
+      ],
+      "pred_rules": [
+        "AD-GUA-01"
+      ],
+      "headline": "직장인 비상금대출, 신청만 하면 무조건",
+      "tags": [
+        "clear",
+        "cross_field",
+        "split_phrase"
+      ],
+      "findings": [
+        {
+          "rule": "AD-GUA-01",
+          "code": "loose_match",
+          "sev": "review",
+          "field": null,
+          "quote": null,
+          "src": "challenge"
+        }
+      ]
+    },
+    {
+      "id": "G-J02",
+      "gold": "REJECT",
+      "pred": "APPROVE",
+      "gold_rules": [
+        "AD-HLT-01"
+      ],
+      "pred_rules": [],
+      "headline": "겨울 준비는 황토 온열 매트로, 올해는 가상온돌에서 시작해 보세요",
+      "tags": [
+        "clear",
+        "long_body",
+        "buried_violation",
+        "disease_claim"
+      ],
+      "findings": []
+    },
+    {
+      "id": "G-J07",
+      "gold": "REVIEW",
+      "pred": "REJECT",
+      "gold_rules": [
+        "AD-ABS-01"
+      ],
+      "pred_rules": [
+        "AD-ABS-01"
+      ],
+      "headline": "하루 10분 AI 영어 회화, 출퇴근길 습관 만들기",
+      "tags": [
+        "gray",
+        "cross_field",
+        "image_text",
+        "substantiation_in_disclosure",
+        "ranking"
+      ],
+      "findings": [
+        {
+          "rule": "AD-ABS-01",
+          "code": "unsubstantiated",
+          "sev": "reject",
+          "field": "image_text",
+          "quote": "1위",
+          "src": "rule"
+        }
+      ]
+    },
+    {
+      "id": "G-J09",
+      "gold": "REVIEW",
+      "pred": "REJECT",
+      "gold_rules": [
+        "AD-ENDO-01"
+      ],
+      "pred_rules": [
+        "AD-GUA-01"
+      ],
+      "headline": "식사 30분 전에 한 포, 물 한 잔과 함께하는 가르시니아 스틱",
+      "tags": [
+        "gray",
+        "long_body",
+        "buried_violation",
+        "testimonial",
+        "implicit"
+      ],
+      "findings": [
+        {
+          "rule": "AD-GUA-01",
+          "code": "guarantee",
+          "sev": "reject",
+          "field": "body",
+          "quote": "한 달 만에 10kg 감량",
+          "src": "rule"
+        }
+      ]
+    }
+  ]
+}

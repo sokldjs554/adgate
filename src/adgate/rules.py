@@ -111,17 +111,25 @@ def _substantiated(scan: Scan, nv: Normalized, a: int, b: int) -> bool:
     return False
 
 
-def _inside_advertiser_name(scan: Scan, nv: Normalized, a: int, b: int) -> bool:
-    """매치가 광고주 상호의 *글자 구간 안*에 있고 상호가 매치보다 긴가('최고수산' 속 '최고'). 상호 밖에서 또 쓰이면 그 매치는 따로 걸린다."""
+_TOKEN_CHARS = re.compile(r"[0-9A-Za-z가-힣]")
+
+
+def _inside_brand_token(scan: Scan, nv: Normalized, a: int, b: int) -> bool:
+    """매치('최고')가 광고주 상호에 든 낱말('최고수산')의 일부인가. 낱말이 매치보다 길고(조사 한두 글자는 떼고 본다) 상호 안에 글자 그대로 들어 있어야 한다.
+    상호가 '가상최고수산' 이고 소재가 '최고수산' 으로만 쓰는 경우를 포함한다. 낱말이 매치와 같으면('최고' 단독) 상호와 상관없이 주장이다."""
     name = scan.creative.advertiser.name.strip()
     s, e = nv.orig_span_from_tight(a, b)
-    if len(name) <= e - s:
-        return False
-    at = nv.original.find(name)
-    while at >= 0:
-        if at <= s and e <= at + len(name):
+    text = nv.original
+    lo, hi = s, e
+    while lo > 0 and _TOKEN_CHARS.match(text[lo - 1]):
+        lo -= 1
+    while hi < len(text) and _TOKEN_CHARS.match(text[hi]):
+        hi += 1
+    token = text[lo:hi]
+    for cut in range(0, 3):
+        t = token[: len(token) - cut] if cut else token
+        if len(t) > e - s and lo + len(t) >= e and t in name:
             return True
-        at = nv.original.find(name, at + 1)
     return False
 
 
@@ -131,7 +139,8 @@ def detect_abs(scan: Scan, field: str, nv: Normalized) -> list[Finding]:
         for m in pat.rx.finditer(nv.tight):
             if scan.cfg.exceptions and _is_range_expression(pat.name, nv.tight, m.end()):
                 continue
-            if scan.cfg.exceptions and _inside_advertiser_name(scan, nv, m.start(), m.end()):
+            # 상호에 흔히 들어가는 낱말('최고수산', '최저가마트')만. '1위·유일·최초' 같은 순위·유일성 표현은 상호에 있어도 주장이다.
+            if scan.cfg.exceptions and pat.name in ("best", "lowest") and _inside_brand_token(scan, nv, m.start(), m.end()):
                 continue
             ok = scan.cfg.exceptions and _substantiated(scan, nv, m.start(), m.end())
             code = "substantiated_needs_check" if ok else "unsubstantiated"

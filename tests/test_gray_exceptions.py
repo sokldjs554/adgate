@@ -62,14 +62,16 @@ def test_scam_pitches_dressed_as_warnings_are_still_caught(body):
 
 # --------------------------------------------------------------------------- 3. 상호 속 최상급
 def test_a_superlative_that_is_only_part_of_the_brand_name_is_not_a_claim():
-    out, found = run(headline="최고수산 제주 갈치 산지 직송", name="최고수산", category="ecommerce", image_text="최고수산 | 제주 갈치")
+    out, found = run(headline="최고수산 제주 갈치 산지 직송", name="가상최고수산", category="ecommerce", image_text="최고수산 | 제주 갈치")
     assert not any(r == "AD-ABS-01" for r, _ in found) and out == "APPROVE"
 
 
 @pytest.mark.parametrize("headline,name", [
-    ("최고수산, 국내 최고 품질", "최고수산"),             # 상호 밖에서 다시 주장
-    ("최고 품질 갈치", "최고수산"),                        # 상호가 아니라 주장
-    ("최고", "최고"),                                      # 상호가 매치와 같으면(상호 전체가 주장) 예외 없음
+    ("최고수산, 국내 최고 품질", "가상최고수산"),         # 상호 밖에서 다시 주장
+    ("최고 품질 갈치", "가상최고수산"),                    # 낱말이 매치와 같다 — 상호가 아니라 주장
+    ("최고", "최고"),                                      # 상호 전체가 주장
+    ("가상최고수산 최고의 맛", "가상최고수산"),             # '최고의' 는 상호의 낱말이 아니다
+    ("국내 1위 수산", "1위수산"),                          # 순위·유일성 표현은 상호에 있어도 주장이다
 ])
 def test_superlative_claims_outside_or_equal_to_the_brand_are_still_caught(headline, name):
     assert any(r == "AD-ABS-01" for r, _ in run(headline=headline, name=name, category="ecommerce")[1])
