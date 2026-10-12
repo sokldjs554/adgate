@@ -28,3 +28,14 @@ adgate docs --check                             # 문서의 수치가 artifacts/
 - `src/adgate/` 구현, `data/` 데이터와 동결 해시, `artifacts/` 측정 산출물, `docs/` 정책·평가 계획·결정·실패·한계·결과.
 - 결정은 `docs/DECISIONS.md`, 틀렸던 것은 `docs/FAILURES.md`, 알려진 한계는 `docs/LIMITATIONS.md`. 새 결정·실패는 거기에 적는다.
 - LLM judge: 실호출은 한 번도 못 했던 어댑터(`judge_anthropic.py`). 대리 측정은 `docs/JUDGE_REPLAY.md`, 실호출 측정은 `docs/JUDGE_LIVE.md`(사전등록됨, 수동 워크플로 `.github/workflows/judge-live.yml`).
+
+## 지금 상태와 다음 할 일 (실호출 측정이 끝나면 이 절을 지운다)
+
+- GitHub `sokldjs554/adgate`(공개)에 `main` 이 올라가 있다. 태그(`detector-pre-redteam`, `detector-v0`)는 세션의 푸시 권한으로 403 이라 올리지 못했다 → 문서에는 커밋 해시(`f97cc05`, `b50e4c1`)를 함께 적었다.
+- **실호출 측정은 아직 하지 않았다.** 사전등록은 끝났다(`docs/JUDGE_LIVE.md`). 순서:
+  1. `make judge-live-dry` — 호출 없음, 추정 약 $5.6.
+  2. `make judge-check` — 한 건 실호출(≤ $0.5). 요청이 받아들여지는지, 지연이 얼마인지 본다. 어댑터는 한 번도 실행된 적이 없다.
+  3. 사용자에게 비용 상한($12 기본)을 확인한다. 확인 없이 209건을 부르지 않는다.
+  4. `make judge-record` → `data/judge_live/` 의 녹음을 커밋 → **깨끗한 작업트리에서** `make judge-live-eval` 을 한 번.
+  5. 결과를 `docs/JUDGE_LIVE.md` 5절 이후에 덧붙인다(예상 L1–L7 대 관측, 대역과의 견줌, 비용·지연). `docs.py` 에 실호출 절 렌더링을 더하고 `adgate docs`. 1–4절은 고치지 않는다.
+- 키는 환경 변수 `ANTHROPIC_API_KEY`(세션 시작 때 주입된다)나 Actions secret 으로만 받는다. 없으면 채팅에 붙여 달라고 하지 말고 환경 설정을 안내한다.
