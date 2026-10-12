@@ -17,6 +17,7 @@ dependencies = [
 
 [project.optional-dependencies]
 llm = ["anthropic>=1.0"]
+vision = ["pillow>=10"]
 dev = [
   "pytest>=8",
   "httpx>=0.27",
@@ -25,6 +26,8 @@ dev = [
   "mypy>=1.10",
   "types-PyYAML",
   "anthropic>=1.0",
+  "pillow>=10",
+  "fonttools>=4",
 ]
 
 [project.scripts]
@@ -34,7 +37,7 @@ adgate = "adgate.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-adgate = ["data/*.yaml", "web/*"]
+adgate = ["data/*.yaml", "data/fonts/*", "web/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
