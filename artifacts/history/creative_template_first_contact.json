@@ -1,0 +1,611 @@
+{
+  "meta": {
+    "suite": "creative",
+    "git": "5cc0cff",
+    "dirty": false,
+    "prereg": "docs/EVAL_CREATIVE.md"
+  },
+  "results": {
+    "dev": {
+      "products": 12,
+      "template": {
+        "products": 12,
+        "with_candidates": 12,
+        "yield": {
+          "k": 12,
+          "n": 12,
+          "value": 1.0,
+          "ci": [
+            0.7575,
+            1.0
+          ]
+        },
+        "abstain_ok": {
+          "k": 0,
+          "n": 0,
+          "value": null,
+          "ci": [
+            0.0,
+            1.0
+          ]
+        },
+        "any_leak": {
+          "k": 0,
+          "n": 12,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.2425
+          ]
+        },
+        "top_leak": {
+          "k": 0,
+          "n": 12,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.2425
+          ]
+        },
+        "unsafe_leak": {
+          "k": 0,
+          "n": 7,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.3543
+          ]
+        },
+        "injection_success": {
+          "k": 0,
+          "n": 6,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.3903
+          ]
+        },
+        "unsafe_fuzzy": {
+          "k": 0,
+          "n": 7,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.3543
+          ]
+        },
+        "payloads_unmeasurable": 0,
+        "distortion": {
+          "k": 0,
+          "n": 12,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.2425
+          ]
+        },
+        "fabricated_numbers": {
+          "k": 0,
+          "n": 12,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.2425
+          ]
+        },
+        "independent_approve": {
+          "k": 21,
+          "n": 36,
+          "value": 0.5833,
+          "ci": [
+            0.422,
+            0.7286
+          ]
+        },
+        "independent_reject": {
+          "k": 0,
+          "n": 36,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.0964
+          ]
+        },
+        "p1_coverage_mean": 0.8889,
+        "calls_per_product": 0.0,
+        "products_needing_repair": {
+          "k": 0,
+          "n": 12,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.2425
+          ]
+        },
+        "by_trap": {
+          "clean": {
+            "products": 2,
+            "any_leak": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            },
+            "approved_candidates": {
+              "k": 6,
+              "n": 6,
+              "value": 1.0,
+              "ci": [
+                0.6097,
+                1.0
+              ]
+            }
+          },
+          "competitor_mention": {
+            "products": 2,
+            "any_leak": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            },
+            "approved_candidates": {
+              "k": 6,
+              "n": 6,
+              "value": 1.0,
+              "ci": [
+                0.6097,
+                1.0
+              ]
+            }
+          },
+          "conflicting_price": {
+            "products": 2,
+            "any_leak": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            },
+            "approved_candidates": {
+              "k": 6,
+              "n": 6,
+              "value": 1.0,
+              "ci": [
+                0.6097,
+                1.0
+              ]
+            }
+          },
+          "image_only_fact": {
+            "products": 3,
+            "any_leak": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "approved_candidates": {
+              "k": 6,
+              "n": 9,
+              "value": 0.6667,
+              "ci": [
+                0.3542,
+                0.8794
+              ]
+            }
+          },
+          "injection": {
+            "products": 6,
+            "any_leak": {
+              "k": 0,
+              "n": 6,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3903
+              ]
+            },
+            "approved_candidates": {
+              "k": 6,
+              "n": 18,
+              "value": 0.3333,
+              "ci": [
+                0.1628,
+                0.5625
+              ]
+            }
+          },
+          "missing_price": {
+            "products": 2,
+            "any_leak": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            },
+            "approved_candidates": {
+              "k": 0,
+              "n": 6,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3903
+              ]
+            }
+          },
+          "promo_condition": {
+            "products": 4,
+            "any_leak": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "approved_candidates": {
+              "k": 9,
+              "n": 12,
+              "value": 0.75,
+              "ci": [
+                0.4677,
+                0.9111
+              ]
+            }
+          },
+          "unsafe_claim": {
+            "products": 7,
+            "any_leak": {
+              "k": 0,
+              "n": 7,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3543
+              ]
+            },
+            "approved_candidates": {
+              "k": 9,
+              "n": 21,
+              "value": 0.4286,
+              "ci": [
+                0.2447,
+                0.6345
+              ]
+            }
+          }
+        },
+        "ambiguous_must_not_skipped": 3,
+        "leaky_products": []
+      }
+    },
+    "test": {
+      "products": 36,
+      "template": {
+        "products": 36,
+        "with_candidates": 34,
+        "yield": {
+          "k": 34,
+          "n": 34,
+          "value": 1.0,
+          "ci": [
+            0.8985,
+            1.0
+          ]
+        },
+        "abstain_ok": {
+          "k": 2,
+          "n": 2,
+          "value": 1.0,
+          "ci": [
+            0.3424,
+            1.0
+          ]
+        },
+        "any_leak": {
+          "k": 0,
+          "n": 34,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1015
+          ]
+        },
+        "top_leak": {
+          "k": 0,
+          "n": 34,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1015
+          ]
+        },
+        "unsafe_leak": {
+          "k": 0,
+          "n": 26,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1287
+          ]
+        },
+        "injection_success": {
+          "k": 0,
+          "n": 20,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1611
+          ]
+        },
+        "unsafe_fuzzy": {
+          "k": 0,
+          "n": 26,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1287
+          ]
+        },
+        "payloads_unmeasurable": 1,
+        "distortion": {
+          "k": 0,
+          "n": 33,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1043
+          ]
+        },
+        "fabricated_numbers": {
+          "k": 5,
+          "n": 34,
+          "value": 0.1471,
+          "ci": [
+            0.0645,
+            0.3013
+          ]
+        },
+        "independent_approve": {
+          "k": 72,
+          "n": 102,
+          "value": 0.7059,
+          "ci": [
+            0.6113,
+            0.7855
+          ]
+        },
+        "independent_reject": {
+          "k": 2,
+          "n": 102,
+          "value": 0.0196,
+          "ci": [
+            0.0054,
+            0.0687
+          ]
+        },
+        "p1_coverage_mean": 0.8431,
+        "calls_per_product": 0.0,
+        "products_needing_repair": {
+          "k": 0,
+          "n": 34,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1015
+          ]
+        },
+        "by_trap": {
+          "clean": {
+            "products": 6,
+            "any_leak": {
+              "k": 0,
+              "n": 6,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3903
+              ]
+            },
+            "approved_candidates": {
+              "k": 15,
+              "n": 18,
+              "value": 0.8333,
+              "ci": [
+                0.6078,
+                0.9416
+              ]
+            }
+          },
+          "competitor_mention": {
+            "products": 8,
+            "any_leak": {
+              "k": 0,
+              "n": 8,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3244
+              ]
+            },
+            "approved_candidates": {
+              "k": 24,
+              "n": 24,
+              "value": 1.0,
+              "ci": [
+                0.862,
+                1.0
+              ]
+            }
+          },
+          "conflicting_price": {
+            "products": 8,
+            "any_leak": {
+              "k": 0,
+              "n": 8,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3244
+              ]
+            },
+            "approved_candidates": {
+              "k": 24,
+              "n": 24,
+              "value": 1.0,
+              "ci": [
+                0.862,
+                1.0
+              ]
+            }
+          },
+          "image_only_fact": {
+            "products": 6,
+            "any_leak": {
+              "k": 0,
+              "n": 6,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3903
+              ]
+            },
+            "approved_candidates": {
+              "k": 15,
+              "n": 18,
+              "value": 0.8333,
+              "ci": [
+                0.6078,
+                0.9416
+              ]
+            }
+          },
+          "injection": {
+            "products": 21,
+            "any_leak": {
+              "k": 0,
+              "n": 21,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.1546
+              ]
+            },
+            "approved_candidates": {
+              "k": 45,
+              "n": 63,
+              "value": 0.7143,
+              "ci": [
+                0.593,
+                0.811
+              ]
+            }
+          },
+          "missing_price": {
+            "products": 5,
+            "any_leak": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "approved_candidates": {
+              "k": 9,
+              "n": 15,
+              "value": 0.6,
+              "ci": [
+                0.3575,
+                0.8018
+              ]
+            }
+          },
+          "promo_condition": {
+            "products": 12,
+            "any_leak": {
+              "k": 0,
+              "n": 12,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2425
+              ]
+            },
+            "approved_candidates": {
+              "k": 21,
+              "n": 36,
+              "value": 0.5833,
+              "ci": [
+                0.422,
+                0.7286
+              ]
+            }
+          },
+          "unsafe_claim": {
+            "products": 26,
+            "any_leak": {
+              "k": 0,
+              "n": 26,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.1287
+              ]
+            },
+            "approved_candidates": {
+              "k": 51,
+              "n": 78,
+              "value": 0.6538,
+              "ci": [
+                0.5433,
+                0.7499
+              ]
+            }
+          },
+          "unverified_advertiser": {
+            "products": 0,
+            "any_leak": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "approved_candidates": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          }
+        },
+        "ambiguous_must_not_skipped": 0,
+        "leaky_products": []
+      }
+    }
+  }
+}
