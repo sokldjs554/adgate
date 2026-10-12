@@ -92,7 +92,17 @@ def _analyze(variant: str, outcomes: list[CaseOutcome]) -> dict[str, Any]:
                 })
             if not r["intent_ok"]:
                 confusion[f"{r['gold_intent']}→{r['intent']}"] += 1
-    return {"closed_failures": closed_fail, "teacher_turn_misses": turn_miss, "intent_confusions": dict(confusion), "failed_cases": [o.case for o in outcomes if o.result is None]}
+    diff_by_path: dict[str, dict[str, dict[str, int]]] = {}      # 닫힌 고리에서 틀린 슬롯을 셋·종류(빠짐/틀림/남음)·경로별로 센다 — 어느 슬롯이 문제인가
+    for r in closed_fail:
+        for kind in ("missing", "wrong", "extra"):
+            for item in r["diff"][kind]:
+                path = item.split("=")[0].split(":")[0]
+                bucket = diff_by_path.setdefault(r["split"], {}).setdefault(kind, {})
+                bucket[path] = bucket.get(path, 0) + 1
+    return {
+        "closed_failures": closed_fail, "teacher_turn_misses": turn_miss, "intent_confusions": dict(confusion), "diff_by_path": diff_by_path,
+        "failed_cases": [o.case for o in outcomes if o.result is None],
+    }
 
 
 @register("campaign")
