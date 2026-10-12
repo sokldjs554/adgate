@@ -90,6 +90,15 @@ def _is_range_expression(name: str, tight: str, end: int) -> bool:
     return name in lx.RANGE_PATS and lx.RANGE_AFTER.match(tight[end:end + 14]) is not None
 
 
+def _is_range_note(name: str, nv: Normalized, a: int, b: int) -> bool:
+    """'※ 최고 할인율은 일부 모델에 한하며' 처럼 머리글의 범위를 *설명하는* 각주 문장인가. '최고' 가 문장 첫머리에 있어야 한다."""
+    if name not in lx.RANGE_PATS or lx.RANGE_NOTE_AFTER.match(nv.tight[b:b + 40]) is None:
+        return False
+    sa, _ = nv.soft_span_from_tight(a, b)
+    lo, _ = nv.sentence_range(sa)
+    return sa - lo <= 12 and lx.SENTENCE_LEAD.match(nv.soft[lo:sa]) is not None  # 첫머리의 표지는 짧다 — 문장 전체를 복사하지 않는다(선형 시간)
+
+
 def _has_source(text: str) -> bool:
     return bool(lx.SOURCE_MARK.search(text) and lx.YEAR_MARK.search(unicodedata.normalize("NFKC", text)))
 
@@ -137,7 +146,9 @@ def detect_abs(scan: Scan, field: str, nv: Normalized) -> list[Finding]:
     out: list[Finding] = []
     for pat in lx.ABS:
         for m in pat.rx.finditer(nv.tight):
-            if scan.cfg.exceptions and _is_range_expression(pat.name, nv.tight, m.end()):
+            if scan.cfg.exceptions and (
+                _is_range_expression(pat.name, nv.tight, m.end()) or _is_range_note(pat.name, nv, m.start(), m.end())
+            ):
                 continue
             # 상호에 흔히 들어가는 낱말('최고수산', '최저가마트')만. '1위·유일·최초' 같은 순위·유일성 표현은 상호에 있어도 주장이다.
             if scan.cfg.exceptions and pat.name in ("best", "lowest") and _inside_brand_token(scan, nv, m.start(), m.end()):
@@ -233,6 +244,8 @@ def detect_frd(scan: Scan, field: str, nv: Normalized) -> list[Finding]:
             ):
                 continue
             if scan.cfg.exceptions and lx.warned_about(nv.tight, m.end()):
+                continue
+            if scan.cfg.exceptions and pat.name == "remote" and lx.remote_warned(nv.tight, m.end()):
                 continue
             out.append(_hit(scan, "AD-FRD-01", "deceptive_solicitation", field, nv, m.start(), m.end(), note=f"pattern:{pat.name}"))
     return out

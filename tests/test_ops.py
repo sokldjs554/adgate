@@ -147,7 +147,9 @@ def test_exact_loss_reproduces_the_preserved_first_contact_rows() -> None:
 
     kept = json.loads((Path(__file__).resolve().parents[1] / "artifacts/history/ops_first_contact.json").read_text(encoding="utf-8"))["results"]["shadow"]["rows"]
     now = shadow.evaluate_shadow(POOL, rule=shadow.GateRule(loss="exact"))["rows"]
-    assert [(r["candidate"], r["allowed"], r["blocked"], r["right"], r["disagree_mean"]) for r in now] == [(r["candidate"], r["allowed"], r["blocked"], r["right"], r["disagree_mean"]) for r in kept]
+    # `disagree_mean`(운영과 후보의 판정이 갈린 소재 수)은 손실이 아니라 *엔진*이 정한다. 이미지 셋 수정(F-31) 뒤 회색지대 G-E09·G-G11 이 새로 REJECT 가 돼서
+    # 정규화를 끈 후보(no_normalize, 'APK)을 설치' 의 괄호를 못 걷는다)와의 불일치가 5.45 → 6.1 이 됐다. 손실이 정하는 것(통과·차단·정답 수)만 첫 접촉과 견준다.
+    assert [(r["candidate"], r["allowed"], r["blocked"], r["right"]) for r in now] == [(r["candidate"], r["allowed"], r["blocked"], r["right"]) for r in kept]
 
 
 def test_gate_refuses_when_too_many_decisions_flip_without_a_spot_check() -> None:
