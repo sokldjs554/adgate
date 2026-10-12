@@ -1,0 +1,138 @@
+{
+  "meta": {
+    "suite": "vision",
+    "variant": "opus",
+    "model": "claude-opus-5-5",
+    "git_sha": "57d94cf",
+    "dirty": false,
+    "recording_sha256": "2458fff36ba3264c72b6fd6eefd33cb00780f8b6871cc493feb46ef043bba5db",
+    "prereg": "docs/EVAL_VISION.md"
+  },
+  "analysis": {
+    "decision_errors": {
+      "read": [
+        {
+          "id": "V-C08",
+          "gold": "REVIEW",
+          "pred": "APPROVE",
+          "tags": [
+            "visual_cue",
+            "timer",
+            "urgency_no_basis"
+          ],
+          "gold_violations": [
+            [
+              "AD-URG-01",
+              "image_text",
+              "세일 마감까지 02:14:09"
+            ]
+          ],
+          "pred_findings": []
+        }
+      ],
+      "oracle": [
+        {
+          "id": "V-C08",
+          "gold": "REVIEW",
+          "pred": "APPROVE",
+          "tags": [
+            "visual_cue",
+            "timer",
+            "urgency_no_basis"
+          ],
+          "gold_violations": [
+            [
+              "AD-URG-01",
+              "image_text",
+              "세일 마감까지 02:14:09"
+            ]
+          ],
+          "pred_findings": []
+        }
+      ]
+    },
+    "read_worse_than_oracle": [],
+    "read_better_than_oracle": [],
+    "both_wrong": [
+      "V-C08"
+    ],
+    "reading_misses": [
+      {
+        "id": "V-D08",
+        "missed": [],
+        "extra": [
+          "X"
+        ]
+      },
+      {
+        "id": "V-D09",
+        "missed": [],
+        "extra": [
+          "X"
+        ]
+      },
+      {
+        "id": "V-E01",
+        "missed": [
+          "혼자 끊기 어렵다면,",
+          "먼저 이야기해 주세요"
+        ],
+        "extra": [
+          "혼자 끊기 어렵다면, 먼저 이야기해 주세요"
+        ]
+      },
+      {
+        "id": "V-E05",
+        "missed": [],
+        "extra": [
+          "x"
+        ]
+      },
+      {
+        "id": "V-E08",
+        "missed": [],
+        "extra": [
+          "x"
+        ]
+      },
+      {
+        "id": "V-E09",
+        "missed": [],
+        "extra": [
+          "x"
+        ]
+      },
+      {
+        "id": "V-F09",
+        "missed": [],
+        "extra": [
+          "X"
+        ]
+      }
+    ],
+    "flag_false_positives": {
+      "low_contrast": [
+        "V-A01",
+        "V-A02",
+        "V-A10",
+        "V-B06",
+        "V-C05",
+        "V-D01",
+        "V-D07",
+        "V-D08",
+        "V-E04",
+        "V-F01",
+        "V-F03",
+        "V-F04",
+        "V-F06",
+        "V-F09",
+        "V-F10"
+      ],
+      "award_badge": [
+        "V-D04",
+        "V-E03"
+      ]
+    },
+    "flag_false_negatives": {}
+  }
+}
