@@ -3,8 +3,8 @@
     "suite": "vision",
     "variant": "sonnet",
     "model": "claude-sonnet-5-5",
-    "git_sha": "e9f9392",
-    "dirty": true,
+    "git_sha": "b619260",
+    "dirty": false,
     "recording_sha256": "1b602ae75c9a4443b1d2f8a7075fed1215f489ef4f574c318cb843ac621918c8",
     "prereg": "docs/EVAL_VISION.md"
   },

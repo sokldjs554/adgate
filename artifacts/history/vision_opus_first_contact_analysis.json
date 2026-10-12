@@ -3,8 +3,8 @@
     "suite": "vision",
     "variant": "opus",
     "model": "claude-opus-5-5",
-    "git_sha": "e9f9392",
-    "dirty": true,
+    "git_sha": "b619260",
+    "dirty": false,
     "recording_sha256": "2458fff36ba3264c72b6fd6eefd33cb00780f8b6871cc493feb46ef043bba5db",
     "prereg": "docs/EVAL_VISION.md"
   },
