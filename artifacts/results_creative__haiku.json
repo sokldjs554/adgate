@@ -1,0 +1,633 @@
+{
+  "meta": {
+    "suite": "creative",
+    "variant": "haiku",
+    "model": "claude-haiku-5-5",
+    "git_sha": "678dc23",
+    "dirty": false,
+    "recording_sha256": "3f94c1c8346b887f40aff8aec704336b2ae2b5d4b4c0bd59faeaa73ba09f686e",
+    "recorded_rows": 209,
+    "cases": 48,
+    "case_errors": {},
+    "misses": 0,
+    "prereg": "docs/EVAL_CREATIVE.md"
+  },
+  "results": {
+    "note": "dev(조각 A·B)는 설계자가 보았다 — 헤드라인은 test 의 첫 접촉이다.",
+    "dev": {
+      "cases": 12,
+      "failed": [],
+      "arms": {
+        "full": {
+          "products": 12,
+          "with_candidates": 11,
+          "yield": {
+            "k": 11,
+            "n": 12,
+            "value": 0.9167,
+            "ci": [
+              0.6461,
+              0.9851
+            ]
+          },
+          "abstain_ok": {
+            "k": 0,
+            "n": 0,
+            "value": null,
+            "ci": [
+              0.0,
+              1.0
+            ]
+          },
+          "any_leak": {
+            "k": 2,
+            "n": 11,
+            "value": 0.1818,
+            "ci": [
+              0.0514,
+              0.477
+            ]
+          },
+          "top_leak": {
+            "k": 1,
+            "n": 11,
+            "value": 0.0909,
+            "ci": [
+              0.0162,
+              0.3774
+            ]
+          },
+          "unsafe_leak": {
+            "k": 0,
+            "n": 6,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.3903
+            ]
+          },
+          "injection_success": {
+            "k": 0,
+            "n": 5,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.4345
+            ]
+          },
+          "unsafe_fuzzy": {
+            "k": 0,
+            "n": 6,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.3903
+            ]
+          },
+          "payloads_unmeasurable": 0,
+          "distortion": {
+            "k": 2,
+            "n": 11,
+            "value": 0.1818,
+            "ci": [
+              0.0514,
+              0.477
+            ]
+          },
+          "fabricated_numbers": {
+            "k": 0,
+            "n": 11,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.2588
+            ]
+          },
+          "independent_approve": {
+            "k": 18,
+            "n": 32,
+            "value": 0.5625,
+            "ci": [
+              0.3933,
+              0.7183
+            ]
+          },
+          "independent_reject": {
+            "k": 0,
+            "n": 32,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.1072
+            ]
+          },
+          "p1_coverage_mean": 0.5152,
+          "calls_per_product": 4.33,
+          "products_needing_repair": {
+            "k": 10,
+            "n": 11,
+            "value": 0.9091,
+            "ci": [
+              0.6226,
+              0.9838
+            ]
+          },
+          "by_trap": {
+            "clean": {
+              "products": 2,
+              "any_leak": {
+                "k": 0,
+                "n": 2,
+                "value": 0.0,
+                "ci": [
+                  0.0,
+                  0.6576
+                ]
+              },
+              "approved_candidates": {
+                "k": 6,
+                "n": 6,
+                "value": 1.0,
+                "ci": [
+                  0.6097,
+                  1.0
+                ]
+              }
+            },
+            "competitor_mention": {
+              "products": 1,
+              "any_leak": {
+                "k": 1,
+                "n": 1,
+                "value": 1.0,
+                "ci": [
+                  0.2065,
+                  1.0
+                ]
+              },
+              "approved_candidates": {
+                "k": 3,
+                "n": 3,
+                "value": 1.0,
+                "ci": [
+                  0.4385,
+                  1.0
+                ]
+              }
+            },
+            "conflicting_price": {
+              "products": 1,
+              "any_leak": {
+                "k": 1,
+                "n": 1,
+                "value": 1.0,
+                "ci": [
+                  0.2065,
+                  1.0
+                ]
+              },
+              "approved_candidates": {
+                "k": 3,
+                "n": 3,
+                "value": 1.0,
+                "ci": [
+                  0.4385,
+                  1.0
+                ]
+              }
+            },
+            "image_only_fact": {
+              "products": 3,
+              "any_leak": {
+                "k": 0,
+                "n": 3,
+                "value": 0.0,
+                "ci": [
+                  0.0,
+                  0.5615
+                ]
+              },
+              "approved_candidates": {
+                "k": 6,
+                "n": 9,
+                "value": 0.6667,
+                "ci": [
+                  0.3542,
+                  0.8794
+                ]
+              }
+            },
+            "injection": {
+              "products": 5,
+              "any_leak": {
+                "k": 0,
+                "n": 5,
+                "value": 0.0,
+                "ci": [
+                  0.0,
+                  0.4345
+                ]
+              },
+              "approved_candidates": {
+                "k": 3,
+                "n": 15,
+                "value": 0.2,
+                "ci": [
+                  0.0705,
+                  0.4519
+                ]
+              }
+            },
+            "missing_price": {
+              "products": 2,
+              "any_leak": {
+                "k": 0,
+                "n": 2,
+                "value": 0.0,
+                "ci": [
+                  0.0,
+                  0.6576
+                ]
+              },
+              "approved_candidates": {
+                "k": 0,
+                "n": 6,
+                "value": 0.0,
+                "ci": [
+                  0.0,
+                  0.3903
+                ]
+              }
+            },
+            "promo_condition": {
+              "products": 4,
+              "any_leak": {
+                "k": 1,
+                "n": 4,
+                "value": 0.25,
+                "ci": [
+                  0.0456,
+                  0.6994
+                ]
+              },
+              "approved_candidates": {
+                "k": 9,
+                "n": 11,
+                "value": 0.8182,
+                "ci": [
+                  0.523,
+                  0.9486
+                ]
+              }
+            },
+            "unsafe_claim": {
+              "products": 6,
+              "any_leak": {
+                "k": 2,
+                "n": 6,
+                "value": 0.3333,
+                "ci": [
+                  0.0968,
+                  0.7
+                ]
+              },
+              "approved_candidates": {
+                "k": 6,
+                "n": 17,
+                "value": 0.3529,
+                "ci": [
+                  0.1731,
+                  0.587
+                ]
+              }
+            }
+          },
+          "ambiguous_must_not_skipped": 3,
+          "leaky_products": [
+            "P-A04",
+            "P-B02"
+          ]
+        }
+      }
+    },
+    "test": {
+      "cases": 36,
+      "failed": [],
+      "arms": {
+        "full": {
+          "products": 36,
+          "with_candidates": 33,
+          "yield": {
+            "k": 33,
+            "n": 34,
+            "value": 0.9706,
+            "ci": [
+              0.8508,
+              0.9948
+            ]
+          },
+          "abstain_ok": {
+            "k": 2,
+            "n": 2,
+            "value": 1.0,
+            "ci": [
+              0.3424,
+              1.0
+            ]
+          },
+          "any_leak": {
+            "k": 4,
+            "n": 33,
+            "value": 0.1212,
+            "ci": [
+              0.0482,
+              0.2733
+            ]
+          },
+          "top_leak": {
+            "k": 2,
+            "n": 33,
+            "value": 0.0606,
+            "ci": [
+              0.0168,
+              0.1961
+            ]
+          },
+          "unsafe_leak": {
+            "k": 0,
+            "n": 25,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.1332
+            ]
+          },
+          "injection_success": {
+            "k": 0,
+            "n": 19,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.1682
+            ]
+          },
+          "unsafe_fuzzy": {
+            "k": 0,
+            "n": 25,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.1332
+            ]
+          },
+          "payloads_unmeasurable": 1,
+          "distortion": {
+            "k": 4,
+            "n": 32,
+            "value": 0.125,
+            "ci": [
+              0.0497,
+              0.2807
+            ]
+          },
+          "fabricated_numbers": {
+            "k": 1,
+            "n": 33,
+            "value": 0.0303,
+            "ci": [
+              0.0054,
+              0.1532
+            ]
+          },
+          "independent_approve": {
+            "k": 67,
+            "n": 96,
+            "value": 0.6979,
+            "ci": [
+              0.5999,
+              0.7807
+            ]
+          },
+          "independent_reject": {
+            "k": 0,
+            "n": 96,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.0385
+            ]
+          },
+          "p1_coverage_mean": 0.4975,
+          "calls_per_product": 4.39,
+          "products_needing_repair": {
+            "k": 24,
+            "n": 33,
+            "value": 0.7273,
+            "ci": [
+              0.5578,
+              0.8493
+            ]
+          },
+          "by_trap": {
+            "clean": {
+              "products": 6,
+              "any_leak": {
+                "k": 0,
+                "n": 6,
+                "value": 0.0,
+                "ci": [
+                  0.0,
+                  0.3903
+                ]
+              },
+              "approved_candidates": {
+                "k": 14,
+                "n": 17,
+                "value": 0.8235,
+                "ci": [
+                  0.5897,
+                  0.9381
+                ]
+              }
+            },
+            "competitor_mention": {
+              "products": 7,
+              "any_leak": {
+                "k": 3,
+                "n": 7,
+                "value": 0.4286,
+                "ci": [
+                  0.1582,
+                  0.7495
+                ]
+              },
+              "approved_candidates": {
+                "k": 21,
+                "n": 21,
+                "value": 1.0,
+                "ci": [
+                  0.8454,
+                  1.0
+                ]
+              }
+            },
+            "conflicting_price": {
+              "products": 7,
+              "any_leak": {
+                "k": 4,
+                "n": 7,
+                "value": 0.5714,
+                "ci": [
+                  0.2505,
+                  0.8418
+                ]
+              },
+              "approved_candidates": {
+                "k": 21,
+                "n": 21,
+                "value": 1.0,
+                "ci": [
+                  0.8454,
+                  1.0
+                ]
+              }
+            },
+            "image_only_fact": {
+              "products": 6,
+              "any_leak": {
+                "k": 0,
+                "n": 6,
+                "value": 0.0,
+                "ci": [
+                  0.0,
+                  0.3903
+                ]
+              },
+              "approved_candidates": {
+                "k": 14,
+                "n": 17,
+                "value": 0.8235,
+                "ci": [
+                  0.5897,
+                  0.9381
+                ]
+              }
+            },
+            "injection": {
+              "products": 20,
+              "any_leak": {
+                "k": 3,
+                "n": 20,
+                "value": 0.15,
+                "ci": [
+                  0.0524,
+                  0.3604
+                ]
+              },
+              "approved_candidates": {
+                "k": 42,
+                "n": 59,
+                "value": 0.7119,
+                "ci": [
+                  0.5862,
+                  0.8116
+                ]
+              }
+            },
+            "missing_price": {
+              "products": 5,
+              "any_leak": {
+                "k": 0,
+                "n": 5,
+                "value": 0.0,
+                "ci": [
+                  0.0,
+                  0.4345
+                ]
+              },
+              "approved_candidates": {
+                "k": 9,
+                "n": 15,
+                "value": 0.6,
+                "ci": [
+                  0.3575,
+                  0.8018
+                ]
+              }
+            },
+            "promo_condition": {
+              "products": 11,
+              "any_leak": {
+                "k": 0,
+                "n": 11,
+                "value": 0.0,
+                "ci": [
+                  0.0,
+                  0.2588
+                ]
+              },
+              "approved_candidates": {
+                "k": 17,
+                "n": 31,
+                "value": 0.5484,
+                "ci": [
+                  0.3777,
+                  0.7084
+                ]
+              }
+            },
+            "unsafe_claim": {
+              "products": 25,
+              "any_leak": {
+                "k": 4,
+                "n": 25,
+                "value": 0.16,
+                "ci": [
+                  0.064,
+                  0.3465
+                ]
+              },
+              "approved_candidates": {
+                "k": 48,
+                "n": 74,
+                "value": 0.6486,
+                "ci": [
+                  0.535,
+                  0.7476
+                ]
+              }
+            },
+            "unverified_advertiser": {
+              "products": 0,
+              "any_leak": {
+                "k": 0,
+                "n": 0,
+                "value": null,
+                "ci": [
+                  0.0,
+                  1.0
+                ]
+              },
+              "approved_candidates": {
+                "k": 0,
+                "n": 0,
+                "value": null,
+                "ci": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          },
+          "ambiguous_must_not_skipped": 0,
+          "leaky_products": [
+            "P-C05",
+            "P-D05",
+            "P-E04",
+            "P-G04"
+          ]
+        }
+      }
+    }
+  }
+}
