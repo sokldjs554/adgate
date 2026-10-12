@@ -331,6 +331,30 @@ def cmd_demo(args: argparse.Namespace) -> int:
     return 1 if bad or res["errors"] else 0
 
 
+def cmd_impact(args: argparse.Namespace) -> int:
+    """엔진 변경의 소재 단위 영향: 평가셋 전부의 판정 스냅샷을 뜨거나(snapshot), 두 스냅샷을 견준다(diff). 읽기만 하는 변경 점검이고 측정이 아니다."""
+    from .eval import impact
+
+    if args.action == "snapshot":
+        snap = impact.snapshot(Path(args.root))
+        Path(args.out).write_text(json.dumps(snap, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
+        print(f"스냅샷 {len(snap['records'])}건 → {args.out}  (git {snap['meta']['git_sha']}{', 작업트리 수정됨' if snap['meta']['dirty'] else ''})")
+        return 0
+    if len(args.files) != 2:
+        print("diff 는 앞·뒤 스냅샷 파일 둘이 필요합니다", file=sys.stderr)
+        return 2
+    before, after = (json.loads(Path(f).read_text(encoding="utf-8")) for f in args.files)
+    d = impact.diff(before, after)
+    if args.out:
+        Path(args.out).write_text(json.dumps(d, ensure_ascii=False, indent=1, sort_keys=True), encoding="utf-8")
+    sm = d["summary"]
+    print(f"소재 {sm['records']}건 중 바뀐 것 {sm['changed']}건(판정이 바뀐 것 {sm['decision_flips']}건: 정답 쪽 {sm['toward_gold']}, 반대쪽 {sm['away_from_gold']}); "
+          f"틀리던 것이 맞게 {sm['fixed']}건, 맞던 것이 틀리게 {sm['new_errors']}건")
+    for c in d["changed"]:
+        print(f"  {c['key']:24} 정답 {c['gold']:7} {c['before']:7} → {c['after']:7} {c['direction']}")
+    return 1 if sm["new_errors"] else 0
+
+
 def cmd_prereg(args: argparse.Namespace) -> int:
     if args.register:
         e = prereg.register(args.register, args.start, args.end, note=args.note or "")
@@ -599,6 +623,12 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--out", default="")
     s.add_argument("--print", action="store_true", help="사람이 읽는 전사를 출력")
     s.set_defaults(fn=cmd_demo)
+    s = sub.add_parser("impact", help="엔진 변경의 소재 단위 영향: snapshot(평가셋 전부의 판정을 뜬다) · diff(앞·뒤 스냅샷을 견준다, 맞던 소재가 틀리게 되면 실패)")
+    s.add_argument("action", choices=["snapshot", "diff"])
+    s.add_argument("files", nargs="*", help="diff: 앞·뒤 스냅샷 파일")
+    s.add_argument("--root", default=".", help="snapshot: 저장소 루트(변경 전 리비전의 작업트리를 줄 수 있다)")
+    s.add_argument("--out", default="", help="snapshot: 필수. diff: 결과 JSON")
+    s.set_defaults(fn=cmd_impact)
     s = sub.add_parser("prereg", help="사전등록 절의 해시를 등록(--register)하거나 그대로인지 검사")
     s.add_argument("--register", help="등록할 문서 경로(예: docs/EVAL_GRAY.md)")
     s.add_argument("--start", default="## 1.", help="사전등록 시작 제목의 앞부분")
