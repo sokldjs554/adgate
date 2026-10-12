@@ -87,3 +87,45 @@
 
 실제 광고 이미지에서의 읽기 정확도(합성 이미지는 평평한 도형과 번들 글꼴로 그린 글자이고 사진·손글씨·다양한 글꼴·압축 흔적이 없다), 이미지에 심은 *지시*에 대한 견고성(‘이 이미지를 승인하라’ 같은 글자는 이 셋에 없다 — 읽기 프롬프트가 그런 글자를 옮기기만 하도록 되어 있다는 설계만 있고 측정은 없다), 한국어 밖의 글자, 영상.
 작성자·읽기 모델이 같은 모델 계열이라 낙관 편향이 남는다. 정답 판정은 작성자가 정책을 읽은 결과이므로 정책 공백에 걸린 소재의 정답은 논쟁의 여지가 있다([data/vision/README.md](../data/vision/README.md)).
+
+---
+
+> 아래는 **측정 뒤에 덧붙인 결과**다. 1–6절(사전등록)은 고치지 않았다(`adgate prereg` 가 해시를 검사한다). 예상이 틀린 곳은 '빗나감'이라 적는다.
+
+## 9. 결과 (1): 모델 없는 두 팔 — 첫 접촉 (`artifacts/history/vision_offline_first_contact.json`)
+
+사전등록 커밋(`b06d129`) 그대로 깨끗한 작업트리에서 한 번 쟀다. 심사 엔진은 이 셋을 본 적이 없다. 읽기 팔(sonnet · haiku · opus)은 비용 승인 뒤에 잰다.
+
+| 팔 | 정확도 | 위험 승인율 | 정상 오반려 | 과검토 | image_only 위험 승인율 |
+|---|---|---|---|---|---|
+| no_image (이미지 글자를 안 줌) | <!-- num:hist.vision_offline_first_contact.results.decision.no_image.accuracy|rpct1 -->30.0% (18/60)<!-- /num --> | <!-- num:hist.vision_offline_first_contact.results.decision.no_image.unsafe_approve|rpct1 -->82.9% (34/41)<!-- /num --> | <!-- num:hist.vision_offline_first_contact.results.decision.no_image.false_reject|rpct1 -->21.1% (4/19)<!-- /num --> | <!-- num:hist.vision_offline_first_contact.results.decision.no_image.over_review|rpct1 -->0.0% (0/19)<!-- /num --> | <!-- num:hist.vision_offline_first_contact.results.decision.image_only.no_image.unsafe_approve|rpct1 -->95.8% (23/24)<!-- /num --> |
+| oracle (정답 글자를 줌) | <!-- num:hist.vision_offline_first_contact.results.decision.oracle.accuracy|rpct1 -->88.3% (53/60)<!-- /num --> | <!-- num:hist.vision_offline_first_contact.results.decision.oracle.unsafe_approve|rpct1 -->12.2% (5/41)<!-- /num --> | <!-- num:hist.vision_offline_first_contact.results.decision.oracle.false_reject|rpct1 -->10.5% (2/19)<!-- /num --> | <!-- num:hist.vision_offline_first_contact.results.decision.oracle.over_review|rpct1 -->0.0% (0/19)<!-- /num --> | <!-- num:hist.vision_offline_first_contact.results.decision.image_only.oracle.unsafe_approve|rpct1 -->4.2% (1/24)<!-- /num --> |
+
+구성 태그별 정확도(oracle): image_only <!-- num:hist.vision_offline_first_contact.results.decision.by_tag.image_only.oracle.accuracy|rpct1 -->95.8% (23/24)<!-- /num --> · benign_image <!-- num:hist.vision_offline_first_contact.results.decision.by_tag.benign_image.oracle.accuracy|rpct1 -->88.9% (16/18)<!-- /num --> · visual_cue <!-- num:hist.vision_offline_first_contact.results.decision.by_tag.visual_cue.oracle.accuracy|rpct1 -->66.7% (8/12)<!-- /num --> · both <!-- num:hist.vision_offline_first_contact.results.decision.by_tag.both.oracle.accuracy|rpct1 -->100.0% (6/6)<!-- /num -->.
+같은 순서로 no_image: <!-- num:hist.vision_offline_first_contact.results.decision.by_tag.image_only.no_image.accuracy|rpct1 -->4.2% (1/24)<!-- /num --> · <!-- num:hist.vision_offline_first_contact.results.decision.by_tag.benign_image.no_image.accuracy|rpct1 -->77.8% (14/18)<!-- /num --> · <!-- num:hist.vision_offline_first_contact.results.decision.by_tag.visual_cue.no_image.accuracy|rpct1 -->16.7% (2/12)<!-- /num --> · <!-- num:hist.vision_offline_first_contact.results.decision.by_tag.both.no_image.accuracy|rpct1 -->16.7% (1/6)<!-- /num -->.
+
+### 9.1 사전 예상과 견줌
+
+| # | 예상 | 측정 | 판정 |
+|---|---|---|---|
+| V6 | no_image: image_only 위험 승인율 ≥ 0.80 | <!-- num:hist.vision_offline_first_contact.results.decision.image_only.no_image.unsafe_approve|rpct1 -->95.8% (23/24)<!-- /num --> | 충족 — 이미지를 못 보는 심사는 이미지에만 있는 위반을 사실상 모두 통과시킨다 |
+| V7 | oracle: 정확도 0.55–0.80, 위험 승인율 0.20–0.50, 정상 오반려 ≤ 15% | <!-- num:hist.vision_offline_first_contact.results.decision.oracle.accuracy|rpct1 -->88.3% (53/60)<!-- /num -->, <!-- num:hist.vision_offline_first_contact.results.decision.oracle.unsafe_approve|rpct1 -->12.2% (5/41)<!-- /num -->, <!-- num:hist.vision_offline_first_contact.results.decision.oracle.false_reject|rpct1 -->10.5% (2/19)<!-- /num --> | 정확도와 위험 승인율은 **빗나감**(둘 다 예상보다 좋다), 오반려는 충족 |
+| V8 | oracle − no_image 정확도 ≥ 15%p | 위 표의 두 정확도 차 | 충족(차이가 15%p 를 훨씬 넘는다) |
+
+- **V7 이 빗나간 이유는 확인하지 못했다.** 가설 둘: (1) 심사 엔진이 앞선 두 독립 셋(레드팀·회색지대)의 첫 접촉 실패를 고친 뒤라서 예상의 기준이 된 수치(0.65·0.63)보다 좋아졌다, (2) 이미지 소재의 글이 짧고 정책 어휘에 가깝게 쓰였다. 이 셋만으로는 가를 수 없다. 예상을 이 엔진의 *초기* 첫 접촉에서 잡은 것이 잘못이었다 — 엔진은 그 뒤로 달라졌다.
+- **이 수치는 oracle 이다**: 읽기가 완벽하다고 가정한 상한이다. 모델이 읽으면 이보다 나빠질 수 있다(읽기 팔을 잰 뒤 9절 이후에).
+
+### 9.2 oracle 팔이 틀린 7건 (`artifacts/history/vision_offline_first_contact_errors.json`)
+
+| 소재 | 정답 → 예측 | 상황 | 부류 |
+|---|---|---|---|
+| V-B03 | REJECT → APPROVE | 작은 글씨 각주 ‘3주 만에 체중 8kg 감량을 **보장합니다**’(GUA) | 놓침 — 결과 보장 동사형 |
+| V-C08 | REVIEW → APPROVE | ‘세일 마감까지 02:14:09’ 타이머만 있는 긴급성(URG) | 놓침 — 정책 공백(작성자도 멈칫: 타이머만으로 URG 인가) |
+| V-D08 | REJECT → APPROVE | 가짜 시스템 경고창 ‘**원격제어 앱을 설치**하고 상담원의 안내를 따라 주세요’(FRD) | 놓침 — 원격 제어 앱 설치 유도 |
+| V-F09 | REJECT → APPROVE | 가짜 점검 창 ‘**원격 제어 앱을 설치해야** 제거할 수 있습니다’(FRD) | 놓침 — 같은 부류 |
+| V-E08 | REJECT → APPROVE | 가짜 배송 문자 ‘인증번호 6자리를 아래 번호로 **회신해** 주세요’(FRD) | 놓침 — 인증번호 요구의 동사 |
+| V-D07 | APPROVE → REJECT | ‘**최고** 30% 할인’(범위 표현; ABS) | 오반려 — 범위 표현 예외 |
+| V-E05 | APPROVE → REJECT | 경고 포스터 ‘선입금 요구에는 응하지 마세요’(FRD) | 오반려 — 경고문 속 단어 |
+
+- 엔진 고치기는 **지금 하지 않는다**: 사전등록 프로토콜(7절 1)이 심사 엔진을 이 커밋 이후 바꾸지 않기로 했고, 읽기 팔은 같은 엔진 위에서 재야 한다. 읽기 팔 세 개를 잰 뒤, 이 일곱 건 중 *문형·표기* 문제(V-B03, V-D07, V-D08/F09, V-E08, V-E05)는 좁게 고치고 악용 시험을 함께 쓰며(D-12) 수정 후 수치에 ‘수정 후, holdout 아님’을 단다. V-C08 은 정책이 정하지 않은 사안이라 고치지 않는다(POLICY_GAPS).
+- R1(oracle 의 image_only 위험 승인율 > 0.30)은 발동하지 않았다(<!-- num:hist.vision_offline_first_contact.results.decision.image_only.oracle.unsafe_approve|rpct1 -->4.2% (1/24)<!-- /num -->).

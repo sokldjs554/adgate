@@ -1,0 +1,4936 @@
+{
+  "meta": {
+    "suite": "vision",
+    "git": "b06d129",
+    "dirty": false,
+    "prereg": "docs/EVAL_VISION.md"
+  },
+  "results": {
+    "items": 60,
+    "decision": {
+      "no_image": {
+        "n": 60,
+        "gold_counts": {
+          "APPROVE": 19,
+          "REVIEW": 16,
+          "REJECT": 25
+        },
+        "pred_counts": {
+          "APPROVE": 49,
+          "REVIEW": 4,
+          "REJECT": 7
+        },
+        "confusion": {
+          "APPROVE": {
+            "APPROVE": 15,
+            "REVIEW": 0,
+            "REJECT": 4
+          },
+          "REVIEW": {
+            "APPROVE": 16,
+            "REVIEW": 0,
+            "REJECT": 0
+          },
+          "REJECT": {
+            "APPROVE": 18,
+            "REVIEW": 4,
+            "REJECT": 3
+          }
+        },
+        "accuracy": {
+          "k": 18,
+          "n": 60,
+          "value": 0.3,
+          "ci": [
+            0.199,
+            0.4251
+          ]
+        },
+        "macro_f1": 0.2096,
+        "hard_pass_through": {
+          "k": 18,
+          "n": 25,
+          "value": 0.72,
+          "ci": [
+            0.5242,
+            0.8572
+          ]
+        },
+        "unsafe_approve": {
+          "k": 34,
+          "n": 41,
+          "value": 0.8293,
+          "ci": [
+            0.6874,
+            0.9147
+          ]
+        },
+        "false_reject": {
+          "k": 4,
+          "n": 19,
+          "value": 0.2105,
+          "ci": [
+            0.0851,
+            0.4333
+          ]
+        },
+        "over_review": {
+          "k": 0,
+          "n": 19,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1682
+          ]
+        },
+        "downgrade": {
+          "k": 4,
+          "n": 25,
+          "value": 0.16,
+          "ci": [
+            0.064,
+            0.3465
+          ]
+        },
+        "auto_rate": {
+          "k": 56,
+          "n": 60,
+          "value": 0.9333,
+          "ci": [
+            0.8407,
+            0.9738
+          ]
+        },
+        "auto_precision": {
+          "k": 18,
+          "n": 56,
+          "value": 0.3214,
+          "ci": [
+            0.214,
+            0.4518
+          ]
+        },
+        "rule": {
+          "micro": {
+            "precision": 0.5833,
+            "recall": 0.1373,
+            "f1": 0.2222,
+            "tp": 7,
+            "fp": 5,
+            "fn": 44
+          },
+          "per_rule": {
+            "AD-ABS-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 7
+            },
+            "AD-BRD-01": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 2
+            },
+            "AD-CMP-01": {
+              "tp": 2,
+              "fp": 0,
+              "fn": 4
+            },
+            "AD-ENDO-01": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 4
+            },
+            "AD-FIN-01": {
+              "tp": 1,
+              "fp": 5,
+              "fn": 0
+            },
+            "AD-FRD-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 9
+            },
+            "AD-GUA-01": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 5
+            },
+            "AD-HLT-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 6
+            },
+            "AD-LND-01": {
+              "tp": 0,
+              "fp": 0,
+              "fn": 1
+            },
+            "AD-URG-01": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 6
+            }
+          }
+        },
+        "localization": {
+          "k": 5,
+          "n": 5,
+          "value": 1.0,
+          "ci": [
+            0.5655,
+            1.0
+          ]
+        },
+        "fin_missing_exact": {
+          "k": 0,
+          "n": 1,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.7935
+          ]
+        },
+        "grounding": {
+          "k": 5,
+          "n": 5,
+          "value": 1.0,
+          "ci": [
+            0.5655,
+            1.0
+          ]
+        },
+        "latency_ms": {
+          "p50": 1.792,
+          "p95": 3.818
+        },
+        "slices": {
+          "award_badge": {
+            "n": 5,
+            "accuracy": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "unsafe_approve": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "benign_image": {
+            "n": 18,
+            "accuracy": {
+              "k": 14,
+              "n": 18,
+              "value": 0.7778,
+              "ci": [
+                0.5478,
+                0.91
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 4,
+              "n": 18,
+              "value": 0.2222,
+              "ci": [
+                0.09,
+                0.4522
+              ]
+            }
+          },
+          "benign_lookalike": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            }
+          },
+          "both": {
+            "n": 6,
+            "accuracy": {
+              "k": 1,
+              "n": 6,
+              "value": 0.1667,
+              "ci": [
+                0.0301,
+                0.5635
+              ]
+            },
+            "unsafe_approve": {
+              "k": 1,
+              "n": 6,
+              "value": 0.1667,
+              "ci": [
+                0.0301,
+                0.5635
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "disclosure_in_image": {
+            "n": 3,
+            "accuracy": {
+              "k": 1,
+              "n": 3,
+              "value": 0.3333,
+              "ci": [
+                0.0615,
+                0.7923
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            },
+            "false_reject": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            }
+          },
+          "faint": {
+            "n": 4,
+            "accuracy": {
+              "k": 1,
+              "n": 4,
+              "value": 0.25,
+              "ci": [
+                0.0456,
+                0.6994
+              ]
+            },
+            "unsafe_approve": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            }
+          },
+          "fake_popup": {
+            "n": 4,
+            "accuracy": {
+              "k": 1,
+              "n": 4,
+              "value": 0.25,
+              "ci": [
+                0.0456,
+                0.6994
+              ]
+            },
+            "unsafe_approve": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "image_only": {
+            "n": 24,
+            "accuracy": {
+              "k": 1,
+              "n": 24,
+              "value": 0.0417,
+              "ci": [
+                0.0074,
+                0.2024
+              ]
+            },
+            "unsafe_approve": {
+              "k": 23,
+              "n": 24,
+              "value": 0.9583,
+              "ci": [
+                0.7976,
+                0.9926
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "low_contrast": {
+            "n": 9,
+            "accuracy": {
+              "k": 3,
+              "n": 9,
+              "value": 0.3333,
+              "ci": [
+                0.1206,
+                0.6458
+              ]
+            },
+            "unsafe_approve": {
+              "k": 4,
+              "n": 6,
+              "value": 0.6667,
+              "ci": [
+                0.3,
+                0.9032
+              ]
+            },
+            "false_reject": {
+              "k": 1,
+              "n": 3,
+              "value": 0.3333,
+              "ci": [
+                0.0615,
+                0.7923
+              ]
+            }
+          },
+          "mixed_size": {
+            "n": 4,
+            "accuracy": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "unsafe_approve": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "negation": {
+            "n": 10,
+            "accuracy": {
+              "k": 6,
+              "n": 10,
+              "value": 0.6,
+              "ci": [
+                0.3127,
+                0.8318
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 4,
+              "n": 10,
+              "value": 0.4,
+              "ci": [
+                0.1682,
+                0.6873
+              ]
+            }
+          },
+          "price_display": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            }
+          },
+          "product_label": {
+            "n": 4,
+            "accuracy": {
+              "k": 1,
+              "n": 4,
+              "value": 0.25,
+              "ci": [
+                0.0456,
+                0.6994
+              ]
+            },
+            "unsafe_approve": {
+              "k": 2,
+              "n": 3,
+              "value": 0.6667,
+              "ci": [
+                0.2077,
+                0.9385
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "range_expression": {
+            "n": 7,
+            "accuracy": {
+              "k": 4,
+              "n": 7,
+              "value": 0.5714,
+              "ci": [
+                0.2505,
+                0.8418
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 3,
+              "n": 7,
+              "value": 0.4286,
+              "ci": [
+                0.1582,
+                0.7495
+              ]
+            }
+          },
+          "rating_stars": {
+            "n": 3,
+            "accuracy": {
+              "k": 2,
+              "n": 3,
+              "value": 0.6667,
+              "ci": [
+                0.2077,
+                0.9385
+              ]
+            },
+            "unsafe_approve": {
+              "k": 1,
+              "n": 1,
+              "value": 1.0,
+              "ci": [
+                0.2065,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            }
+          },
+          "rotated": {
+            "n": 29,
+            "accuracy": {
+              "k": 10,
+              "n": 29,
+              "value": 0.3448,
+              "ci": [
+                0.1994,
+                0.5266
+              ]
+            },
+            "unsafe_approve": {
+              "k": 14,
+              "n": 20,
+              "value": 0.7,
+              "ci": [
+                0.481,
+                0.8545
+              ]
+            },
+            "false_reject": {
+              "k": 1,
+              "n": 9,
+              "value": 0.1111,
+              "ci": [
+                0.0199,
+                0.435
+              ]
+            }
+          },
+          "substantiated": {
+            "n": 3,
+            "accuracy": {
+              "k": 1,
+              "n": 3,
+              "value": 0.3333,
+              "ci": [
+                0.0615,
+                0.7923
+              ]
+            },
+            "unsafe_approve": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "timer": {
+            "n": 3,
+            "accuracy": {
+              "k": 2,
+              "n": 3,
+              "value": 0.6667,
+              "ci": [
+                0.2077,
+                0.9385
+              ]
+            },
+            "unsafe_approve": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "tiny_print": {
+            "n": 41,
+            "accuracy": {
+              "k": 12,
+              "n": 41,
+              "value": 0.2927,
+              "ci": [
+                0.1761,
+                0.4448
+              ]
+            },
+            "unsafe_approve": {
+              "k": 22,
+              "n": 26,
+              "value": 0.8462,
+              "ci": [
+                0.6647,
+                0.9385
+              ]
+            },
+            "false_reject": {
+              "k": 4,
+              "n": 15,
+              "value": 0.2667,
+              "ci": [
+                0.109,
+                0.5195
+              ]
+            }
+          },
+          "visual_cue": {
+            "n": 12,
+            "accuracy": {
+              "k": 2,
+              "n": 12,
+              "value": 0.1667,
+              "ci": [
+                0.047,
+                0.448
+              ]
+            },
+            "unsafe_approve": {
+              "k": 10,
+              "n": 11,
+              "value": 0.9091,
+              "ci": [
+                0.6226,
+                0.9838
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          }
+        }
+      },
+      "oracle": {
+        "n": 60,
+        "gold_counts": {
+          "APPROVE": 19,
+          "REVIEW": 16,
+          "REJECT": 25
+        },
+        "pred_counts": {
+          "APPROVE": 22,
+          "REVIEW": 15,
+          "REJECT": 23
+        },
+        "confusion": {
+          "APPROVE": {
+            "APPROVE": 17,
+            "REVIEW": 0,
+            "REJECT": 2
+          },
+          "REVIEW": {
+            "APPROVE": 1,
+            "REVIEW": 15,
+            "REJECT": 0
+          },
+          "REJECT": {
+            "APPROVE": 4,
+            "REVIEW": 0,
+            "REJECT": 21
+          }
+        },
+        "accuracy": {
+          "k": 53,
+          "n": 60,
+          "value": 0.8833,
+          "ci": [
+            0.7782,
+            0.9423
+          ]
+        },
+        "macro_f1": 0.8907,
+        "hard_pass_through": {
+          "k": 4,
+          "n": 25,
+          "value": 0.16,
+          "ci": [
+            0.064,
+            0.3465
+          ]
+        },
+        "unsafe_approve": {
+          "k": 5,
+          "n": 41,
+          "value": 0.122,
+          "ci": [
+            0.0532,
+            0.2554
+          ]
+        },
+        "false_reject": {
+          "k": 2,
+          "n": 19,
+          "value": 0.1053,
+          "ci": [
+            0.0294,
+            0.3139
+          ]
+        },
+        "over_review": {
+          "k": 0,
+          "n": 19,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1682
+          ]
+        },
+        "downgrade": {
+          "k": 0,
+          "n": 25,
+          "value": 0.0,
+          "ci": [
+            0.0,
+            0.1332
+          ]
+        },
+        "auto_rate": {
+          "k": 45,
+          "n": 60,
+          "value": 0.75,
+          "ci": [
+            0.6277,
+            0.8422
+          ]
+        },
+        "auto_precision": {
+          "k": 38,
+          "n": 45,
+          "value": 0.8444,
+          "ci": [
+            0.7122,
+            0.9225
+          ]
+        },
+        "rule": {
+          "micro": {
+            "precision": 0.9556,
+            "recall": 0.8431,
+            "f1": 0.8958,
+            "tp": 43,
+            "fp": 2,
+            "fn": 8
+          },
+          "per_rule": {
+            "AD-ABS-01": {
+              "tp": 7,
+              "fp": 1,
+              "fn": 0
+            },
+            "AD-BRD-01": {
+              "tp": 3,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-CMP-01": {
+              "tp": 4,
+              "fp": 0,
+              "fn": 2
+            },
+            "AD-ENDO-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-FIN-01": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-FRD-01": {
+              "tp": 6,
+              "fp": 1,
+              "fn": 3
+            },
+            "AD-GUA-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 1
+            },
+            "AD-HLT-01": {
+              "tp": 6,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-LND-01": {
+              "tp": 1,
+              "fp": 0,
+              "fn": 0
+            },
+            "AD-URG-01": {
+              "tp": 5,
+              "fp": 0,
+              "fn": 2
+            }
+          }
+        },
+        "localization": {
+          "k": 41,
+          "n": 41,
+          "value": 1.0,
+          "ci": [
+            0.9143,
+            1.0
+          ]
+        },
+        "fin_missing_exact": {
+          "k": 1,
+          "n": 1,
+          "value": 1.0,
+          "ci": [
+            0.2065,
+            1.0
+          ]
+        },
+        "grounding": {
+          "k": 47,
+          "n": 47,
+          "value": 1.0,
+          "ci": [
+            0.9244,
+            1.0
+          ]
+        },
+        "latency_ms": {
+          "p50": 4.025,
+          "p95": 8.567
+        },
+        "slices": {
+          "award_badge": {
+            "n": 5,
+            "accuracy": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 5,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4345
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "benign_image": {
+            "n": 18,
+            "accuracy": {
+              "k": 16,
+              "n": 18,
+              "value": 0.8889,
+              "ci": [
+                0.672,
+                0.969
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 2,
+              "n": 18,
+              "value": 0.1111,
+              "ci": [
+                0.031,
+                0.328
+              ]
+            }
+          },
+          "benign_lookalike": {
+            "n": 4,
+            "accuracy": {
+              "k": 3,
+              "n": 4,
+              "value": 0.75,
+              "ci": [
+                0.3006,
+                0.9544
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 1,
+              "n": 4,
+              "value": 0.25,
+              "ci": [
+                0.0456,
+                0.6994
+              ]
+            }
+          },
+          "both": {
+            "n": 6,
+            "accuracy": {
+              "k": 6,
+              "n": 6,
+              "value": 1.0,
+              "ci": [
+                0.6097,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 6,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3903
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "disclosure_in_image": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            }
+          },
+          "faint": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            }
+          },
+          "fake_popup": {
+            "n": 4,
+            "accuracy": {
+              "k": 2,
+              "n": 4,
+              "value": 0.5,
+              "ci": [
+                0.15,
+                0.85
+              ]
+            },
+            "unsafe_approve": {
+              "k": 2,
+              "n": 3,
+              "value": 0.6667,
+              "ci": [
+                0.2077,
+                0.9385
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "image_only": {
+            "n": 24,
+            "accuracy": {
+              "k": 23,
+              "n": 24,
+              "value": 0.9583,
+              "ci": [
+                0.7976,
+                0.9926
+              ]
+            },
+            "unsafe_approve": {
+              "k": 1,
+              "n": 24,
+              "value": 0.0417,
+              "ci": [
+                0.0074,
+                0.2024
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "low_contrast": {
+            "n": 9,
+            "accuracy": {
+              "k": 9,
+              "n": 9,
+              "value": 1.0,
+              "ci": [
+                0.7008,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 6,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3903
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            }
+          },
+          "mixed_size": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 4,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.4899
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            }
+          },
+          "negation": {
+            "n": 10,
+            "accuracy": {
+              "k": 9,
+              "n": 10,
+              "value": 0.9,
+              "ci": [
+                0.5958,
+                0.9821
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 1,
+              "n": 10,
+              "value": 0.1,
+              "ci": [
+                0.0179,
+                0.4042
+              ]
+            }
+          },
+          "price_display": {
+            "n": 4,
+            "accuracy": {
+              "k": 3,
+              "n": 4,
+              "value": 0.75,
+              "ci": [
+                0.3006,
+                0.9544
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 1,
+              "n": 4,
+              "value": 0.25,
+              "ci": [
+                0.0456,
+                0.6994
+              ]
+            }
+          },
+          "product_label": {
+            "n": 4,
+            "accuracy": {
+              "k": 4,
+              "n": 4,
+              "value": 1.0,
+              "ci": [
+                0.5101,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 3,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.5615
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "range_expression": {
+            "n": 7,
+            "accuracy": {
+              "k": 6,
+              "n": 7,
+              "value": 0.8571,
+              "ci": [
+                0.4869,
+                0.9743
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 1,
+              "n": 7,
+              "value": 0.1429,
+              "ci": [
+                0.0257,
+                0.5131
+              ]
+            }
+          },
+          "rating_stars": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            }
+          },
+          "rotated": {
+            "n": 29,
+            "accuracy": {
+              "k": 28,
+              "n": 29,
+              "value": 0.9655,
+              "ci": [
+                0.8282,
+                0.9939
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 20,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.1611
+              ]
+            },
+            "false_reject": {
+              "k": 1,
+              "n": 9,
+              "value": 0.1111,
+              "ci": [
+                0.0199,
+                0.435
+              ]
+            }
+          },
+          "substantiated": {
+            "n": 3,
+            "accuracy": {
+              "k": 3,
+              "n": 3,
+              "value": 1.0,
+              "ci": [
+                0.4385,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 2,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.6576
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "timer": {
+            "n": 3,
+            "accuracy": {
+              "k": 2,
+              "n": 3,
+              "value": 0.6667,
+              "ci": [
+                0.2077,
+                0.9385
+              ]
+            },
+            "unsafe_approve": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          },
+          "tiny_print": {
+            "n": 41,
+            "accuracy": {
+              "k": 35,
+              "n": 41,
+              "value": 0.8537,
+              "ci": [
+                0.7156,
+                0.9312
+              ]
+            },
+            "unsafe_approve": {
+              "k": 4,
+              "n": 26,
+              "value": 0.1538,
+              "ci": [
+                0.0615,
+                0.3353
+              ]
+            },
+            "false_reject": {
+              "k": 2,
+              "n": 15,
+              "value": 0.1333,
+              "ci": [
+                0.0374,
+                0.3788
+              ]
+            }
+          },
+          "visual_cue": {
+            "n": 12,
+            "accuracy": {
+              "k": 8,
+              "n": 12,
+              "value": 0.6667,
+              "ci": [
+                0.3906,
+                0.8619
+              ]
+            },
+            "unsafe_approve": {
+              "k": 4,
+              "n": 11,
+              "value": 0.3636,
+              "ci": [
+                0.1517,
+                0.6462
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            }
+          }
+        }
+      },
+      "image_only": {
+        "no_image": {
+          "n": 24,
+          "gold_counts": {
+            "APPROVE": 0,
+            "REVIEW": 11,
+            "REJECT": 13
+          },
+          "pred_counts": {
+            "APPROVE": 23,
+            "REVIEW": 0,
+            "REJECT": 1
+          },
+          "confusion": {
+            "APPROVE": {
+              "APPROVE": 0,
+              "REVIEW": 0,
+              "REJECT": 0
+            },
+            "REVIEW": {
+              "APPROVE": 11,
+              "REVIEW": 0,
+              "REJECT": 0
+            },
+            "REJECT": {
+              "APPROVE": 12,
+              "REVIEW": 0,
+              "REJECT": 1
+            }
+          },
+          "accuracy": {
+            "k": 1,
+            "n": 24,
+            "value": 0.0417,
+            "ci": [
+              0.0074,
+              0.2024
+            ]
+          },
+          "macro_f1": 0.0476,
+          "hard_pass_through": {
+            "k": 12,
+            "n": 13,
+            "value": 0.9231,
+            "ci": [
+              0.6669,
+              0.9863
+            ]
+          },
+          "unsafe_approve": {
+            "k": 23,
+            "n": 24,
+            "value": 0.9583,
+            "ci": [
+              0.7976,
+              0.9926
+            ]
+          },
+          "false_reject": {
+            "k": 0,
+            "n": 0,
+            "value": null,
+            "ci": [
+              0.0,
+              1.0
+            ]
+          },
+          "over_review": {
+            "k": 0,
+            "n": 0,
+            "value": null,
+            "ci": [
+              0.0,
+              1.0
+            ]
+          },
+          "downgrade": {
+            "k": 0,
+            "n": 13,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.2281
+            ]
+          },
+          "auto_rate": {
+            "k": 24,
+            "n": 24,
+            "value": 1.0,
+            "ci": [
+              0.862,
+              1.0
+            ]
+          },
+          "auto_precision": {
+            "k": 1,
+            "n": 24,
+            "value": 0.0417,
+            "ci": [
+              0.0074,
+              0.2024
+            ]
+          },
+          "rule": {
+            "micro": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "tp": 0,
+              "fp": 1,
+              "fn": 24
+            },
+            "per_rule": {
+              "AD-ABS-01": {
+                "tp": 0,
+                "fp": 0,
+                "fn": 3
+              },
+              "AD-BRD-01": {
+                "tp": 0,
+                "fp": 0,
+                "fn": 1
+              },
+              "AD-CMP-01": {
+                "tp": 0,
+                "fp": 0,
+                "fn": 2
+              },
+              "AD-ENDO-01": {
+                "tp": 0,
+                "fp": 0,
+                "fn": 3
+              },
+              "AD-FIN-01": {
+                "tp": 0,
+                "fp": 1,
+                "fn": 0
+              },
+              "AD-FRD-01": {
+                "tp": 0,
+                "fp": 0,
+                "fn": 3
+              },
+              "AD-GUA-01": {
+                "tp": 0,
+                "fp": 0,
+                "fn": 5
+              },
+              "AD-HLT-01": {
+                "tp": 0,
+                "fp": 0,
+                "fn": 3
+              },
+              "AD-URG-01": {
+                "tp": 0,
+                "fp": 0,
+                "fn": 4
+              }
+            }
+          },
+          "localization": {
+            "k": 0,
+            "n": 0,
+            "value": null,
+            "ci": [
+              0.0,
+              1.0
+            ]
+          },
+          "fin_missing_exact": {
+            "k": 0,
+            "n": 0,
+            "value": null,
+            "ci": [
+              0.0,
+              1.0
+            ]
+          },
+          "grounding": {
+            "k": 0,
+            "n": 0,
+            "value": null,
+            "ci": [
+              0.0,
+              1.0
+            ]
+          },
+          "latency_ms": {
+            "p50": 1.81,
+            "p95": 5.645
+          },
+          "slices": {
+            "image_only": {
+              "n": 24,
+              "accuracy": {
+                "k": 1,
+                "n": 24,
+                "value": 0.0417,
+                "ci": [
+                  0.0074,
+                  0.2024
+                ]
+              },
+              "unsafe_approve": {
+                "k": 23,
+                "n": 24,
+                "value": 0.9583,
+                "ci": [
+                  0.7976,
+                  0.9926
+                ]
+              },
+              "false_reject": {
+                "k": 0,
+                "n": 0,
+                "value": null,
+                "ci": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            "low_contrast": {
+              "n": 3,
+              "accuracy": {
+                "k": 0,
+                "n": 3,
+                "value": 0.0,
+                "ci": [
+                  0.0,
+                  0.5615
+                ]
+              },
+              "unsafe_approve": {
+                "k": 3,
+                "n": 3,
+                "value": 1.0,
+                "ci": [
+                  0.4385,
+                  1.0
+                ]
+              },
+              "false_reject": {
+                "k": 0,
+                "n": 0,
+                "value": null,
+                "ci": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            "mixed_size": {
+              "n": 4,
+              "accuracy": {
+                "k": 0,
+                "n": 4,
+                "value": 0.0,
+                "ci": [
+                  0.0,
+                  0.4899
+                ]
+              },
+              "unsafe_approve": {
+                "k": 4,
+                "n": 4,
+                "value": 1.0,
+                "ci": [
+                  0.5101,
+                  1.0
+                ]
+              },
+              "false_reject": {
+                "k": 0,
+                "n": 0,
+                "value": null,
+                "ci": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            "rotated": {
+              "n": 14,
+              "accuracy": {
+                "k": 1,
+                "n": 14,
+                "value": 0.0714,
+                "ci": [
+                  0.0127,
+                  0.3147
+                ]
+              },
+              "unsafe_approve": {
+                "k": 13,
+                "n": 14,
+                "value": 0.9286,
+                "ci": [
+                  0.6853,
+                  0.9873
+                ]
+              },
+              "false_reject": {
+                "k": 0,
+                "n": 0,
+                "value": null,
+                "ci": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            "tiny_print": {
+              "n": 16,
+              "accuracy": {
+                "k": 1,
+                "n": 16,
+                "value": 0.0625,
+                "ci": [
+                  0.0111,
+                  0.2833
+                ]
+              },
+              "unsafe_approve": {
+                "k": 15,
+                "n": 16,
+                "value": 0.9375,
+                "ci": [
+                  0.7167,
+                  0.9889
+                ]
+              },
+              "false_reject": {
+                "k": 0,
+                "n": 0,
+                "value": null,
+                "ci": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          }
+        },
+        "oracle": {
+          "n": 24,
+          "gold_counts": {
+            "APPROVE": 0,
+            "REVIEW": 11,
+            "REJECT": 13
+          },
+          "pred_counts": {
+            "APPROVE": 1,
+            "REVIEW": 11,
+            "REJECT": 12
+          },
+          "confusion": {
+            "APPROVE": {
+              "APPROVE": 0,
+              "REVIEW": 0,
+              "REJECT": 0
+            },
+            "REVIEW": {
+              "APPROVE": 0,
+              "REVIEW": 11,
+              "REJECT": 0
+            },
+            "REJECT": {
+              "APPROVE": 1,
+              "REVIEW": 0,
+              "REJECT": 12
+            }
+          },
+          "accuracy": {
+            "k": 23,
+            "n": 24,
+            "value": 0.9583,
+            "ci": [
+              0.7976,
+              0.9926
+            ]
+          },
+          "macro_f1": 0.6533,
+          "hard_pass_through": {
+            "k": 1,
+            "n": 13,
+            "value": 0.0769,
+            "ci": [
+              0.0137,
+              0.3331
+            ]
+          },
+          "unsafe_approve": {
+            "k": 1,
+            "n": 24,
+            "value": 0.0417,
+            "ci": [
+              0.0074,
+              0.2024
+            ]
+          },
+          "false_reject": {
+            "k": 0,
+            "n": 0,
+            "value": null,
+            "ci": [
+              0.0,
+              1.0
+            ]
+          },
+          "over_review": {
+            "k": 0,
+            "n": 0,
+            "value": null,
+            "ci": [
+              0.0,
+              1.0
+            ]
+          },
+          "downgrade": {
+            "k": 0,
+            "n": 13,
+            "value": 0.0,
+            "ci": [
+              0.0,
+              0.2281
+            ]
+          },
+          "auto_rate": {
+            "k": 13,
+            "n": 24,
+            "value": 0.5417,
+            "ci": [
+              0.3507,
+              0.7211
+            ]
+          },
+          "auto_precision": {
+            "k": 12,
+            "n": 13,
+            "value": 0.9231,
+            "ci": [
+              0.6669,
+              0.9863
+            ]
+          },
+          "rule": {
+            "micro": {
+              "precision": 1.0,
+              "recall": 0.9583,
+              "f1": 0.9787,
+              "tp": 23,
+              "fp": 0,
+              "fn": 1
+            },
+            "per_rule": {
+              "AD-ABS-01": {
+                "tp": 3,
+                "fp": 0,
+                "fn": 0
+              },
+              "AD-BRD-01": {
+                "tp": 1,
+                "fp": 0,
+                "fn": 0
+              },
+              "AD-CMP-01": {
+                "tp": 2,
+                "fp": 0,
+                "fn": 0
+              },
+              "AD-ENDO-01": {
+                "tp": 3,
+                "fp": 0,
+                "fn": 0
+              },
+              "AD-FRD-01": {
+                "tp": 3,
+                "fp": 0,
+                "fn": 0
+              },
+              "AD-GUA-01": {
+                "tp": 4,
+                "fp": 0,
+                "fn": 1
+              },
+              "AD-HLT-01": {
+                "tp": 3,
+                "fp": 0,
+                "fn": 0
+              },
+              "AD-URG-01": {
+                "tp": 4,
+                "fp": 0,
+                "fn": 0
+              }
+            }
+          },
+          "localization": {
+            "k": 23,
+            "n": 23,
+            "value": 1.0,
+            "ci": [
+              0.8569,
+              1.0
+            ]
+          },
+          "fin_missing_exact": {
+            "k": 0,
+            "n": 0,
+            "value": null,
+            "ci": [
+              0.0,
+              1.0
+            ]
+          },
+          "grounding": {
+            "k": 24,
+            "n": 24,
+            "value": 1.0,
+            "ci": [
+              0.862,
+              1.0
+            ]
+          },
+          "latency_ms": {
+            "p50": 4.24,
+            "p95": 6.732
+          },
+          "slices": {
+            "image_only": {
+              "n": 24,
+              "accuracy": {
+                "k": 23,
+                "n": 24,
+                "value": 0.9583,
+                "ci": [
+                  0.7976,
+                  0.9926
+                ]
+              },
+              "unsafe_approve": {
+                "k": 1,
+                "n": 24,
+                "value": 0.0417,
+                "ci": [
+                  0.0074,
+                  0.2024
+                ]
+              },
+              "false_reject": {
+                "k": 0,
+                "n": 0,
+                "value": null,
+                "ci": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            "low_contrast": {
+              "n": 3,
+              "accuracy": {
+                "k": 3,
+                "n": 3,
+                "value": 1.0,
+                "ci": [
+                  0.4385,
+                  1.0
+                ]
+              },
+              "unsafe_approve": {
+                "k": 0,
+                "n": 3,
+                "value": 0.0,
+                "ci": [
+                  0.0,
+                  0.5615
+                ]
+              },
+              "false_reject": {
+                "k": 0,
+                "n": 0,
+                "value": null,
+                "ci": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            "mixed_size": {
+              "n": 4,
+              "accuracy": {
+                "k": 4,
+                "n": 4,
+                "value": 1.0,
+                "ci": [
+                  0.5101,
+                  1.0
+                ]
+              },
+              "unsafe_approve": {
+                "k": 0,
+                "n": 4,
+                "value": 0.0,
+                "ci": [
+                  0.0,
+                  0.4899
+                ]
+              },
+              "false_reject": {
+                "k": 0,
+                "n": 0,
+                "value": null,
+                "ci": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            "rotated": {
+              "n": 14,
+              "accuracy": {
+                "k": 14,
+                "n": 14,
+                "value": 1.0,
+                "ci": [
+                  0.7847,
+                  1.0
+                ]
+              },
+              "unsafe_approve": {
+                "k": 0,
+                "n": 14,
+                "value": 0.0,
+                "ci": [
+                  0.0,
+                  0.2153
+                ]
+              },
+              "false_reject": {
+                "k": 0,
+                "n": 0,
+                "value": null,
+                "ci": [
+                  0.0,
+                  1.0
+                ]
+              }
+            },
+            "tiny_print": {
+              "n": 16,
+              "accuracy": {
+                "k": 15,
+                "n": 16,
+                "value": 0.9375,
+                "ci": [
+                  0.7167,
+                  0.9889
+                ]
+              },
+              "unsafe_approve": {
+                "k": 1,
+                "n": 16,
+                "value": 0.0625,
+                "ci": [
+                  0.0111,
+                  0.2833
+                ]
+              },
+              "false_reject": {
+                "k": 0,
+                "n": 0,
+                "value": null,
+                "ci": [
+                  0.0,
+                  1.0
+                ]
+              }
+            }
+          }
+        }
+      },
+      "by_tag": {
+        "image_only": {
+          "no_image": {
+            "n": 24,
+            "gold_counts": {
+              "APPROVE": 0,
+              "REVIEW": 11,
+              "REJECT": 13
+            },
+            "pred_counts": {
+              "APPROVE": 23,
+              "REVIEW": 0,
+              "REJECT": 1
+            },
+            "confusion": {
+              "APPROVE": {
+                "APPROVE": 0,
+                "REVIEW": 0,
+                "REJECT": 0
+              },
+              "REVIEW": {
+                "APPROVE": 11,
+                "REVIEW": 0,
+                "REJECT": 0
+              },
+              "REJECT": {
+                "APPROVE": 12,
+                "REVIEW": 0,
+                "REJECT": 1
+              }
+            },
+            "accuracy": {
+              "k": 1,
+              "n": 24,
+              "value": 0.0417,
+              "ci": [
+                0.0074,
+                0.2024
+              ]
+            },
+            "macro_f1": 0.0476,
+            "hard_pass_through": {
+              "k": 12,
+              "n": 13,
+              "value": 0.9231,
+              "ci": [
+                0.6669,
+                0.9863
+              ]
+            },
+            "unsafe_approve": {
+              "k": 23,
+              "n": 24,
+              "value": 0.9583,
+              "ci": [
+                0.7976,
+                0.9926
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "over_review": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "downgrade": {
+              "k": 0,
+              "n": 13,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2281
+              ]
+            },
+            "auto_rate": {
+              "k": 24,
+              "n": 24,
+              "value": 1.0,
+              "ci": [
+                0.862,
+                1.0
+              ]
+            },
+            "auto_precision": {
+              "k": 1,
+              "n": 24,
+              "value": 0.0417,
+              "ci": [
+                0.0074,
+                0.2024
+              ]
+            },
+            "rule": {
+              "micro": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "tp": 0,
+                "fp": 1,
+                "fn": 24
+              },
+              "per_rule": {
+                "AD-ABS-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 3
+                },
+                "AD-BRD-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 1
+                },
+                "AD-CMP-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 2
+                },
+                "AD-ENDO-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 3
+                },
+                "AD-FIN-01": {
+                  "tp": 0,
+                  "fp": 1,
+                  "fn": 0
+                },
+                "AD-FRD-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 3
+                },
+                "AD-GUA-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 5
+                },
+                "AD-HLT-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 3
+                },
+                "AD-URG-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 4
+                }
+              }
+            },
+            "localization": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "fin_missing_exact": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "grounding": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "latency_ms": {
+              "p50": 1.81,
+              "p95": 5.645
+            },
+            "slices": {
+              "image_only": {
+                "n": 24,
+                "accuracy": {
+                  "k": 1,
+                  "n": 24,
+                  "value": 0.0417,
+                  "ci": [
+                    0.0074,
+                    0.2024
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 23,
+                  "n": 24,
+                  "value": 0.9583,
+                  "ci": [
+                    0.7976,
+                    0.9926
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              },
+              "low_contrast": {
+                "n": 3,
+                "accuracy": {
+                  "k": 0,
+                  "n": 3,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.5615
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 3,
+                  "n": 3,
+                  "value": 1.0,
+                  "ci": [
+                    0.4385,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              },
+              "mixed_size": {
+                "n": 4,
+                "accuracy": {
+                  "k": 0,
+                  "n": 4,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.4899
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 4,
+                  "n": 4,
+                  "value": 1.0,
+                  "ci": [
+                    0.5101,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              },
+              "rotated": {
+                "n": 14,
+                "accuracy": {
+                  "k": 1,
+                  "n": 14,
+                  "value": 0.0714,
+                  "ci": [
+                    0.0127,
+                    0.3147
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 13,
+                  "n": 14,
+                  "value": 0.9286,
+                  "ci": [
+                    0.6853,
+                    0.9873
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              },
+              "tiny_print": {
+                "n": 16,
+                "accuracy": {
+                  "k": 1,
+                  "n": 16,
+                  "value": 0.0625,
+                  "ci": [
+                    0.0111,
+                    0.2833
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 15,
+                  "n": 16,
+                  "value": 0.9375,
+                  "ci": [
+                    0.7167,
+                    0.9889
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              }
+            }
+          },
+          "oracle": {
+            "n": 24,
+            "gold_counts": {
+              "APPROVE": 0,
+              "REVIEW": 11,
+              "REJECT": 13
+            },
+            "pred_counts": {
+              "APPROVE": 1,
+              "REVIEW": 11,
+              "REJECT": 12
+            },
+            "confusion": {
+              "APPROVE": {
+                "APPROVE": 0,
+                "REVIEW": 0,
+                "REJECT": 0
+              },
+              "REVIEW": {
+                "APPROVE": 0,
+                "REVIEW": 11,
+                "REJECT": 0
+              },
+              "REJECT": {
+                "APPROVE": 1,
+                "REVIEW": 0,
+                "REJECT": 12
+              }
+            },
+            "accuracy": {
+              "k": 23,
+              "n": 24,
+              "value": 0.9583,
+              "ci": [
+                0.7976,
+                0.9926
+              ]
+            },
+            "macro_f1": 0.6533,
+            "hard_pass_through": {
+              "k": 1,
+              "n": 13,
+              "value": 0.0769,
+              "ci": [
+                0.0137,
+                0.3331
+              ]
+            },
+            "unsafe_approve": {
+              "k": 1,
+              "n": 24,
+              "value": 0.0417,
+              "ci": [
+                0.0074,
+                0.2024
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "over_review": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "downgrade": {
+              "k": 0,
+              "n": 13,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.2281
+              ]
+            },
+            "auto_rate": {
+              "k": 13,
+              "n": 24,
+              "value": 0.5417,
+              "ci": [
+                0.3507,
+                0.7211
+              ]
+            },
+            "auto_precision": {
+              "k": 12,
+              "n": 13,
+              "value": 0.9231,
+              "ci": [
+                0.6669,
+                0.9863
+              ]
+            },
+            "rule": {
+              "micro": {
+                "precision": 1.0,
+                "recall": 0.9583,
+                "f1": 0.9787,
+                "tp": 23,
+                "fp": 0,
+                "fn": 1
+              },
+              "per_rule": {
+                "AD-ABS-01": {
+                  "tp": 3,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-BRD-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-CMP-01": {
+                  "tp": 2,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-ENDO-01": {
+                  "tp": 3,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-FRD-01": {
+                  "tp": 3,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-GUA-01": {
+                  "tp": 4,
+                  "fp": 0,
+                  "fn": 1
+                },
+                "AD-HLT-01": {
+                  "tp": 3,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-URG-01": {
+                  "tp": 4,
+                  "fp": 0,
+                  "fn": 0
+                }
+              }
+            },
+            "localization": {
+              "k": 23,
+              "n": 23,
+              "value": 1.0,
+              "ci": [
+                0.8569,
+                1.0
+              ]
+            },
+            "fin_missing_exact": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "grounding": {
+              "k": 24,
+              "n": 24,
+              "value": 1.0,
+              "ci": [
+                0.862,
+                1.0
+              ]
+            },
+            "latency_ms": {
+              "p50": 4.24,
+              "p95": 6.732
+            },
+            "slices": {
+              "image_only": {
+                "n": 24,
+                "accuracy": {
+                  "k": 23,
+                  "n": 24,
+                  "value": 0.9583,
+                  "ci": [
+                    0.7976,
+                    0.9926
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 1,
+                  "n": 24,
+                  "value": 0.0417,
+                  "ci": [
+                    0.0074,
+                    0.2024
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              },
+              "low_contrast": {
+                "n": 3,
+                "accuracy": {
+                  "k": 3,
+                  "n": 3,
+                  "value": 1.0,
+                  "ci": [
+                    0.4385,
+                    1.0
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 3,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.5615
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              },
+              "mixed_size": {
+                "n": 4,
+                "accuracy": {
+                  "k": 4,
+                  "n": 4,
+                  "value": 1.0,
+                  "ci": [
+                    0.5101,
+                    1.0
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 4,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.4899
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              },
+              "rotated": {
+                "n": 14,
+                "accuracy": {
+                  "k": 14,
+                  "n": 14,
+                  "value": 1.0,
+                  "ci": [
+                    0.7847,
+                    1.0
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 14,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.2153
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              },
+              "tiny_print": {
+                "n": 16,
+                "accuracy": {
+                  "k": 15,
+                  "n": 16,
+                  "value": 0.9375,
+                  "ci": [
+                    0.7167,
+                    0.9889
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 1,
+                  "n": 16,
+                  "value": 0.0625,
+                  "ci": [
+                    0.0111,
+                    0.2833
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "benign_image": {
+          "no_image": {
+            "n": 18,
+            "gold_counts": {
+              "APPROVE": 18,
+              "REVIEW": 0,
+              "REJECT": 0
+            },
+            "pred_counts": {
+              "APPROVE": 14,
+              "REVIEW": 0,
+              "REJECT": 4
+            },
+            "confusion": {
+              "APPROVE": {
+                "APPROVE": 14,
+                "REVIEW": 0,
+                "REJECT": 4
+              },
+              "REVIEW": {
+                "APPROVE": 0,
+                "REVIEW": 0,
+                "REJECT": 0
+              },
+              "REJECT": {
+                "APPROVE": 0,
+                "REVIEW": 0,
+                "REJECT": 0
+              }
+            },
+            "accuracy": {
+              "k": 14,
+              "n": 18,
+              "value": 0.7778,
+              "ci": [
+                0.5478,
+                0.91
+              ]
+            },
+            "macro_f1": 0.2917,
+            "hard_pass_through": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 4,
+              "n": 18,
+              "value": 0.2222,
+              "ci": [
+                0.09,
+                0.4522
+              ]
+            },
+            "over_review": {
+              "k": 0,
+              "n": 18,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.1759
+              ]
+            },
+            "downgrade": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "auto_rate": {
+              "k": 18,
+              "n": 18,
+              "value": 1.0,
+              "ci": [
+                0.8241,
+                1.0
+              ]
+            },
+            "auto_precision": {
+              "k": 14,
+              "n": 18,
+              "value": 0.7778,
+              "ci": [
+                0.5478,
+                0.91
+              ]
+            },
+            "rule": {
+              "micro": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "tp": 0,
+                "fp": 4,
+                "fn": 0
+              },
+              "per_rule": {
+                "AD-FIN-01": {
+                  "tp": 0,
+                  "fp": 4,
+                  "fn": 0
+                }
+              }
+            },
+            "localization": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "fin_missing_exact": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "grounding": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "latency_ms": {
+              "p50": 1.787,
+              "p95": 2.769
+            },
+            "slices": {
+              "benign_image": {
+                "n": 18,
+                "accuracy": {
+                  "k": 14,
+                  "n": 18,
+                  "value": 0.7778,
+                  "ci": [
+                    0.5478,
+                    0.91
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 4,
+                  "n": 18,
+                  "value": 0.2222,
+                  "ci": [
+                    0.09,
+                    0.4522
+                  ]
+                }
+              },
+              "benign_lookalike": {
+                "n": 4,
+                "accuracy": {
+                  "k": 4,
+                  "n": 4,
+                  "value": 1.0,
+                  "ci": [
+                    0.5101,
+                    1.0
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 4,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.4899
+                  ]
+                }
+              },
+              "low_contrast": {
+                "n": 3,
+                "accuracy": {
+                  "k": 2,
+                  "n": 3,
+                  "value": 0.6667,
+                  "ci": [
+                    0.2077,
+                    0.9385
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 1,
+                  "n": 3,
+                  "value": 0.3333,
+                  "ci": [
+                    0.0615,
+                    0.7923
+                  ]
+                }
+              },
+              "negation": {
+                "n": 9,
+                "accuracy": {
+                  "k": 5,
+                  "n": 9,
+                  "value": 0.5556,
+                  "ci": [
+                    0.2666,
+                    0.8112
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 4,
+                  "n": 9,
+                  "value": 0.4444,
+                  "ci": [
+                    0.1888,
+                    0.7334
+                  ]
+                }
+              },
+              "price_display": {
+                "n": 4,
+                "accuracy": {
+                  "k": 4,
+                  "n": 4,
+                  "value": 1.0,
+                  "ci": [
+                    0.5101,
+                    1.0
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 4,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.4899
+                  ]
+                }
+              },
+              "range_expression": {
+                "n": 7,
+                "accuracy": {
+                  "k": 4,
+                  "n": 7,
+                  "value": 0.5714,
+                  "ci": [
+                    0.2505,
+                    0.8418
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 3,
+                  "n": 7,
+                  "value": 0.4286,
+                  "ci": [
+                    0.1582,
+                    0.7495
+                  ]
+                }
+              },
+              "rotated": {
+                "n": 9,
+                "accuracy": {
+                  "k": 8,
+                  "n": 9,
+                  "value": 0.8889,
+                  "ci": [
+                    0.565,
+                    0.9801
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 1,
+                  "n": 9,
+                  "value": 0.1111,
+                  "ci": [
+                    0.0199,
+                    0.435
+                  ]
+                }
+              },
+              "tiny_print": {
+                "n": 14,
+                "accuracy": {
+                  "k": 10,
+                  "n": 14,
+                  "value": 0.7143,
+                  "ci": [
+                    0.4535,
+                    0.8828
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 4,
+                  "n": 14,
+                  "value": 0.2857,
+                  "ci": [
+                    0.1172,
+                    0.5465
+                  ]
+                }
+              }
+            }
+          },
+          "oracle": {
+            "n": 18,
+            "gold_counts": {
+              "APPROVE": 18,
+              "REVIEW": 0,
+              "REJECT": 0
+            },
+            "pred_counts": {
+              "APPROVE": 16,
+              "REVIEW": 0,
+              "REJECT": 2
+            },
+            "confusion": {
+              "APPROVE": {
+                "APPROVE": 16,
+                "REVIEW": 0,
+                "REJECT": 2
+              },
+              "REVIEW": {
+                "APPROVE": 0,
+                "REVIEW": 0,
+                "REJECT": 0
+              },
+              "REJECT": {
+                "APPROVE": 0,
+                "REVIEW": 0,
+                "REJECT": 0
+              }
+            },
+            "accuracy": {
+              "k": 16,
+              "n": 18,
+              "value": 0.8889,
+              "ci": [
+                0.672,
+                0.969
+              ]
+            },
+            "macro_f1": 0.3137,
+            "hard_pass_through": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "false_reject": {
+              "k": 2,
+              "n": 18,
+              "value": 0.1111,
+              "ci": [
+                0.031,
+                0.328
+              ]
+            },
+            "over_review": {
+              "k": 0,
+              "n": 18,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.1759
+              ]
+            },
+            "downgrade": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "auto_rate": {
+              "k": 18,
+              "n": 18,
+              "value": 1.0,
+              "ci": [
+                0.8241,
+                1.0
+              ]
+            },
+            "auto_precision": {
+              "k": 16,
+              "n": 18,
+              "value": 0.8889,
+              "ci": [
+                0.672,
+                0.969
+              ]
+            },
+            "rule": {
+              "micro": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1": 0.0,
+                "tp": 0,
+                "fp": 2,
+                "fn": 0
+              },
+              "per_rule": {
+                "AD-ABS-01": {
+                  "tp": 0,
+                  "fp": 1,
+                  "fn": 0
+                },
+                "AD-FRD-01": {
+                  "tp": 0,
+                  "fp": 1,
+                  "fn": 0
+                }
+              }
+            },
+            "localization": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "fin_missing_exact": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "grounding": {
+              "k": 2,
+              "n": 2,
+              "value": 1.0,
+              "ci": [
+                0.3424,
+                1.0
+              ]
+            },
+            "latency_ms": {
+              "p50": 5.514,
+              "p95": 12.647
+            },
+            "slices": {
+              "benign_image": {
+                "n": 18,
+                "accuracy": {
+                  "k": 16,
+                  "n": 18,
+                  "value": 0.8889,
+                  "ci": [
+                    0.672,
+                    0.969
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 2,
+                  "n": 18,
+                  "value": 0.1111,
+                  "ci": [
+                    0.031,
+                    0.328
+                  ]
+                }
+              },
+              "benign_lookalike": {
+                "n": 4,
+                "accuracy": {
+                  "k": 3,
+                  "n": 4,
+                  "value": 0.75,
+                  "ci": [
+                    0.3006,
+                    0.9544
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 1,
+                  "n": 4,
+                  "value": 0.25,
+                  "ci": [
+                    0.0456,
+                    0.6994
+                  ]
+                }
+              },
+              "low_contrast": {
+                "n": 3,
+                "accuracy": {
+                  "k": 3,
+                  "n": 3,
+                  "value": 1.0,
+                  "ci": [
+                    0.4385,
+                    1.0
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 3,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.5615
+                  ]
+                }
+              },
+              "negation": {
+                "n": 9,
+                "accuracy": {
+                  "k": 8,
+                  "n": 9,
+                  "value": 0.8889,
+                  "ci": [
+                    0.565,
+                    0.9801
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 1,
+                  "n": 9,
+                  "value": 0.1111,
+                  "ci": [
+                    0.0199,
+                    0.435
+                  ]
+                }
+              },
+              "price_display": {
+                "n": 4,
+                "accuracy": {
+                  "k": 3,
+                  "n": 4,
+                  "value": 0.75,
+                  "ci": [
+                    0.3006,
+                    0.9544
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 1,
+                  "n": 4,
+                  "value": 0.25,
+                  "ci": [
+                    0.0456,
+                    0.6994
+                  ]
+                }
+              },
+              "range_expression": {
+                "n": 7,
+                "accuracy": {
+                  "k": 6,
+                  "n": 7,
+                  "value": 0.8571,
+                  "ci": [
+                    0.4869,
+                    0.9743
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 1,
+                  "n": 7,
+                  "value": 0.1429,
+                  "ci": [
+                    0.0257,
+                    0.5131
+                  ]
+                }
+              },
+              "rotated": {
+                "n": 9,
+                "accuracy": {
+                  "k": 8,
+                  "n": 9,
+                  "value": 0.8889,
+                  "ci": [
+                    0.565,
+                    0.9801
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 1,
+                  "n": 9,
+                  "value": 0.1111,
+                  "ci": [
+                    0.0199,
+                    0.435
+                  ]
+                }
+              },
+              "tiny_print": {
+                "n": 14,
+                "accuracy": {
+                  "k": 12,
+                  "n": 14,
+                  "value": 0.8571,
+                  "ci": [
+                    0.6006,
+                    0.9599
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 2,
+                  "n": 14,
+                  "value": 0.1429,
+                  "ci": [
+                    0.0401,
+                    0.3994
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "visual_cue": {
+          "no_image": {
+            "n": 12,
+            "gold_counts": {
+              "APPROVE": 1,
+              "REVIEW": 5,
+              "REJECT": 6
+            },
+            "pred_counts": {
+              "APPROVE": 11,
+              "REVIEW": 0,
+              "REJECT": 1
+            },
+            "confusion": {
+              "APPROVE": {
+                "APPROVE": 1,
+                "REVIEW": 0,
+                "REJECT": 0
+              },
+              "REVIEW": {
+                "APPROVE": 5,
+                "REVIEW": 0,
+                "REJECT": 0
+              },
+              "REJECT": {
+                "APPROVE": 5,
+                "REVIEW": 0,
+                "REJECT": 1
+              }
+            },
+            "accuracy": {
+              "k": 2,
+              "n": 12,
+              "value": 0.1667,
+              "ci": [
+                0.047,
+                0.448
+              ]
+            },
+            "macro_f1": 0.1508,
+            "hard_pass_through": {
+              "k": 5,
+              "n": 6,
+              "value": 0.8333,
+              "ci": [
+                0.4365,
+                0.9699
+              ]
+            },
+            "unsafe_approve": {
+              "k": 10,
+              "n": 11,
+              "value": 0.9091,
+              "ci": [
+                0.6226,
+                0.9838
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            },
+            "over_review": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            },
+            "downgrade": {
+              "k": 0,
+              "n": 6,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3903
+              ]
+            },
+            "auto_rate": {
+              "k": 12,
+              "n": 12,
+              "value": 1.0,
+              "ci": [
+                0.7575,
+                1.0
+              ]
+            },
+            "auto_precision": {
+              "k": 2,
+              "n": 12,
+              "value": 0.1667,
+              "ci": [
+                0.047,
+                0.448
+              ]
+            },
+            "rule": {
+              "micro": {
+                "precision": 1.0,
+                "recall": 0.0769,
+                "f1": 0.1429,
+                "tp": 1,
+                "fp": 0,
+                "fn": 12
+              },
+              "per_rule": {
+                "AD-ABS-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 4
+                },
+                "AD-BRD-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-ENDO-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 1
+                },
+                "AD-FRD-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 5
+                },
+                "AD-HLT-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 1
+                },
+                "AD-URG-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 1
+                }
+              }
+            },
+            "localization": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "fin_missing_exact": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "grounding": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "latency_ms": {
+              "p50": 1.485,
+              "p95": 3.818
+            },
+            "slices": {
+              "award_badge": {
+                "n": 4,
+                "accuracy": {
+                  "k": 0,
+                  "n": 4,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.4899
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 4,
+                  "n": 4,
+                  "value": 1.0,
+                  "ci": [
+                    0.5101,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              },
+              "fake_popup": {
+                "n": 4,
+                "accuracy": {
+                  "k": 1,
+                  "n": 4,
+                  "value": 0.25,
+                  "ci": [
+                    0.0456,
+                    0.6994
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 3,
+                  "n": 3,
+                  "value": 1.0,
+                  "ci": [
+                    0.4385,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 1,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.7935
+                  ]
+                }
+              },
+              "tiny_print": {
+                "n": 7,
+                "accuracy": {
+                  "k": 1,
+                  "n": 7,
+                  "value": 0.1429,
+                  "ci": [
+                    0.0257,
+                    0.5131
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 6,
+                  "n": 6,
+                  "value": 1.0,
+                  "ci": [
+                    0.6097,
+                    1.0
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 1,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.7935
+                  ]
+                }
+              },
+              "visual_cue": {
+                "n": 12,
+                "accuracy": {
+                  "k": 2,
+                  "n": 12,
+                  "value": 0.1667,
+                  "ci": [
+                    0.047,
+                    0.448
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 10,
+                  "n": 11,
+                  "value": 0.9091,
+                  "ci": [
+                    0.6226,
+                    0.9838
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 1,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.7935
+                  ]
+                }
+              }
+            }
+          },
+          "oracle": {
+            "n": 12,
+            "gold_counts": {
+              "APPROVE": 1,
+              "REVIEW": 5,
+              "REJECT": 6
+            },
+            "pred_counts": {
+              "APPROVE": 5,
+              "REVIEW": 4,
+              "REJECT": 3
+            },
+            "confusion": {
+              "APPROVE": {
+                "APPROVE": 1,
+                "REVIEW": 0,
+                "REJECT": 0
+              },
+              "REVIEW": {
+                "APPROVE": 1,
+                "REVIEW": 4,
+                "REJECT": 0
+              },
+              "REJECT": {
+                "APPROVE": 3,
+                "REVIEW": 0,
+                "REJECT": 3
+              }
+            },
+            "accuracy": {
+              "k": 8,
+              "n": 12,
+              "value": 0.6667,
+              "ci": [
+                0.3906,
+                0.8619
+              ]
+            },
+            "macro_f1": 0.6296,
+            "hard_pass_through": {
+              "k": 3,
+              "n": 6,
+              "value": 0.5,
+              "ci": [
+                0.1876,
+                0.8124
+              ]
+            },
+            "unsafe_approve": {
+              "k": 4,
+              "n": 11,
+              "value": 0.3636,
+              "ci": [
+                0.1517,
+                0.6462
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            },
+            "over_review": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            },
+            "downgrade": {
+              "k": 0,
+              "n": 6,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3903
+              ]
+            },
+            "auto_rate": {
+              "k": 8,
+              "n": 12,
+              "value": 0.6667,
+              "ci": [
+                0.3906,
+                0.8619
+              ]
+            },
+            "auto_precision": {
+              "k": 4,
+              "n": 8,
+              "value": 0.5,
+              "ci": [
+                0.2152,
+                0.7848
+              ]
+            },
+            "rule": {
+              "micro": {
+                "precision": 1.0,
+                "recall": 0.6923,
+                "f1": 0.8182,
+                "tp": 9,
+                "fp": 0,
+                "fn": 4
+              },
+              "per_rule": {
+                "AD-ABS-01": {
+                  "tp": 4,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-BRD-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-ENDO-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-FRD-01": {
+                  "tp": 2,
+                  "fp": 0,
+                  "fn": 3
+                },
+                "AD-HLT-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-URG-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 1
+                }
+              }
+            },
+            "localization": {
+              "k": 8,
+              "n": 8,
+              "value": 1.0,
+              "ci": [
+                0.6756,
+                1.0
+              ]
+            },
+            "fin_missing_exact": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "grounding": {
+              "k": 9,
+              "n": 9,
+              "value": 1.0,
+              "ci": [
+                0.7008,
+                1.0
+              ]
+            },
+            "latency_ms": {
+              "p50": 3.655,
+              "p95": 6.865
+            },
+            "slices": {
+              "award_badge": {
+                "n": 4,
+                "accuracy": {
+                  "k": 4,
+                  "n": 4,
+                  "value": 1.0,
+                  "ci": [
+                    0.5101,
+                    1.0
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 4,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.4899
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              },
+              "fake_popup": {
+                "n": 4,
+                "accuracy": {
+                  "k": 2,
+                  "n": 4,
+                  "value": 0.5,
+                  "ci": [
+                    0.15,
+                    0.85
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 2,
+                  "n": 3,
+                  "value": 0.6667,
+                  "ci": [
+                    0.2077,
+                    0.9385
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 1,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.7935
+                  ]
+                }
+              },
+              "tiny_print": {
+                "n": 7,
+                "accuracy": {
+                  "k": 4,
+                  "n": 7,
+                  "value": 0.5714,
+                  "ci": [
+                    0.2505,
+                    0.8418
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 3,
+                  "n": 6,
+                  "value": 0.5,
+                  "ci": [
+                    0.1876,
+                    0.8124
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 1,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.7935
+                  ]
+                }
+              },
+              "visual_cue": {
+                "n": 12,
+                "accuracy": {
+                  "k": 8,
+                  "n": 12,
+                  "value": 0.6667,
+                  "ci": [
+                    0.3906,
+                    0.8619
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 4,
+                  "n": 11,
+                  "value": 0.3636,
+                  "ci": [
+                    0.1517,
+                    0.6462
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 1,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.7935
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "both": {
+          "no_image": {
+            "n": 6,
+            "gold_counts": {
+              "APPROVE": 0,
+              "REVIEW": 0,
+              "REJECT": 6
+            },
+            "pred_counts": {
+              "APPROVE": 1,
+              "REVIEW": 4,
+              "REJECT": 1
+            },
+            "confusion": {
+              "APPROVE": {
+                "APPROVE": 0,
+                "REVIEW": 0,
+                "REJECT": 0
+              },
+              "REVIEW": {
+                "APPROVE": 0,
+                "REVIEW": 0,
+                "REJECT": 0
+              },
+              "REJECT": {
+                "APPROVE": 1,
+                "REVIEW": 4,
+                "REJECT": 1
+              }
+            },
+            "accuracy": {
+              "k": 1,
+              "n": 6,
+              "value": 0.1667,
+              "ci": [
+                0.0301,
+                0.5635
+              ]
+            },
+            "macro_f1": 0.0952,
+            "hard_pass_through": {
+              "k": 1,
+              "n": 6,
+              "value": 0.1667,
+              "ci": [
+                0.0301,
+                0.5635
+              ]
+            },
+            "unsafe_approve": {
+              "k": 1,
+              "n": 6,
+              "value": 0.1667,
+              "ci": [
+                0.0301,
+                0.5635
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "over_review": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "downgrade": {
+              "k": 4,
+              "n": 6,
+              "value": 0.6667,
+              "ci": [
+                0.3,
+                0.9032
+              ]
+            },
+            "auto_rate": {
+              "k": 2,
+              "n": 6,
+              "value": 0.3333,
+              "ci": [
+                0.0968,
+                0.7
+              ]
+            },
+            "auto_precision": {
+              "k": 1,
+              "n": 2,
+              "value": 0.5,
+              "ci": [
+                0.0945,
+                0.9055
+              ]
+            },
+            "rule": {
+              "micro": {
+                "precision": 1.0,
+                "recall": 0.4286,
+                "f1": 0.6,
+                "tp": 6,
+                "fp": 0,
+                "fn": 8
+              },
+              "per_rule": {
+                "AD-BRD-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 1
+                },
+                "AD-CMP-01": {
+                  "tp": 2,
+                  "fp": 0,
+                  "fn": 2
+                },
+                "AD-ENDO-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-FIN-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-FRD-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 1
+                },
+                "AD-GUA-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-HLT-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 2
+                },
+                "AD-LND-01": {
+                  "tp": 0,
+                  "fp": 0,
+                  "fn": 1
+                },
+                "AD-URG-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 1
+                }
+              }
+            },
+            "localization": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "fin_missing_exact": {
+              "k": 0,
+              "n": 1,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.7935
+              ]
+            },
+            "grounding": {
+              "k": 5,
+              "n": 5,
+              "value": 1.0,
+              "ci": [
+                0.5655,
+                1.0
+              ]
+            },
+            "latency_ms": {
+              "p50": 2.037,
+              "p95": 2.515
+            },
+            "slices": {
+              "both": {
+                "n": 6,
+                "accuracy": {
+                  "k": 1,
+                  "n": 6,
+                  "value": 0.1667,
+                  "ci": [
+                    0.0301,
+                    0.5635
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 1,
+                  "n": 6,
+                  "value": 0.1667,
+                  "ci": [
+                    0.0301,
+                    0.5635
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              },
+              "rotated": {
+                "n": 6,
+                "accuracy": {
+                  "k": 1,
+                  "n": 6,
+                  "value": 0.1667,
+                  "ci": [
+                    0.0301,
+                    0.5635
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 1,
+                  "n": 6,
+                  "value": 0.1667,
+                  "ci": [
+                    0.0301,
+                    0.5635
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              },
+              "tiny_print": {
+                "n": 4,
+                "accuracy": {
+                  "k": 0,
+                  "n": 4,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.4899
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 1,
+                  "n": 4,
+                  "value": 0.25,
+                  "ci": [
+                    0.0456,
+                    0.6994
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              }
+            }
+          },
+          "oracle": {
+            "n": 6,
+            "gold_counts": {
+              "APPROVE": 0,
+              "REVIEW": 0,
+              "REJECT": 6
+            },
+            "pred_counts": {
+              "APPROVE": 0,
+              "REVIEW": 0,
+              "REJECT": 6
+            },
+            "confusion": {
+              "APPROVE": {
+                "APPROVE": 0,
+                "REVIEW": 0,
+                "REJECT": 0
+              },
+              "REVIEW": {
+                "APPROVE": 0,
+                "REVIEW": 0,
+                "REJECT": 0
+              },
+              "REJECT": {
+                "APPROVE": 0,
+                "REVIEW": 0,
+                "REJECT": 6
+              }
+            },
+            "accuracy": {
+              "k": 6,
+              "n": 6,
+              "value": 1.0,
+              "ci": [
+                0.6097,
+                1.0
+              ]
+            },
+            "macro_f1": 0.3333,
+            "hard_pass_through": {
+              "k": 0,
+              "n": 6,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3903
+              ]
+            },
+            "unsafe_approve": {
+              "k": 0,
+              "n": 6,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3903
+              ]
+            },
+            "false_reject": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "over_review": {
+              "k": 0,
+              "n": 0,
+              "value": null,
+              "ci": [
+                0.0,
+                1.0
+              ]
+            },
+            "downgrade": {
+              "k": 0,
+              "n": 6,
+              "value": 0.0,
+              "ci": [
+                0.0,
+                0.3903
+              ]
+            },
+            "auto_rate": {
+              "k": 6,
+              "n": 6,
+              "value": 1.0,
+              "ci": [
+                0.6097,
+                1.0
+              ]
+            },
+            "auto_precision": {
+              "k": 6,
+              "n": 6,
+              "value": 1.0,
+              "ci": [
+                0.6097,
+                1.0
+              ]
+            },
+            "rule": {
+              "micro": {
+                "precision": 1.0,
+                "recall": 0.7857,
+                "f1": 0.88,
+                "tp": 11,
+                "fp": 0,
+                "fn": 3
+              },
+              "per_rule": {
+                "AD-BRD-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-CMP-01": {
+                  "tp": 2,
+                  "fp": 0,
+                  "fn": 2
+                },
+                "AD-ENDO-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-FIN-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-FRD-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-GUA-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-HLT-01": {
+                  "tp": 2,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-LND-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 0
+                },
+                "AD-URG-01": {
+                  "tp": 1,
+                  "fp": 0,
+                  "fn": 1
+                }
+              }
+            },
+            "localization": {
+              "k": 10,
+              "n": 10,
+              "value": 1.0,
+              "ci": [
+                0.7225,
+                1.0
+              ]
+            },
+            "fin_missing_exact": {
+              "k": 1,
+              "n": 1,
+              "value": 1.0,
+              "ci": [
+                0.2065,
+                1.0
+              ]
+            },
+            "grounding": {
+              "k": 12,
+              "n": 12,
+              "value": 1.0,
+              "ci": [
+                0.7575,
+                1.0
+              ]
+            },
+            "latency_ms": {
+              "p50": 3.296,
+              "p95": 7.981
+            },
+            "slices": {
+              "both": {
+                "n": 6,
+                "accuracy": {
+                  "k": 6,
+                  "n": 6,
+                  "value": 1.0,
+                  "ci": [
+                    0.6097,
+                    1.0
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 6,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.3903
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              },
+              "rotated": {
+                "n": 6,
+                "accuracy": {
+                  "k": 6,
+                  "n": 6,
+                  "value": 1.0,
+                  "ci": [
+                    0.6097,
+                    1.0
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 6,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.3903
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              },
+              "tiny_print": {
+                "n": 4,
+                "accuracy": {
+                  "k": 4,
+                  "n": 4,
+                  "value": 1.0,
+                  "ci": [
+                    0.5101,
+                    1.0
+                  ]
+                },
+                "unsafe_approve": {
+                  "k": 0,
+                  "n": 4,
+                  "value": 0.0,
+                  "ci": [
+                    0.0,
+                    0.4899
+                  ]
+                },
+                "false_reject": {
+                  "k": 0,
+                  "n": 0,
+                  "value": null,
+                  "ci": [
+                    0.0,
+                    1.0
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

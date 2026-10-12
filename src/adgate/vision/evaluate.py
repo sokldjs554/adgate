@@ -20,7 +20,7 @@ from ..eval.systems import Prediction
 from ..pipeline import review
 from .dataset import VisionExample
 from .read import ImageReading
-from .spec import FLAGS, hard_texts, texts
+from .spec import FLAGS, hard_texts, image_text, texts
 
 _NOISE = re.compile(r"[\s\W_]+", re.UNICODE)
 SIMILAR = 0.85
@@ -153,4 +153,27 @@ def decision_effect(items: list[VisionExample], readings: Mapping[str, ImageRead
         idx = [i for i, it in enumerate(items) if tag in it.gold.tags]
         if idx:
             out["by_tag"][tag] = {name: metrics.compute([examples[i] for i in idx], [preds[i] for i in idx]) for name, preds in systems.items()}
+    return out
+
+
+def decision_errors(items: list[VisionExample], readings: Mapping[str, ImageReading | None] | None = None, cfg: ReviewConfig | None = None) -> dict[str, list[dict[str, Any]]]:
+    """팔마다 정답과 다르게 판정한 소재와 그 이유(정답 위반·예측 발견·이미지 글자). ``readings`` 가 없으면 no_image · oracle 만."""
+    cfg = cfg or ReviewConfig()
+    out: dict[str, list[dict[str, Any]]] = {"no_image": [], "oracle": [], **({"read": []} if readings is not None else {})}
+    for it in items:
+        arms: dict[str, str | None] = {"no_image": None, "oracle": image_text(it.image)}
+        if readings is not None:
+            reading = readings.get(it.id)
+            arms["read"] = reading.image_text if reading is not None else "\0unreadable"
+        for name, text in arms.items():
+            if text == "\0unreadable":
+                outcome, found = "REVIEW", []
+            else:
+                r = review(it.example(text).creative, cfg)
+                outcome, found = r.outcome, [(f.rule_id, f.field, f.quote, f.severity) for f in r.findings if f.severity != "info"]
+            if outcome != it.gold.decision:
+                out[name].append({
+                    "id": it.id, "gold": it.gold.decision, "pred": outcome, "tags": it.gold.tags,
+                    "gold_violations": [(v.rule_id, v.field, v.quote) for v in it.gold.violations], "pred_findings": found,
+                })
     return out

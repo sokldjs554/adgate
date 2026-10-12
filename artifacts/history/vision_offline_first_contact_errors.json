@@ -1,0 +1,999 @@
+{
+ "meta": {
+  "suite": "vision",
+  "git": "b06d129",
+  "note": "decision_errors() 로 사후에 뽑은 오분류 목록(오프라인 팔은 결정론이라 첫 접촉과 같다)"
+ },
+ "errors": {
+  "no_image": [
+   {
+    "id": "V-A02",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-FRD-01",
+      "image_text",
+      "신용조회 없이"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-A03",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "low_contrast"
+    ],
+    "gold_violations": [
+     [
+      "AD-ENDO-01",
+      "image_text",
+      "후기 8만 건"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-A04",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "rotated"
+    ],
+    "gold_violations": [
+     [
+      "AD-CMP-01",
+      "image_text",
+      "타사 대비 수수료 절반"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-A05",
+    "gold": "APPROVE",
+    "pred": "REJECT",
+    "tags": [
+     "benign_image",
+     "negation",
+     "tiny_print",
+     "past_return",
+     "disclosure_in_image"
+    ],
+    "gold_violations": [],
+    "pred_findings": [
+     [
+      "AD-FIN-01",
+      null,
+      null,
+      "reject"
+     ]
+    ]
+   },
+   {
+    "id": "V-A06",
+    "gold": "APPROVE",
+    "pred": "REJECT",
+    "tags": [
+     "benign_image",
+     "range_expression",
+     "negation",
+     "low_contrast",
+     "tiny_print",
+     "disclosure_in_image"
+    ],
+    "gold_violations": [],
+    "pred_findings": [
+     [
+      "AD-FIN-01",
+      null,
+      null,
+      "reject"
+     ]
+    ]
+   },
+   {
+    "id": "V-A08",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "visual_cue",
+     "fake_popup",
+     "otp_request"
+    ],
+    "gold_violations": [
+     [
+      "AD-FRD-01",
+      "image_text",
+      "인증번호 6자리와 계좌 비밀번호를 입력해 주세요"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-A09",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "visual_cue",
+     "award_badge",
+     "sourced_rank"
+    ],
+    "gold_violations": [
+     [
+      "AD-ABS-01",
+      "image_text",
+      "만족도 1위"
+     ],
+     [
+      "AD-ENDO-01",
+      "image_text",
+      "전문가 인증"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-B01",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "product_label",
+     "disease_name"
+    ],
+    "gold_violations": [
+     [
+      "AD-HLT-01",
+      "image_text",
+      "당뇨 개선"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-B02",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "rating_stars",
+     "rotated"
+    ],
+    "gold_violations": [
+     [
+      "AD-ENDO-01",
+      "image_text",
+      "후기 12만 건"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-B03",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "tiny_print",
+     "result_guarantee"
+    ],
+    "gold_violations": [
+     [
+      "AD-GUA-01",
+      "image_text",
+      "3주 만에 체중 8kg 감량을 보장합니다"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-B04",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "rotated",
+     "scarcity"
+    ],
+    "gold_violations": [
+     [
+      "AD-URG-01",
+      "image_text",
+      "선착순 100명"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-B08",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "visual_cue",
+     "before_after",
+     "symptom"
+    ],
+    "gold_violations": [
+     [
+      "AD-HLT-01",
+      "image_text",
+      "탈모 치료"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-B09",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "visual_cue",
+     "award_badge",
+     "substantiated",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-ABS-01",
+      "image_text",
+      "고객 만족도 1위"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-B10",
+    "gold": "REJECT",
+    "pred": "REVIEW",
+    "tags": [
+     "both",
+     "multi_rule",
+     "rotated"
+    ],
+    "gold_violations": [
+     [
+      "AD-CMP-01",
+      "headline",
+      "타사 대비 2배 빠르게"
+     ],
+     [
+      "AD-HLT-01",
+      "image_text",
+      "관절염 예방"
+     ]
+    ],
+    "pred_findings": [
+     [
+      "AD-CMP-01",
+      "headline",
+      "타사 대비",
+      "review"
+     ]
+    ]
+   },
+   {
+    "id": "V-C01",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "award_badge",
+     "tiny_print",
+     "rank_no_source"
+    ],
+    "gold_violations": [
+     [
+      "AD-ABS-01",
+      "image_text",
+      "국내 판매 1위"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-C02",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "faint_text",
+     "low_contrast"
+    ],
+    "gold_violations": [
+     [
+      "AD-URG-01",
+      "image_text",
+      "선착순 30명 한정"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-C03",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "rotated",
+     "comparison"
+    ],
+    "gold_violations": [
+     [
+      "AD-CMP-01",
+      "image_text",
+      "타사 대비 2배 빠른 새벽배송"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-C04",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "tiny_print",
+     "disease_claim"
+    ],
+    "gold_violations": [
+     [
+      "AD-HLT-01",
+      "image_text",
+      "아토피 개선"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-C08",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "visual_cue",
+     "timer",
+     "urgency_no_basis"
+    ],
+    "gold_violations": [
+     [
+      "AD-URG-01",
+      "image_text",
+      "세일 마감까지 02:14:09"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-C09",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "visual_cue",
+     "award_badge",
+     "rank_with_source",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-ABS-01",
+      "image_text",
+      "고객 만족도 1위"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-C10",
+    "gold": "REJECT",
+    "pred": "REVIEW",
+    "tags": [
+     "both",
+     "price_mismatch",
+     "rotated",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-CMP-01",
+      "headline",
+      "다른 곳보다 저렴한"
+     ],
+     [
+      "AD-LND-01",
+      "image_text",
+      "교체비 49,000원"
+     ]
+    ],
+    "pred_findings": [
+     [
+      "AD-CMP-01",
+      "headline",
+      "다른 곳보다",
+      "review"
+     ]
+    ]
+   },
+   {
+    "id": "V-D01",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "rotated",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-GUA-01",
+      "image_text",
+      "취업 보장"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-D02",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "rotated",
+     "tiny_print",
+     "hidden_in_fine_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-URG-01",
+      "image_text",
+      "선착순 3,000명"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-D03",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-ENDO-01",
+      "image_text",
+      "후기 8만 건"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-D04",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "rotated",
+     "low_contrast",
+     "watermark",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-ABS-01",
+      "image_text",
+      "서울 1위"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-D08",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "visual_cue",
+     "fake_popup",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-FRD-01",
+      "image_text",
+      "원격제어 앱을 설치"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-D10",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "both",
+     "tiny_print",
+     "low_contrast",
+     "rotated",
+     "hidden_in_fine_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-CMP-01",
+      "body",
+      "타사 앱보다 2배 빠르게"
+     ],
+     [
+      "AD-FRD-01",
+      "image_text",
+      "인증번호 6자리를 상담원에게 알려 주세요"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-E01",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "public_interest",
+     "rotated",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-BRD-01",
+      "image_text",
+      "도박 중독 예방·상담 캠페인"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-E02",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "illegal_loan",
+     "rotated",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-FRD-01",
+      "image_text",
+      "신용조회 없이"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-E03",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-GUA-01",
+      "image_text",
+      "확정 수익"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-E04",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "substantiated",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-ABS-01",
+      "image_text",
+      "국내 1위"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-E06",
+    "gold": "APPROVE",
+    "pred": "REJECT",
+    "tags": [
+     "benign_image",
+     "negation",
+     "range_expression",
+     "tiny_print"
+    ],
+    "gold_violations": [],
+    "pred_findings": [
+     [
+      "AD-FIN-01",
+      null,
+      null,
+      "reject"
+     ]
+    ]
+   },
+   {
+    "id": "V-E08",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "visual_cue",
+     "fake_sms",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-FRD-01",
+      "image_text",
+      "인증번호 6자리를 아래 번호로 회신해 주세요"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-E10",
+    "gold": "REJECT",
+    "pred": "REVIEW",
+    "tags": [
+     "both",
+     "gambling_promo",
+     "rotated",
+     "tiny_print",
+     "low_contrast"
+    ],
+    "gold_violations": [
+     [
+      "AD-URG-01",
+      "headline",
+      "오늘만"
+     ],
+     [
+      "AD-BRD-01",
+      "image_text",
+      "스포츠 토토 · 슬롯 · 라이브 카지노"
+     ]
+    ],
+    "pred_findings": [
+     [
+      "AD-URG-01",
+      "headline",
+      "오늘만",
+      "review"
+     ]
+    ]
+   },
+   {
+    "id": "V-F01",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "product_label",
+     "tiny_print",
+     "mixed_size",
+     "rotated"
+    ],
+    "gold_violations": [
+     [
+      "AD-HLT-01",
+      "image_text",
+      "당뇨 개선"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-F02",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "faint",
+     "rotated",
+     "mixed_size",
+     "risk_notice_does_not_negate"
+    ],
+    "gold_violations": [
+     [
+      "AD-GUA-01",
+      "image_text",
+      "원금 보장형"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-F03",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "tiny_print",
+     "low_color_contrast",
+     "mixed_size",
+     "rotated"
+    ],
+    "gold_violations": [
+     [
+      "AD-FRD-01",
+      "image_text",
+      "보증료 15만 원을 먼저 입금하셔야 합니다"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-F04",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "tiny_print",
+     "rotated",
+     "sticker",
+     "mixed_size",
+     "low_color_contrast"
+    ],
+    "gold_violations": [
+     [
+      "AD-URG-01",
+      "image_text",
+      "선착순 20명 한정"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-F05",
+    "gold": "APPROVE",
+    "pred": "REJECT",
+    "tags": [
+     "benign_image",
+     "negation",
+     "range_expression",
+     "required_notice_in_image",
+     "faint",
+     "rotated",
+     "tiny_print"
+    ],
+    "gold_violations": [],
+    "pred_findings": [
+     [
+      "AD-FIN-01",
+      null,
+      null,
+      "reject"
+     ]
+    ]
+   },
+   {
+    "id": "V-F08",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "visual_cue",
+     "award_badge",
+     "sourced_rank",
+     "faint",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-ABS-01",
+      "image_text",
+      "고객 만족도 1위"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-F09",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "visual_cue",
+     "fake_popup",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-FRD-01",
+      "image_text",
+      "원격 제어 앱을 설치해야 제거할 수 있습니다"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-F10",
+    "gold": "REJECT",
+    "pred": "REVIEW",
+    "tags": [
+     "both",
+     "multi_rule",
+     "product_label",
+     "tiny_print",
+     "rotated"
+    ],
+    "gold_violations": [
+     [
+      "AD-ENDO-01",
+      "headline",
+      "피부과 전문의들이 추천하는"
+     ],
+     [
+      "AD-CMP-01",
+      "body",
+      "타사 토닉보다 두 배 가볍게"
+     ],
+     [
+      "AD-HLT-01",
+      "image_text",
+      "탈모 치료"
+     ]
+    ],
+    "pred_findings": [
+     [
+      "AD-ENDO-01",
+      "headline",
+      "전문의들이 추천",
+      "review"
+     ]
+    ]
+   }
+  ],
+  "oracle": [
+   {
+    "id": "V-B03",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "image_only",
+     "tiny_print",
+     "result_guarantee"
+    ],
+    "gold_violations": [
+     [
+      "AD-GUA-01",
+      "image_text",
+      "3주 만에 체중 8kg 감량을 보장합니다"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-C08",
+    "gold": "REVIEW",
+    "pred": "APPROVE",
+    "tags": [
+     "visual_cue",
+     "timer",
+     "urgency_no_basis"
+    ],
+    "gold_violations": [
+     [
+      "AD-URG-01",
+      "image_text",
+      "세일 마감까지 02:14:09"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-D07",
+    "gold": "APPROVE",
+    "pred": "REJECT",
+    "tags": [
+     "benign_image",
+     "benign_lookalike",
+     "range_expression",
+     "transaction_guarantee",
+     "price_display",
+     "tiny_print"
+    ],
+    "gold_violations": [],
+    "pred_findings": [
+     [
+      "AD-ABS-01",
+      "image_text",
+      "최고",
+      "reject"
+     ]
+    ]
+   },
+   {
+    "id": "V-D08",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "visual_cue",
+     "fake_popup",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-FRD-01",
+      "image_text",
+      "원격제어 앱을 설치"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-E05",
+    "gold": "APPROVE",
+    "pred": "REJECT",
+    "tags": [
+     "benign_image",
+     "negation",
+     "rotated",
+     "tiny_print"
+    ],
+    "gold_violations": [],
+    "pred_findings": [
+     [
+      "AD-FRD-01",
+      "image_text",
+      "선입금",
+      "reject"
+     ]
+    ]
+   },
+   {
+    "id": "V-E08",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "visual_cue",
+     "fake_sms",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-FRD-01",
+      "image_text",
+      "인증번호 6자리를 아래 번호로 회신해 주세요"
+     ]
+    ],
+    "pred_findings": []
+   },
+   {
+    "id": "V-F09",
+    "gold": "REJECT",
+    "pred": "APPROVE",
+    "tags": [
+     "visual_cue",
+     "fake_popup",
+     "tiny_print"
+    ],
+    "gold_violations": [
+     [
+      "AD-FRD-01",
+      "image_text",
+      "원격 제어 앱을 설치해야 제거할 수 있습니다"
+     ]
+    ],
+    "pred_findings": []
+   }
+  ]
+ }
+}
