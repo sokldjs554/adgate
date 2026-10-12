@@ -1,0 +1,452 @@
+{
+  "meta": {
+    "suite": "insight_llm",
+    "variant": "sonnet",
+    "model": "claude-sonnet-5-5",
+    "git_sha": "2b561c1",
+    "dirty": false,
+    "recording_sha256": "644b974c194aea56fe738d53b33bca9a2bb6ab726a8345d3f2f3381c184d0f90",
+    "prereg": "docs/EVAL_INSIGHT.md"
+  },
+  "analysis": {
+    "raw_top_in_any_episode": {
+      "k": 30,
+      "n": 32,
+      "value": 0.9375,
+      "ci": [
+        0.7985,
+        0.9827
+      ]
+    },
+    "raw_wrong_cause_but_scenario_primary": [
+      "I-A06",
+      "I-E09"
+    ],
+    "raw_missed": {
+      "I-B03": {
+        "model": {
+          "cause": "none",
+          "other_causes": [],
+          "actions": [
+            "no_action"
+          ],
+          "start_day": null
+        },
+        "gold": {
+          "primary": "bid_drop",
+          "causes": [
+            "bid_drop"
+          ],
+          "all_causes": [
+            "bid_drop"
+          ],
+          "harmful": [
+            "fix_tracking",
+            "raise_budget"
+          ],
+          "onset": 26
+        }
+      },
+      "I-B05": {
+        "model": {
+          "cause": "none",
+          "other_causes": [],
+          "actions": [
+            "no_action"
+          ],
+          "start_day": null
+        },
+        "gold": {
+          "primary": "seasonal_cpm_spike",
+          "causes": [
+            "seasonal_cpm_spike"
+          ],
+          "all_causes": [
+            "seasonal_cpm_spike"
+          ],
+          "harmful": [
+            "adjust_bid",
+            "expand_audience",
+            "raise_budget"
+          ],
+          "onset": 25
+        }
+      },
+      "I-C02": {
+        "model": {
+          "cause": "none",
+          "other_causes": [],
+          "actions": [
+            "no_action"
+          ],
+          "start_day": null
+        },
+        "gold": {
+          "primary": "ad_rejected",
+          "causes": [
+            "ad_rejected"
+          ],
+          "all_causes": [
+            "ad_rejected"
+          ],
+          "harmful": [
+            "adjust_bid",
+            "raise_budget"
+          ],
+          "onset": 22
+        }
+      },
+      "I-C03": {
+        "model": {
+          "cause": "none",
+          "other_causes": [],
+          "actions": [
+            "no_action"
+          ],
+          "start_day": null
+        },
+        "gold": {
+          "primary": "ad_rejected",
+          "causes": [
+            "ad_rejected"
+          ],
+          "all_causes": [
+            "ad_rejected"
+          ],
+          "harmful": [
+            "adjust_bid",
+            "raise_budget"
+          ],
+          "onset": 13
+        }
+      },
+      "I-C05": {
+        "model": {
+          "cause": "none",
+          "other_causes": [],
+          "actions": [
+            "no_action"
+          ],
+          "start_day": null
+        },
+        "gold": {
+          "primary": "seasonal_cpm_spike",
+          "causes": [
+            "seasonal_cpm_spike"
+          ],
+          "all_causes": [
+            "seasonal_cpm_spike"
+          ],
+          "harmful": [
+            "adjust_bid",
+            "expand_audience",
+            "raise_budget"
+          ],
+          "onset": 18
+        }
+      },
+      "I-D03": {
+        "model": {
+          "cause": "none",
+          "other_causes": [],
+          "actions": [
+            "no_action"
+          ],
+          "start_day": null
+        },
+        "gold": {
+          "primary": "budget_cut",
+          "causes": [
+            "budget_cut"
+          ],
+          "all_causes": [
+            "budget_cut"
+          ],
+          "harmful": [
+            "fix_landing",
+            "fix_tracking"
+          ],
+          "onset": 38
+        }
+      },
+      "I-D05": {
+        "model": {
+          "cause": "none",
+          "other_causes": [],
+          "actions": [
+            "no_action"
+          ],
+          "start_day": null
+        },
+        "gold": {
+          "primary": "seasonal_cpm_spike",
+          "causes": [
+            "seasonal_cpm_spike"
+          ],
+          "all_causes": [
+            "seasonal_cpm_spike"
+          ],
+          "harmful": [
+            "adjust_bid",
+            "expand_audience",
+            "raise_budget"
+          ],
+          "onset": 27
+        }
+      },
+      "I-F05": {
+        "model": {
+          "cause": "none",
+          "other_causes": [],
+          "actions": [
+            "no_action"
+          ],
+          "start_day": null
+        },
+        "gold": {
+          "primary": "tracking_outage",
+          "causes": [
+            "tracking_outage"
+          ],
+          "all_causes": [
+            "tracking_outage"
+          ],
+          "harmful": [
+            "adjust_bid",
+            "expand_audience",
+            "raise_budget",
+            "rotate_creative"
+          ],
+          "onset": 19
+        }
+      }
+    },
+    "raw_wrong_cause": {
+      "I-A06": {
+        "model": {
+          "cause": "landing_degradation",
+          "other_causes": [],
+          "actions": [
+            "fix_landing"
+          ],
+          "start_day": 21
+        },
+        "gold": {
+          "primary": "landing_degradation",
+          "causes": [
+            "seasonal_cpm_spike"
+          ],
+          "all_causes": [
+            "landing_degradation",
+            "seasonal_cpm_spike"
+          ],
+          "harmful": [
+            "adjust_bid",
+            "expand_audience",
+            "raise_budget"
+          ],
+          "onset": 9
+        }
+      },
+      "I-B06": {
+        "model": {
+          "cause": "bid_drop",
+          "other_causes": [],
+          "actions": [
+            "adjust_bid",
+            "wait_and_monitor"
+          ],
+          "start_day": 8
+        },
+        "gold": {
+          "primary": "budget_cut",
+          "causes": [
+            "budget_cut"
+          ],
+          "all_causes": [
+            "budget_cut"
+          ],
+          "harmful": [
+            "fix_landing",
+            "fix_tracking"
+          ],
+          "onset": 8
+        }
+      },
+      "I-E09": {
+        "model": {
+          "cause": "bid_drop",
+          "other_causes": [],
+          "actions": [
+            "adjust_bid"
+          ],
+          "start_day": 40
+        },
+        "gold": {
+          "primary": "bid_drop",
+          "causes": [
+            "budget_cut",
+            "seasonal_cpm_spike"
+          ],
+          "all_causes": [
+            "bid_drop",
+            "budget_cut",
+            "seasonal_cpm_spike"
+          ],
+          "harmful": [
+            "expand_audience",
+            "fix_landing",
+            "fix_tracking"
+          ],
+          "onset": 29
+        }
+      },
+      "I-F10": {
+        "model": {
+          "cause": "budget_cut",
+          "other_causes": [],
+          "actions": [
+            "raise_budget"
+          ],
+          "start_day": 23
+        },
+        "gold": {
+          "primary": "bid_drop",
+          "causes": [
+            "bid_drop"
+          ],
+          "all_causes": [
+            "bid_drop"
+          ],
+          "harmful": [
+            "fix_tracking",
+            "raise_budget"
+          ],
+          "onset": 23
+        }
+      }
+    },
+    "raw_harmful": {
+      "I-A05": {
+        "model": {
+          "cause": "tracking_outage",
+          "other_causes": [
+            "audience_saturation",
+            "landing_degradation"
+          ],
+          "actions": [
+            "expand_audience",
+            "fix_landing",
+            "fix_tracking"
+          ],
+          "start_day": 30
+        },
+        "gold": {
+          "primary": "tracking_outage",
+          "causes": [
+            "landing_degradation",
+            "tracking_outage"
+          ],
+          "all_causes": [
+            "landing_degradation",
+            "tracking_outage"
+          ],
+          "harmful": [
+            "adjust_bid",
+            "expand_audience",
+            "raise_budget",
+            "rotate_creative"
+          ],
+          "onset": 14
+        }
+      },
+      "I-E02": {
+        "model": {
+          "cause": "creative_fatigue",
+          "other_causes": [
+            "audience_saturation"
+          ],
+          "actions": [
+            "expand_audience",
+            "rotate_creative"
+          ],
+          "start_day": 19
+        },
+        "gold": {
+          "primary": "creative_fatigue",
+          "causes": [
+            "creative_fatigue",
+            "seasonal_cpm_spike"
+          ],
+          "all_causes": [
+            "creative_fatigue",
+            "seasonal_cpm_spike"
+          ],
+          "harmful": [
+            "adjust_bid",
+            "expand_audience",
+            "raise_budget"
+          ],
+          "onset": 17
+        }
+      },
+      "I-F10": {
+        "model": {
+          "cause": "budget_cut",
+          "other_causes": [],
+          "actions": [
+            "raise_budget"
+          ],
+          "start_day": 23
+        },
+        "gold": {
+          "primary": "bid_drop",
+          "causes": [
+            "bid_drop"
+          ],
+          "all_causes": [
+            "bid_drop"
+          ],
+          "harmful": [
+            "fix_tracking",
+            "raise_budget"
+          ],
+          "onset": 23
+        }
+      }
+    },
+    "raw_false_alarms": {},
+    "system_missed_scenarios": [
+      "I-A03",
+      "I-D01",
+      "I-D09",
+      "I-E09",
+      "I-F05",
+      "I-F06",
+      "I-F07",
+      "I-F08"
+    ],
+    "both_missed": [
+      "I-F05"
+    ],
+    "raw_only_missed": [
+      "I-B03",
+      "I-B05",
+      "I-C02",
+      "I-C03",
+      "I-C05",
+      "I-D03",
+      "I-D05"
+    ],
+    "system_only_missed": [
+      "I-A03",
+      "I-D01",
+      "I-D09",
+      "I-E09",
+      "I-F06",
+      "I-F07",
+      "I-F08"
+    ],
+    "writer_unverified": []
+  }
+}

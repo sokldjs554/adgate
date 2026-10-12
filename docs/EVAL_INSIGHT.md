@@ -167,3 +167,52 @@
 - 하루 전환이 8건 안팎인 캠페인에서는 전환의 절반이 새도 3주 안에는 알아채지 못한다 — 통계적으로 구별되지 않는다(전환 수가 늘수록 같은 크기의 손실을 더 빨리 알아챈다). 이것은 탐지기의 '버그'가 아니라 표본 크기의 한계이며, 알아채지 못하는 것이 *오경보보다 낫다*고 판단했다.
 - 알아챘을 때는 원인(측정 장애 vs 랜딩 악화)을 거의 항상 맞혔다. 이탈률(측정 장애에서는 그대로, 랜딩 악화에서는 오름)이 가르는 신호다.
 
+
+## 11. 결과 (3): 모델 팔 — 실호출 첫 접촉 (`artifacts/history/insight_llm_sonnet_first_contact*.json`)
+
+사용자가 승인한 1단계 실호출(상한 $18 중 이 평가의 모델별 상한 $2.30 · $4.00)로 `claude-sonnet-5-5` 를 **한 번** 녹음했다(`llm-live`; 리포트 작성 <!-- num:res.llm_spend.suites.insight_llm.sonnet.calls|int -->103<!-- /num -->회 중 43 + 모델만 쓰는 기준 60). 비용 <!-- num:res.llm_spend.suites.insight_llm.sonnet.usd|usd2 -->$1.45<!-- /num -->, 실패 호출 0.
+`claude-opus-5-5` 는 **부분 녹음**(60건 중 <!-- num:res.llm_spend.suites.insight_llm.opus.cases|int -->21<!-- /num -->건)에서 API 크레딧이 소진돼 멈췄다([D-17](DECISIONS.md)). 앞쪽 시나리오만 담긴 비무작위 표본이라 **측정으로 쓰지 않는다** — 아래 opus 관련 예상(P9 의 opus 부분, R4)은 *측정되지 않음*이다.
+
+### 11.1 리포트 작성 (writer, 시스템이 만든 사실만 근거로 쓰고 코드가 검증)
+
+| 지표 | 측정 | 사전 예상 |
+|---|---|---|
+| 문단마다 사실 인용 · 숫자 · 원인 · 액션 검증 통과(`verify_report`) | <!-- num:hist.insight_llm_sonnet_first_contact.results.writer.verified|rpct1 -->100.0% (43/43)<!-- /num --> | P8 ≥ 0.75 (점 0.88) |
+| 다음 단계 액션이 권고 집합(+안전 액션) 안 | <!-- num:hist.insight_llm_sonnet_first_contact.results.writer.steps_subset_of_recs|rpct1 -->100.0% (43/43)<!-- /num --> | P8 ≥ 0.9 |
+| 템플릿 리포트(모델 없음) 통과 | <!-- num:hist.insight_llm_sonnet_first_contact.results.writer.template_verified|rpct1 -->100.0% (43/43)<!-- /num --> | P8 = 1.0 |
+
+- **P8 충족.** R3(0.90 이상이면 ‘검증을 통과한 문단은 노출해도 된다’): 충족 — 단, **‘검증 통과’는 ‘좋은 리포트’가 아니다.** `verify_report` 는 인용 · 숫자 · 원인 후보 · 액션 집합을 보지 읽기 쉬움 · 유용함 · 광고주가 이해하는 말인지를 보지 않는다. 사람 평가는 하지 않았다(LIMITATIONS).
+- 통과율 100% 는 *모델이 규칙을 잘 따랐다*와 *검증이 느슨하다*를 가르지 못한다. 검증이 실제로 거절하는지는 날조 리포트 · 인용에 없는 숫자를 넣은 리포트로 시험한다(`tests/test_insight.py`; 모델 출력으로는 거절 사례가 나오지 않았다). 사전등록 R5 때문에 프롬프트를 일부러 나쁘게 해서 다시 재지 않았다.
+
+### 11.2 모델만 쓴 비교 기준(raw, sonnet) vs 시스템 — 같은 60건
+
+| 지표 | raw (sonnet) | 시스템 | 단위 |
+|---|---|---|---|
+| 이상이 있는 시나리오를 이상이라 함 | <!-- num:hist.insight_llm_sonnet_first_contact.results.raw.anomaly_recall|rpct1 -->80.0% (32/40)<!-- /num --> | 놓친 시나리오 <!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.system_missed_scenarios|len -->8<!-- /num -->개(= 같은 40 중 32) | 시나리오 |
+| 이상 없는 시나리오에서 오경보 | <!-- num:hist.insight_llm_sonnet_first_contact.results.raw.null_false_alarm|rpct1 -->0.0% (0/20)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.system.false_alarms.null_scenarios_with_alert|rpct1 -->0.0% (0/20)<!-- /num --> | 시나리오 |
+| 1순위 원인이 정답 원인 중 하나 — 채점기 정의(첫 구간의 원인만 정답) | <!-- num:hist.insight_llm_sonnet_first_contact.results.raw.top_in_set|rpct1 -->87.5% (28/32)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.system.diagnosis_alert3.all_top_in_set|rpct1 -->100.0% (35/35)<!-- /num --> | 잡은 것 중 |
+| 같은 지표, 시나리오의 모든 구간의 원인을 정답으로 침(분석) | <!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.raw_top_in_any_episode|rpct1 -->93.8% (30/32)<!-- /num --> | — | 잡은 것 중 |
+| **해로운 액션을 권한 시나리오** | **<!-- num:hist.insight_llm_sonnet_first_contact.results.raw.harmful_actions|rpct1 -->5.0% (3/60)<!-- /num -->** | **<!-- num:hist.insight_first_contact.results.arms.system.actions.scenarios_with_harmful_action|rpct1 -->0.0% (0/60)<!-- /num -->** | 시나리오 |
+| 권고 중 하나가 허용 집합 | <!-- num:hist.insight_llm_sonnet_first_contact.results.raw.useful_actions|rpct1 -->83.3% (50/60)<!-- /num --> | <!-- num:hist.insight_first_contact.results.arms.system.actions.useful_on_true_alerts|rpct1 -->97.7% (42/43)<!-- /num --> | 시나리오 · 잡은 경보 |
+| 시작일 추정 오차 중앙값 | <!-- num:hist.insight_llm_sonnet_first_contact.results.raw.start_error_median|f2 -->0.00<!-- /num -->일 | <!-- num:hist.insight_first_contact.results.arms.system.detection.onset_error_median|f2 -->0.00<!-- /num -->일 | 잡은 것 중 |
+
+- **P9 는 대부분 빗나갔다.** raw 가 이상 없음에서 오경보 ≥ 25% 일 것이라는 예상은 <!-- num:hist.insight_llm_sonnet_first_contact.results.raw.null_false_alarm|rpct1 -->0.0% (0/20)<!-- /num --> 로, 해로운 액션 ≥ 15% 는 <!-- num:hist.insight_llm_sonnet_first_contact.results.raw.harmful_actions|rpct1 -->5.0% (3/60)<!-- /num --> 로 빗나갔다. 1순위 원인 정확도가 시스템보다 낮다는 부분만 맞았다. 모델만 쓴 sonnet 이 생각보다 *조용하고 정확하다* — 내가 비교 기준을 얕게 봤다.
+- **R4 는 적용하지 못했다**(opus 가 필요). sonnet 에 R4 를 그대로 대 보면 1순위 정확도가 시스템보다 낮아 조건(같거나 높고)을 충족하지 못한다. “모델만 써도 경쟁력이 있다”고 쓸 근거는 *탐지·원인*에서는 부분적으로 있다(위 표) — 그러나 **해로운 액션** 열에서 갈린다.
+
+### 11.3 틀린 곳이 서로 다르다 (`artifacts/history/insight_llm_sonnet_first_contact_analysis.json`)
+
+- **놓친 이상: 거의 겹치지 않는다.** raw 가 놓친 시나리오 <!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.raw_missed|len -->8<!-- /num -->개 중 시스템도 놓친 것은 <!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.both_missed|len -->1<!-- /num -->개(I-F05, 일 예산 4만 원의 소규모 전환 측정 장애 — 표본 크기의 한계). 시스템이 놓친 <!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.system_missed_scenarios|len -->8<!-- /num -->개 중 raw 가 잡은 것이 <!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.system_only_missed|len -->7<!-- /num -->개(랜딩 악화 4개 · 작은 효과 3개)이고, raw 만 놓친 것이 <!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.raw_only_missed|len -->7<!-- /num -->개다(입찰 하락 · 외부 CPM 3 · 소재 반려 2 · 예산 삭감). 리포트 4건을 읽어 보니 모델은 이것들을 ‘이미 회복했다’(I-B03) · ‘의도된 변경이다’(I-D03, 일 예산 80만 → 56만 원) · ‘다른 소재가 노출을 나눠 가져 총량이 유지됐다’(I-C02) · ‘일시적 변동이다’(I-B05)로 읽었다 — 정답(시뮬레이터가 주입한 사건은 모두 이상)과 *이상의 정의*가 다르다. 이 정의 차이는 모델의 실수인지 정답의 과함인지 사람 운영자의 판단이 필요하다(LIMITATIONS).
+- **잘못 진단한 <!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.raw_wrong_cause|len -->4<!-- /num -->개 중 둘은 채점기 정의의 산물이다**: 채점기는 첫 구간의 원인만 정답으로 보는데, 구간이 여럿인 I-A06 · I-E09 에서 모델은 *시나리오의 주원인*(다른 구간의 원인)을 말했다 (<!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.raw_wrong_cause_but_scenario_primary|len -->2<!-- /num -->개). 이 둘을 맞는 것으로 치면 <!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.raw_top_in_any_episode|rpct1 -->93.8% (30/32)<!-- /num --> 이고 시스템(100%)과의 차이는 줄어든다 — 위 표에 두 정의를 모두 적은 이유다. 진짜 오진은 예산 삭감 ↔ 입찰 하락을 서로 바꿔 읽은 쌍(I-B06 · I-F10)이다. 이력이 맞는 방향이 아닌 시나리오에서 모델이 이력을 따라갔다고 짐작하나 확인하지 않았다.
+- **해로운 액션 <!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.raw_harmful|len -->3<!-- /num -->건의 기제**: 둘(I-A05 · I-E02)은 *여러 액션을 나열*하면서 금지 집합의 액션(`expand_audience`)을 끼워 넣었다 — 틀린 진단이 아니라 헤징이다. 하나(I-F10)는 틀린 원인(예산 삭감)에서 나온 `raise_budget` 이다. 시스템의 액션은 기대효용 정책이 정한 집합 안에서만 나오고 금지 집합은 코드가 막으므로 같은 헤징이 구조적으로 나오지 않는다(시스템 해로운 액션 시나리오 0/60).
+
+**사후 관찰(탐색적, 측정이 아니다)**: 놓친 이상이 거의 겹치지 않으므로 ‘시스템 경보 ∪ 모델 경보’는 이 60건에서 40개 중 39개를 잡는다. 이것은 R5 때문에 *같은 60건으로 채택하거나 다시 재지 않는다* — 모델의 제안을 ‘사람이 보라’는 REVIEW 급 경보로만 쓰는 혼성 탐지(D-14 와 같은 구조)를 새 사전등록 · 새 독립 시나리오로 재는 것이 다음 실험이다(대기열, 비용은 모델만 쓰는 기준 한 번 분량).
+
+### 11.4 사전 예상과 견줌
+
+| # | 예상 | 측정 | 판정 |
+|---|---|---|---|
+| P8 | writer 검증 통과 ≥ 0.75, 템플릿 = 1.0, 액션 ⊂ 권고 ≥ 0.9 | 100% · 100% · 100% | 충족(점 예상 0.88 보다 높다) |
+| P9 | raw: 이상 없음 오경보 ≥ 25%, 해로운 액션 ≥ 15%, 1순위 정확도 < 시스템 | 0% · 5% · 87.5% < 100% (sonnet; **opus 미측정**) | **빗나감**(앞의 둘), 셋째는 충족 |
+| R4 | raw(opus) 가 시스템과 비슷하면 가치는 ‘보장’이라 쓴다 | opus 미측정 | **적용 못 함** |
+
+**남은 일**: ① opus 를 끝까지 녹음한다(크레딧 충전 · 약 $2.6 — 이미 승인된 1단계 안, 승인 대기가 아니라 *잔액 대기*). ② 혼성 탐지를 새 사전등록으로 잰다. ③ 리포트의 읽기 쉬움 · 유용함은 사람(또는 쌍대 비교) 평가가 필요하다.

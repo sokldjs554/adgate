@@ -332,3 +332,17 @@
 - **교훈**: ① 오탐을 막고 있던 *우연*이 있을 수 있다(여기서는 조사 공백). 미탐을 고칠 때는 그 패턴이 새로 걸게 되는 정상 문구를 *먼저* 찾아 같이 시험한다 — 이번에는 독립 셋(G-E07)이 그 증거였다.
   ② 부정 인식을 접두 일치로 하면 조건절이 면책으로 읽힌다. 예외는 끝맺는 형태까지 확인해야 한다. ③ 게이트는 조용했다(dev · test · redteam 에는 이 문형이 없다). 문형 공백은 문형이 다른 독립 셋에서만 보였다 — 평가셋을 늘리는 일이 이 부류를 코드 리뷰보다 잘 잡았다.
   ④ 지표가 같아도 소재가 바뀔 수 있어서 변경 영향을 소재 단위로 남긴다(`adgate impact`, [D-18](DECISIONS.md)).
+
+## 18. 인사이트 모델 팔 첫 접촉
+
+### F-32. 모델만 쓴 비교 기준이 내 예상보다 훨씬 강했다 — 구조의 가치는 정확도가 아니라 *해로운 액션 0* 에 있었고, 채점기의 정의가 비교를 흐렸다
+- **무슨 일**: [EVAL_INSIGHT.md](EVAL_INSIGHT.md) P9 는 도구 없이 일별 표만 본 모델(raw)이 이상 없음에서 오경보 ≥ 25%, 해로운 액션 ≥ 15% 일 것이라 했다. sonnet 은 오경보 <!-- num:hist.insight_llm_sonnet_first_contact.results.raw.null_false_alarm|rpct1 -->0.0% (0/20)<!-- /num -->, 해로운 액션 <!-- num:hist.insight_llm_sonnet_first_contact.results.raw.harmful_actions|rpct1 -->5.0% (3/60)<!-- /num --> 였고
+  이상이 있는 시나리오의 <!-- num:hist.insight_llm_sonnet_first_contact.results.raw.anomaly_recall|rpct1 -->80.0% (32/40)<!-- /num --> 를 이상이라 했다(시스템이 놓친 시나리오도 40개 중 <!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.system_missed_scenarios|len -->8<!-- /num -->개). 비교 기준을 얕게 본 것이 내 사전등록의 오류다.
+- **분석(`adgate llm analyze insight_llm`)**: ① 놓침이 거의 겹치지 않는다(둘 다 놓친 것 <!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.both_missed|len -->1<!-- /num -->개). 시스템이 놓친 8개 중 7개를 raw 가 잡았고(랜딩 악화 · 작은 효과) raw 가 놓친 7개는 시스템이 잡았다 — 모델은 그것들을 ‘회복했다 · 의도된 변경이다 · 다른 소재가 보완했다’로 읽었다(*이상의 정의*가 정답과 달랐다).
+  ② 해로운 액션 3건 중 2건은 *여러 액션을 나열하며 금지 집합의 액션을 끼워 넣은 헤징*이고 1건은 틀린 원인(예산 삭감 ↔ 입찰 하락)에서 나왔다. 시스템의 권고는 정책이 정한 집합 안에서만 나오고 금지 집합은 코드가 막으므로 이 헤징이 구조적으로 나오지 않는다.
+  ③ **채점기의 정의가 비교를 흐렸다**: `top_in_set` 은 첫 구간의 원인만 정답으로 본다. 구간이 여럿인 시나리오에서 모델이 *시나리오의 주원인*(다른 구간의 원인)을 말하면 틀린 것으로 센다(<!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.raw_wrong_cause_but_scenario_primary|len -->2<!-- /num -->건). 시나리오 전체 기준으로 다시 세면 <!-- num:hist.insight_llm_sonnet_first_contact_analysis.analysis.raw_top_in_any_episode|rpct1 -->93.8% (30/32)<!-- /num --> 로, 채점기 정의의 <!-- num:hist.insight_llm_sonnet_first_contact.results.raw.top_in_set|rpct1 -->87.5% (28/32)<!-- /num --> 에서 시스템(100%)과 벌어져 보이던 격차가 줄어든다.
+  채점기 정의를 바꿔 헤드라인을 고치지 않았다(R5) — 두 정의를 *같이* 적었다.
+- **고치지 않았다**: 시스템의 결함이 아니고(해로운 액션 0/60), 모델 팔을 다시 재서 얻을 것이 없다. 사후 관찰(탐색적): 놓침이 겹치지 않아 ‘시스템 경보 ∪ 모델 경보’는 40개 중 39개를 잡는다 — 모델의 제안을 ‘사람이 보라’는 REVIEW 급으로만 쓰는 혼성 탐지를 새 사전등록 · 새 독립 시나리오로 재는 것이 다음 실험이다.
+  `claude-opus-5-5` 는 크레딧 소진으로 부분 녹음(21/60)만 있어 R4 를 적용하지 못한다.
+- **교훈**: ① 비교 기준을 약하게 가정하면 구조의 가치를 부풀린다. 강한 기준과 겨뤘을 때 남는 가치는 정확도가 아니라 *보장*(해로운 액션 0, 모든 숫자가 인용된 사실에서)이다 — 그것을 정직하게 이 자리에 적는다. ② 집계 정확도가 비슷해도 틀린 곳은 다르다 — 소재 · 시나리오 단위 분석이 없었다면 ‘비슷하다’에서 끝났다.
+  ③ 채점기의 정의(첫 구간)는 사전등록 때 한 줄도 점검하지 않았다. 비교가 *단위와 정의가 같은가*는 결과를 쓰기 전에 확인할 항목이다.
