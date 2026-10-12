@@ -3,6 +3,7 @@
 from .core import (
     TECHNICAL_ERRORS,
     Image,
+    LLMAccountError,
     LLMBudgetExceeded,
     LLMClient,
     LLMError,
@@ -15,6 +16,7 @@ from .core import (
     LLMTruncated,
     Part,
     RenderedImage,
+    is_account_error,
     task_key,
 )
 from .record import (
@@ -30,7 +32,7 @@ from .record import (
 from .spend import PRICES, BudgetExceededError, Spend, cost_usd
 
 __all__ = [
-    "PRICES", "TECHNICAL_ERRORS", "BudgetExceededError", "CaseOutcome", "HybridClient", "Image", "LLMBudgetExceeded", "LLMClient",
+    "PRICES", "TECHNICAL_ERRORS", "BudgetExceededError", "CaseOutcome", "HybridClient", "Image", "LLMAccountError", "LLMBudgetExceeded", "LLMClient",
     "LLMError", "LLMMissing", "LLMProtocolError", "LLMRecordedFailure", "LLMRefused", "LLMResult", "LLMTask", "LLMTruncated", "Part",
-    "RecordedClient", "RecordingStore", "RenderedImage", "ScriptedClient", "Spend", "cost_usd", "load_rows", "record_cases", "replay_cases", "task_key",
+    "RecordedClient", "RecordingStore", "RenderedImage", "ScriptedClient", "Spend", "cost_usd", "is_account_error", "load_rows", "record_cases", "replay_cases", "task_key",
 ]

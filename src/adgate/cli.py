@@ -266,6 +266,7 @@ def cmd_llm(args: argparse.Namespace) -> int:
         return 0
     suite = suites.get(args.suite)
     variants = [args.variant] if args.variant else list(suite.variants)
+    rc = 0
     for v in variants:
         if v not in suite.variants:
             raise SystemExit(f"알 수 없는 변형 {v} (가능: {', '.join(suite.variants)})")
@@ -289,11 +290,14 @@ def cmd_llm(args: argparse.Namespace) -> int:
         elif args.action == "check":
             r = suites.check(suite, v, max_usd=args.max_usd)
             print(f"[{suite.name}/{v}] 점검: 사례 {r['completed']}/{r['attempted']} 완료, 오류 {r['case_errors']}, 실제 호출 {r['live_calls']}, {r['spend']}")
-            if r["case_errors"]:
+            if r["case_errors"] or r["completed"] < r["attempted"]:     # 사례가 예외로 끝났거나 계정·예산 때문에 부르지 못했다: 점검이 되지 않았다
                 return 1
         elif args.action == "record":
             r = suites.record(suite, v, max_usd=args.max_usd, workers=args.workers, retry_technical=args.retry_technical)
             print(f"[{suite.name}/{v}] 녹음: {r}")
+            if r["skipped_budget"] or r["case_errors"]:      # 중간에 멈췄다(상한·계정) 또는 사례가 예외로 끝났다: 완성된 녹음이 아니다 — 작업이 실패로 보이게 한다(녹음은 그대로 올라간다)
+                print(f"[{suite.name}/{v}] 녹음이 끝까지 가지 못했습니다(멈춘 사례 {r['skipped_budget']}, 예외 {r['case_errors']}). 원인을 고친 뒤 같은 명령을 다시 돌리면 이어서 부릅니다.")
+                rc = 1
         elif args.action == "analyze":
             res = suites.analyze(suite, v)
             out = Path(args.out or f"artifacts/analysis_{suite.name}__{v}.json")
@@ -305,7 +309,7 @@ def cmd_llm(args: argparse.Namespace) -> int:
             suites.dump(res, out)
             m = res["meta"]
             print(f"[{suite.name}/{v}] 재생 → {out}  (사례 {m['cases']}, 오류 {len(m['case_errors'])}, 녹음 없음 {m['misses']})")
-    return 0
+    return rc
 
 
 def cmd_prereg(args: argparse.Namespace) -> int:

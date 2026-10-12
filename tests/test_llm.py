@@ -11,6 +11,7 @@ import pytest
 from adgate.llm import (
     HybridClient,
     Image,
+    LLMAccountError,
     LLMBudgetExceeded,
     LLMMissing,
     LLMProtocolError,
@@ -22,6 +23,7 @@ from adgate.llm import (
     RecordingStore,
     ScriptedClient,
     Spend,
+    is_account_error,
     load_rows,
     record_cases,
     replay_cases,
@@ -303,3 +305,61 @@ def test_hybrid_client_without_live_is_replay_only():
     store = RecordingStore(None, None, {})
     with pytest.raises(LLMMissing):
         HybridClient(store, None, "c").call(TASK, "x")
+
+
+# --------------------------------------------------------------------------- 계정 오류(크레딧 소진·인증·권한)
+class BadRequestError(Exception):
+    """SDK 의 400 을 흉내 낸다(이름만 같다)."""
+
+    status_code = 400
+
+
+class StatusError(Exception):
+    def __init__(self, status: int, text: str = "x") -> None:
+        super().__init__(text)
+        self.status_code = status
+
+
+CREDIT = BadRequestError("Error code: 400 - {'type': 'error', 'error': {'message': 'Your credit balance is too low to access the Anthropic API.'}}")
+
+
+@pytest.mark.parametrize(("exc", "expected"), [
+    (CREDIT, True),                                           # 실호출 때 실제로 본 메시지(소재 생성 sonnet 녹음에서 51건)
+    (StatusError(401, "invalid x-api-key"), True), (StatusError(402), True), (StatusError(403, "permission"), True),
+    (BadRequestError("Error code: 400 - schema is invalid"), False),     # 요청이 잘못된 400 은 계정 문제가 아니다(모델·프롬프트의 실패로 센다)
+    (StatusError(429, "rate limited"), False), (StatusError(500), False), (TimeoutError("t"), False),
+])
+def test_account_errors_are_told_apart_from_request_and_transient_failures(exc, expected):
+    assert is_account_error(exc) is expected
+
+
+def test_the_client_turns_an_account_error_into_a_stop_not_a_model_failure():
+    c = AnthropicClient(client=FakeSDK(CREDIT), max_usd=1.0)
+    with pytest.raises(LLMAccountError) as info:
+        c.call(TASK, "입력")
+    assert isinstance(info.value, LLMBudgetExceeded)           # 예산 초과와 같은 방식으로 실행을 멈춘다
+    assert c.spend.failures == 1 and c.spend.reserved == 0
+
+
+def test_an_account_error_is_not_recorded_as_a_failure_and_the_run_resumes_after_it_is_fixed(tmp_path):
+    """크레딧이 바닥나면 실행이 멈추고 그 호출은 녹음되지 않는다 — 실패 행이 남으면 재생이 '모델이 실패했다'고 센다(실제로 51건을 그렇게 녹음할 뻔했다)."""
+    out, log = tmp_path / "rec.jsonl", tmp_path / "calls.jsonl"
+    state = {"n": 0, "broke": True}
+
+    def handler(task: LLMTask, parts: list[Any]) -> dict[str, Any]:
+        state["n"] += 1
+        if state["broke"] and state["n"] > 2:
+            raise LLMAccountError("BadRequestError: credit balance is too low")
+        return {"x": state["n"]}
+
+    cs = cases("a", "b", "c", "d")
+    said: list[str] = []
+    s = record_cases(cs, lambda p, c: c.call(TASK, p), live=ScriptedClient(handler), out=out, log=log, workers=1, say=said.append)
+    assert s["completed"] == 2 and s["skipped_budget"] == 2 and any("계정 문제로" in m for m in said)
+    rows = load_rows(out)
+    assert len(rows) == 2 and all("error" not in r for r in rows.values())        # 실패 행이 없다
+    assert not any(not json.loads(ln)["ok"] for ln in log.read_text(encoding="utf-8").splitlines() if ln.strip())
+    state["broke"] = False                                                         # 충전했다
+    live = ScriptedClient(handler)
+    s2 = record_cases(cs, lambda p, c: c.call(TASK, p), live=live, out=out, log=log, workers=1, say=lambda *_: None)
+    assert len(live.calls) == 2 and s2["completed"] == 4 and len(load_rows(out)) == 4      # 남은 둘만 부른다

@@ -47,6 +47,16 @@ class LLMBudgetExceeded(LLMError, BudgetExceededError):
     """설정한 비용 상한에 도달했다."""
 
 
+class LLMAccountError(LLMBudgetExceeded):
+    """계정 때문에 더 부를 수 없다(크레딧 소진·인증·권한). 모델이 낸 실패가 아니다 — 측정에 넣지 않고 실행을 멈춘다. 고친 뒤 이어서 돌린다."""
+
+
+def is_account_error(exc: BaseException) -> bool:
+    """SDK 예외가 계정 문제인가: 크레딧 소진(400 'credit balance is too low' 또는 402), 인증 실패(401), 권한 없음(403)."""
+    status = getattr(exc, "status_code", None)
+    return status in (401, 402, 403) or "credit balance" in str(exc).lower()
+
+
 @dataclass(frozen=True)
 class Image:
     """사용자 입력에 끼우는 이미지. ``path`` 는 읽는 쪽의 기준 폴더에 대한 상대 경로다."""

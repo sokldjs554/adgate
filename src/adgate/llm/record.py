@@ -21,6 +21,7 @@ from typing import Any
 
 from .core import (
     TECHNICAL_ERRORS,
+    LLMAccountError,
     LLMBudgetExceeded,
     LLMClient,
     LLMMissing,
@@ -241,7 +242,7 @@ def record_cases(
             driver(payload, client)
         except LLMBudgetExceeded as exc:
             status = "skipped_budget"
-            say(f"예산 상한에 닿아 멈춥니다: {exc}")
+            say(f"{'계정 문제로' if isinstance(exc, LLMAccountError) else '예산 상한에 닿아'} 멈춥니다: {exc}")
         except Exception as exc:  # noqa: BLE001 — 사례 하나의 실패가 전체를 멈추지 않는다
             status = "case_errors"
             store.log_entry({"case": cid, "case_error": type(exc).__name__, "detail": str(exc)[:200]})

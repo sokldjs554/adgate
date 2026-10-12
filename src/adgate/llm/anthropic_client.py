@@ -6,6 +6,7 @@
 * 사용자 입력의 이미지는 base64 블록으로 보낸다. 입력 글은 모두 '신뢰할 수 없는 데이터'로 감싸 보내는 것은 과제(프롬프트)의 몫이다.
 * 어떤 실패(거절, 잘림, 형식 오류, 예산 초과, 네트워크)든 ``LLMError`` 계통 예외를 던진다. 호출한 쪽이 fail-closed 로 처리한다.
 * 비용 상한(``max_usd``)을 넘으면 호출하지 않고 ``LLMBudgetExceeded`` 를 던진다.
+* 크레딧 소진·인증·권한 오류는 ``LLMAccountError``(예산 초과의 하위 형식)로 던진다 — 기록하지 않고 실행을 멈춘다(모델이 낸 실패가 아니므로 측정에 넣지 않는다).
 """
 
 from __future__ import annotations
@@ -20,6 +21,7 @@ from typing import Any
 
 from .core import (
     Image,
+    LLMAccountError,
     LLMBudgetExceeded,
     LLMProtocolError,
     LLMRefused,
@@ -28,6 +30,7 @@ from .core import (
     LLMTruncated,
     Part,
     RenderedImage,
+    is_account_error,
     parts_of,
 )
 from .spend import Spend
@@ -120,10 +123,12 @@ class AnthropicClient:
         try:
             api = self.client.beta.messages if self.fallbacks else self.client.messages
             message = api.create(**kwargs)
-        except Exception:
+        except Exception as exc:
             meta["latency_ms"] = round((time.perf_counter() - t0) * 1000)
             self.spend.settle(est, None)
             self.spend.failures += 1
+            if is_account_error(exc):      # 크레딧 소진·인증·권한: 모델의 실패가 아니라 계정의 문제다 — 기록하지 않고 실행을 멈추게 한다
+                raise LLMAccountError(f"{type(exc).__name__}: {str(exc)[:160]}") from exc
             raise
         usage = getattr(message, "usage", None)
         meta.update(
