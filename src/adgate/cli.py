@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from . import prereg
 from .config import ReviewConfig
 from .eval import agreement, dataset, gate, judge_replay, report
 from .eval import gen as generator
@@ -23,8 +24,8 @@ from .pipeline import review
 from .policy import load_policy
 
 ROOT = Path.cwd()
-FROZEN = ("test", "redteam")
-DATASETS = ("dev", "test", "redteam", "generated")  # 알려진 이름만 받는다('./test' 같은 경로로 --measure 가드를 피하지 못하게)
+FROZEN = ("test", "redteam", "gray")
+DATASETS = ("dev", "test", "redteam", "gray", "generated")  # 알려진 이름만 받는다('./test' 같은 경로로 --measure 가드를 피하지 못하게)
 # 게이트가 회귀 감시에 쓰는 셋. 합격 기준(H1-H3)은 test 에만 건다. redteam 은 첫 접촉이 history 에 보존돼 있고 이후 수치는 holdout 이 아니므로,
 # 정상 유사를 하나라도 놓치거나 오반려하면 바로 잡는 회귀 감시용으로 쓴다(리뷰 반영 중 R-002 오반려를 게이트가 못 잡았다 — FAILURES F-18).
 GATE_DATASETS = ("dev", "test", "redteam")
@@ -225,6 +226,37 @@ def cmd_agreement(args: argparse.Namespace) -> int:
         f"규칙 F1={res['rule']['f1']}  불일치 {len(res['disagreements'])}건"
     )
     return 0
+
+
+def cmd_agreement_multi(args: argparse.Namespace) -> int:
+    examples = dataset.load(args.gold)
+    alt: dict[str, str] = {}
+    if args.notes and Path(args.notes).exists():
+        for line in Path(args.notes).read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                row = json.loads(line)
+                if row.get("alt_decision"):
+                    alt[row["id"]] = row["alt_decision"]
+    res = agreement.compare_multi(examples, agreement.load_multi(args.labels), alt=alt)
+    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.out).write_text(json.dumps(res, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(
+        f"라벨러 {len(res['labelers'])}명 평균 일치 {res['mean_agreement_with_author']:.1%}  Fleiss κ(라벨러) {res['fleiss_kappa_labelers']}  "
+        f"Fleiss κ(작성자 포함) {res['fleiss_kappa_with_author']}  분쟁 {res['disputed']['n']}건"
+    )
+    return 0
+
+
+def cmd_prereg(args: argparse.Namespace) -> int:
+    if args.register:
+        e = prereg.register(args.register, args.start, args.end, note=args.note or "")
+        print(f"등록: {e['doc']} {e['start']!r}~{e['end']!r} sha256={e['sha256'][:16]}…")
+        return 0
+    errs = prereg.check()
+    for m in errs:
+        print("어긋남:", m)
+    print(f"사전등록 {len(prereg.load())}건 " + ("모두 그대로" if not errs else f"중 {len(errs)}건 어긋남"))
+    return 1 if errs else 0
 
 
 def cmd_validate(args: argparse.Namespace) -> int:
@@ -466,6 +498,18 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--labels", default="data/labeler_test.jsonl")
     s.add_argument("--out", default="artifacts/agreement_test.json")
     s.set_defaults(fn=cmd_agreement)
+    s = sub.add_parser("prereg", help="사전등록 절의 해시를 등록(--register)하거나 그대로인지 검사")
+    s.add_argument("--register", help="등록할 문서 경로(예: docs/EVAL_GRAY.md)")
+    s.add_argument("--start", default="## 1.", help="사전등록 시작 제목의 앞부분")
+    s.add_argument("--end", default="## 5.", help="사전등록 끝 제목의 앞부분(그 앞까지)")
+    s.add_argument("--note", default="")
+    s.set_defaults(fn=cmd_prereg)
+    s = sub.add_parser("agreement-multi", help="독립 라벨러 여럿과 작성자 정답의 일치도(Fleiss κ, 분쟁)")
+    s.add_argument("--gold", default="data/gray.jsonl")
+    s.add_argument("--labels", default="data/labeler_gray.jsonl")
+    s.add_argument("--notes", default="data/gray_notes.jsonl")
+    s.add_argument("--out", default="artifacts/agreement_gray.json")
+    s.set_defaults(fn=cmd_agreement_multi)
 
     s = sub.add_parser("validate", help="평가셋 파일의 형식과 라벨 일관성 검사")
     s.add_argument("file")

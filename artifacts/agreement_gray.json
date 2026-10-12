@@ -1,0 +1,92 @@
+{
+  "n": 120,
+  "labelers": [
+    "R1",
+    "R2",
+    "R3"
+  ],
+  "per_labeler": {
+    "R1": {
+      "agreement": {
+        "k": 107,
+        "n": 120,
+        "value": 0.8917
+      },
+      "kappa": 0.8348,
+      "rule_f1": 0.9359
+    },
+    "R2": {
+      "agreement": {
+        "k": 107,
+        "n": 120,
+        "value": 0.8917
+      },
+      "kappa": 0.8344,
+      "rule_f1": 0.9351
+    },
+    "R3": {
+      "agreement": {
+        "k": 108,
+        "n": 120,
+        "value": 0.9
+      },
+      "kappa": 0.8478,
+      "rule_f1": 0.9427
+    }
+  },
+  "mean_agreement_with_author": 0.8945,
+  "fleiss_kappa_labelers": 0.9322,
+  "fleiss_kappa_with_author": 0.8856,
+  "pairwise_kappa": {
+    "R1-R2": 0.8981,
+    "R1-R3": 0.9365,
+    "R2-R3": 0.9619
+  },
+  "all_agree_with_author": {
+    "k": 103,
+    "n": 120
+  },
+  "disputed": {
+    "rule": "라벨러 2명 이상이 작성자 정답과 다름",
+    "n": 12,
+    "ids": [
+      "G-A10",
+      "G-B11",
+      "G-C06",
+      "G-C10",
+      "G-D08",
+      "G-D10",
+      "G-E08",
+      "G-F08",
+      "G-G04",
+      "G-G12",
+      "G-H11",
+      "G-J10"
+    ]
+  },
+  "slices": {
+    "clear": {
+      "n": 30,
+      "mean_agreement_with_author": 1.0,
+      "all_agree": 30,
+      "disputed": 0
+    },
+    "normal": {
+      "n": 30,
+      "mean_agreement_with_author": 1.0,
+      "all_agree": 30,
+      "disputed": 0
+    },
+    "gray": {
+      "n": 60,
+      "mean_agreement_with_author": 0.7889,
+      "all_agree": 43,
+      "disputed": 12
+    }
+  },
+  "lenient_agreement_with_author_or_alt": {
+    "k": 360,
+    "n": 360,
+    "value": 1.0
+  }
+}

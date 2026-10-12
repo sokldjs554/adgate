@@ -1,0 +1,10 @@
+[
+  {
+    "doc": "docs/EVAL_GRAY.md",
+    "start": "## 1.",
+    "end": "## 5.",
+    "sha256": "e1a5ba358e30c0b9b25927e1fca59921d15b7e1e4afcfe742bb7948ca782c08c",
+    "registered": "2026-10-12",
+    "note": "회색지대 홀드아웃 사전등록(1–4절). 라벨러·판정·측정 전에 커밋(4c8dce9)."
+  }
+]
