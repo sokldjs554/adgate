@@ -77,8 +77,8 @@ def test_llm_live_is_manual_only_keyed_steps_are_the_two_calling_ones_and_publis
 def test_every_suite_the_workflow_can_run_is_registered_and_dry_runs_without_a_key():
     from adgate import suites
 
-    assert {"campaign", "campaign_reply"} <= set(suites.names())
+    assert {"campaign", "campaign_reply", "insight", "insight_llm"} <= set(suites.names())
     for n in suites.names():
         s = suites.get(n)
-        assert s.variants and s.prereg.startswith("docs/EVAL_")
-        assert (ROOT / s.prereg).exists()
+        assert s.prereg.startswith("docs/EVAL_") and (ROOT / s.prereg).exists()
+        assert s.variants or s.offline is not None, "모델 변형이 없으면 오프라인 팔이 있어야 한다"
