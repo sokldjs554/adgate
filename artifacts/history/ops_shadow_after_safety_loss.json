@@ -1,8 +1,8 @@
 {
   "meta": {
     "suite": "ops_shadow_safety",
-    "git": "3067eac",
-    "dirty": true,
+    "git": "57367a9",
+    "dirty": false,
     "prereg": "docs/EVAL_OPS.md"
   },
   "results": {
