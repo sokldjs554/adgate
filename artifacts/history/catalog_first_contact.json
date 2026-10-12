@@ -1,0 +1,504 @@
+{
+  "meta": {
+    "suite": "catalog",
+    "git": "99581ce",
+    "dirty": false,
+    "prereg": "docs/EVAL_LABELING.md"
+  },
+  "results": {
+    "queue": {
+      "dev": {
+        "engine": {
+          "n": 60,
+          "errors": 3,
+          "unsafe_approves": 0,
+          "auc_error": 1.0,
+          "auc_unsafe": null,
+          "top10": {
+            "errors_found": 3,
+            "errors_total": 3,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.1153,
+            "random_unsafe_recall": 0.0
+          },
+          "top20": {
+            "errors_found": 3,
+            "errors_total": 3,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.214,
+            "random_unsafe_recall": 0.0
+          },
+          "top30": {
+            "errors_found": 3,
+            "errors_total": 3,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.312,
+            "random_unsafe_recall": 0.0
+          }
+        },
+        "engine+cues": {
+          "n": 60,
+          "errors": 3,
+          "unsafe_approves": 0,
+          "auc_error": 1.0,
+          "auc_unsafe": null,
+          "top10": {
+            "errors_found": 3,
+            "errors_total": 3,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.1153,
+            "random_unsafe_recall": 0.0
+          },
+          "top20": {
+            "errors_found": 3,
+            "errors_total": 3,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.214,
+            "random_unsafe_recall": 0.0
+          },
+          "top30": {
+            "errors_found": 3,
+            "errors_total": 3,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.312,
+            "random_unsafe_recall": 0.0
+          }
+        },
+        "engine+cues+judge": {
+          "n": 60,
+          "errors": 3,
+          "unsafe_approves": 0,
+          "auc_error": 1.0,
+          "auc_unsafe": null,
+          "top10": {
+            "errors_found": 3,
+            "errors_total": 3,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.1153,
+            "random_unsafe_recall": 0.0
+          },
+          "top20": {
+            "errors_found": 3,
+            "errors_total": 3,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.214,
+            "random_unsafe_recall": 0.0
+          },
+          "top30": {
+            "errors_found": 3,
+            "errors_total": 3,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.312,
+            "random_unsafe_recall": 0.0
+          }
+        }
+      },
+      "test": {
+        "engine": {
+          "n": 77,
+          "errors": 0,
+          "unsafe_approves": 0,
+          "auc_error": null,
+          "auc_unsafe": null,
+          "top10": {
+            "errors_found": 0,
+            "errors_total": 0,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.0,
+            "random_unsafe_recall": 0.0
+          },
+          "top20": {
+            "errors_found": 0,
+            "errors_total": 0,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.0,
+            "random_unsafe_recall": 0.0
+          },
+          "top30": {
+            "errors_found": 0,
+            "errors_total": 0,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.0,
+            "random_unsafe_recall": 0.0
+          }
+        },
+        "engine+cues": {
+          "n": 77,
+          "errors": 0,
+          "unsafe_approves": 0,
+          "auc_error": null,
+          "auc_unsafe": null,
+          "top10": {
+            "errors_found": 0,
+            "errors_total": 0,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.0,
+            "random_unsafe_recall": 0.0
+          },
+          "top20": {
+            "errors_found": 0,
+            "errors_total": 0,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.0,
+            "random_unsafe_recall": 0.0
+          },
+          "top30": {
+            "errors_found": 0,
+            "errors_total": 0,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.0,
+            "random_unsafe_recall": 0.0
+          }
+        },
+        "engine+cues+judge": {
+          "n": 77,
+          "errors": 0,
+          "unsafe_approves": 0,
+          "auc_error": null,
+          "auc_unsafe": null,
+          "top10": {
+            "errors_found": 0,
+            "errors_total": 0,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.0,
+            "random_unsafe_recall": 0.0
+          },
+          "top20": {
+            "errors_found": 0,
+            "errors_total": 0,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.0,
+            "random_unsafe_recall": 0.0
+          },
+          "top30": {
+            "errors_found": 0,
+            "errors_total": 0,
+            "unsafe_found": 0,
+            "unsafe_total": 0,
+            "random_error_recall": 0.0,
+            "random_unsafe_recall": 0.0
+          }
+        }
+      },
+      "redteam": {
+        "engine": {
+          "n": 72,
+          "errors": 16,
+          "unsafe_approves": 14,
+          "auc_error": 0.4688,
+          "auc_unsafe": 0.3793,
+          "top10": {
+            "errors_found": 2,
+            "errors_total": 16,
+            "unsafe_found": 0,
+            "unsafe_total": 14,
+            "random_error_recall": 0.1022,
+            "random_unsafe_recall": 0.1017
+          },
+          "top20": {
+            "errors_found": 2,
+            "errors_total": 16,
+            "unsafe_found": 0,
+            "unsafe_total": 14,
+            "random_error_recall": 0.1953,
+            "random_unsafe_recall": 0.1939
+          },
+          "top30": {
+            "errors_found": 2,
+            "errors_total": 16,
+            "unsafe_found": 0,
+            "unsafe_total": 14,
+            "random_error_recall": 0.3068,
+            "random_unsafe_recall": 0.3063
+          }
+        },
+        "engine+cues": {
+          "n": 72,
+          "errors": 16,
+          "unsafe_approves": 14,
+          "auc_error": 0.317,
+          "auc_unsafe": 0.2118,
+          "top10": {
+            "errors_found": 2,
+            "errors_total": 16,
+            "unsafe_found": 0,
+            "unsafe_total": 14,
+            "random_error_recall": 0.0961,
+            "random_unsafe_recall": 0.0947
+          },
+          "top20": {
+            "errors_found": 2,
+            "errors_total": 16,
+            "unsafe_found": 0,
+            "unsafe_total": 14,
+            "random_error_recall": 0.1968,
+            "random_unsafe_recall": 0.1956
+          },
+          "top30": {
+            "errors_found": 2,
+            "errors_total": 16,
+            "unsafe_found": 0,
+            "unsafe_total": 14,
+            "random_error_recall": 0.3106,
+            "random_unsafe_recall": 0.3107
+          }
+        },
+        "engine+cues+judge": {
+          "n": 72,
+          "errors": 16,
+          "unsafe_approves": 14,
+          "auc_error": 0.745,
+          "auc_unsafe": 0.6841,
+          "top10": {
+            "errors_found": 2,
+            "errors_total": 16,
+            "unsafe_found": 0,
+            "unsafe_total": 14,
+            "random_error_recall": 0.0974,
+            "random_unsafe_recall": 0.0961
+          },
+          "top20": {
+            "errors_found": 4,
+            "errors_total": 16,
+            "unsafe_found": 2,
+            "unsafe_total": 14,
+            "random_error_recall": 0.1951,
+            "random_unsafe_recall": 0.1937
+          },
+          "top30": {
+            "errors_found": 9,
+            "errors_total": 16,
+            "unsafe_found": 7,
+            "unsafe_total": 14,
+            "random_error_recall": 0.3131,
+            "random_unsafe_recall": 0.3136
+          }
+        }
+      },
+      "gray": {
+        "engine": {
+          "n": 120,
+          "errors": 40,
+          "unsafe_approves": 24,
+          "auc_error": 0.4586,
+          "auc_unsafe": 0.401,
+          "top10": {
+            "errors_found": 3,
+            "errors_total": 40,
+            "unsafe_found": 0,
+            "unsafe_total": 24,
+            "random_error_recall": 0.1009,
+            "random_unsafe_recall": 0.1007
+          },
+          "top20": {
+            "errors_found": 4,
+            "errors_total": 40,
+            "unsafe_found": 0,
+            "unsafe_total": 24,
+            "random_error_recall": 0.203,
+            "random_unsafe_recall": 0.2027
+          },
+          "top30": {
+            "errors_found": 8,
+            "errors_total": 40,
+            "unsafe_found": 3,
+            "unsafe_total": 24,
+            "random_error_recall": 0.3011,
+            "random_unsafe_recall": 0.3022
+          }
+        },
+        "engine+cues": {
+          "n": 120,
+          "errors": 40,
+          "unsafe_approves": 24,
+          "auc_error": 0.4064,
+          "auc_unsafe": 0.2368,
+          "top10": {
+            "errors_found": 3,
+            "errors_total": 40,
+            "unsafe_found": 0,
+            "unsafe_total": 24,
+            "random_error_recall": 0.099,
+            "random_unsafe_recall": 0.0996
+          },
+          "top20": {
+            "errors_found": 6,
+            "errors_total": 40,
+            "unsafe_found": 0,
+            "unsafe_total": 24,
+            "random_error_recall": 0.2006,
+            "random_unsafe_recall": 0.198
+          },
+          "top30": {
+            "errors_found": 10,
+            "errors_total": 40,
+            "unsafe_found": 1,
+            "unsafe_total": 24,
+            "random_error_recall": 0.3,
+            "random_unsafe_recall": 0.2981
+          }
+        }
+      },
+      "independent": {
+        "engine": {
+          "n": 192,
+          "errors": 56,
+          "unsafe_approves": 38,
+          "auc_error": 0.4596,
+          "auc_unsafe": 0.3929,
+          "top10": {
+            "errors_found": 5,
+            "errors_total": 56,
+            "unsafe_found": 0,
+            "unsafe_total": 38,
+            "random_error_recall": 0.0991,
+            "random_unsafe_recall": 0.0994
+          },
+          "top20": {
+            "errors_found": 6,
+            "errors_total": 56,
+            "unsafe_found": 0,
+            "unsafe_total": 38,
+            "random_error_recall": 0.1985,
+            "random_unsafe_recall": 0.1997
+          },
+          "top30": {
+            "errors_found": 14,
+            "errors_total": 56,
+            "unsafe_found": 5,
+            "unsafe_total": 38,
+            "random_error_recall": 0.3011,
+            "random_unsafe_recall": 0.3017
+          }
+        },
+        "engine+cues": {
+          "n": 192,
+          "errors": 56,
+          "unsafe_approves": 38,
+          "auc_error": 0.3722,
+          "auc_unsafe": 0.2317,
+          "top10": {
+            "errors_found": 6,
+            "errors_total": 56,
+            "unsafe_found": 0,
+            "unsafe_total": 38,
+            "random_error_recall": 0.099,
+            "random_unsafe_recall": 0.0986
+          },
+          "top20": {
+            "errors_found": 8,
+            "errors_total": 56,
+            "unsafe_found": 0,
+            "unsafe_total": 38,
+            "random_error_recall": 0.1984,
+            "random_unsafe_recall": 0.1986
+          },
+          "top30": {
+            "errors_found": 12,
+            "errors_total": 56,
+            "unsafe_found": 1,
+            "unsafe_total": 38,
+            "random_error_recall": 0.3014,
+            "random_unsafe_recall": 0.3024
+          }
+        }
+      }
+    },
+    "adjudication": {
+      "a80": {
+        "n": 5000,
+        "status": {
+          "agreed": 3039,
+          "resolved_majority": 1602,
+          "disputed": 359
+        },
+        "resolved": 4641,
+        "gold_accuracy": 0.8886,
+        "disputed_share": 0.0718
+      },
+      "a90": {
+        "n": 5000,
+        "status": {
+          "agreed": 3647,
+          "resolved_majority": 1125,
+          "disputed": 228
+        },
+        "resolved": 4772,
+        "gold_accuracy": 0.9346,
+        "disputed_share": 0.0456
+      },
+      "a95": {
+        "n": 5000,
+        "status": {
+          "agreed": 4033,
+          "resolved_majority": 787,
+          "disputed": 180
+        },
+        "resolved": 4820,
+        "gold_accuracy": 0.9434,
+        "disputed_share": 0.036
+      }
+    },
+    "study": {
+      "items": {
+        "clear_correct": 16,
+        "gray_correct": 16,
+        "engine_wrong": 16
+      },
+      "unsafe_among_engine_wrong": 10,
+      "power": {
+        "sims": 200,
+        "params": {
+          "help_when_engine_right": 0.05,
+          "follow_when_engine_wrong": 0.3,
+          "speedup": 0.8,
+          "reviewer_sd": 0.06,
+          "base_seconds": 40.0
+        },
+        "by_reviewers": {
+          "8": {
+            "accuracy": 0.075,
+            "log_time": 0.97,
+            "follow_wrong": 0.615,
+            "unsafe_approve": 0.21
+          },
+          "12": {
+            "accuracy": 0.13,
+            "log_time": 1.0,
+            "follow_wrong": 0.89,
+            "unsafe_approve": 0.28
+          },
+          "16": {
+            "accuracy": 0.125,
+            "log_time": 1.0,
+            "follow_wrong": 0.985,
+            "unsafe_approve": 0.405
+          },
+          "24": {
+            "accuracy": 0.225,
+            "log_time": 1.0,
+            "follow_wrong": 1.0,
+            "unsafe_approve": 0.615
+          }
+        }
+      }
+    }
+  }
+}

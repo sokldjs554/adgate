@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import math
 import random
 import re
 from collections.abc import Callable, Sequence
@@ -157,3 +158,10 @@ def evaluate_queue(sets: dict[str, list[Example]], judge: RecordedJudge | None, 
             per[variant] = row
         out[name] = per
     return out
+
+
+def required_n(p: float, half_width: float, z: float = 1.96) -> int:
+    """비율 ``p`` 를 ``half_width`` 이내로 추정하는 데 필요한 표본 수(정규 근사, 무한 모집단)."""
+    if not 0 < p < 1 or half_width <= 0:
+        raise ValueError("0<p<1, half_width>0")
+    return math.ceil(z * z * p * (1 - p) / (half_width * half_width))

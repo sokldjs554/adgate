@@ -37,3 +37,12 @@ def catalog() -> Suite:
         "catalog", "라벨링 우선순위 큐 · 이중 라벨 시뮬레이션 · 사람 실험 키트 검출력(시뮬레이션)", "docs/EVAL_LABELING.md", {}, lambda v: [], lambda v: (lambda p, c: None),
         lambda p: ScriptedClient(lambda t, p2: {}), lambda v, o: {}, offline=offline,
     )
+
+
+@register("catalog_samples")
+def catalog_samples() -> Suite:
+    """위험 승인율 추정을 위한 무작위 표집 크기(docs/STUDY_PROTOCOL.md 부록). 새로 재는 것이 아니라 식의 값이다."""
+    def offline() -> dict[str, Any]:
+        return {f"h{round(h * 100):02d}": {f"p{round(p * 100):02d}": queue.required_n(p, h) for p in (0.05, 0.1, 0.2, 0.3, 0.5)} for h in (0.03, 0.05, 0.1)}
+
+    return Suite("catalog_samples", "무작위 표집 크기(이항 비율 정규 근사)", "docs/EVAL_LABELING.md", {}, lambda v: [], lambda v: (lambda p, c: None), lambda p: ScriptedClient(lambda t, p2: {}), lambda v, o: {}, offline=offline)

@@ -57,6 +57,12 @@ def test_recall_auc_and_random_baseline_arithmetic() -> None:
     assert 0.15 < queue.random_recall(rows, 0.2, lambda r: r.error, draws=2000) < 0.25          # 무작위 기대치는 예산 비율 근처
 
 
+def test_required_sample_size_matches_the_textbook_values() -> None:
+    assert queue.required_n(0.5, 0.05) == 385 and queue.required_n(0.2, 0.05) == 246 and queue.required_n(0.1, 0.03) == 385
+    with pytest.raises(ValueError):
+        queue.required_n(0.0, 0.05)
+
+
 def test_evaluate_queue_has_every_variant_that_can_be_measured() -> None:
     sets = {"redteam": POOL[:20], "gray": POOL[72:92], "dev": POOL[:5], "test": POOL[5:10]}
     res = queue.evaluate_queue(sets, judge=None)

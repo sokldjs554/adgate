@@ -235,3 +235,18 @@
   정확도 손실로 첫 접촉을 재현하는 시험(`test_exact_loss_reproduces_the_preserved_first_contact_rows`)이 보존된 산출물과 같음을 지킨다.
 - **두 번째 발견(고치지 않았다)**: 개선 후보 `fix_no_exceptions`(예외를 끈 운영을 기본 엔진으로 바꾸는 쪽)는 판정이 크게 달라져(150건 중 평균 <!-- num:res.ops_summary.results.shadow.fix_no_exceptions.disagree_mean|f2 -->26.70<!-- /num -->건) 크기 제한(10%)에 걸려 <!-- num:res.ops_summary.results.shadow.fix_no_exceptions.blocked|rpct1 -->100.0% (20/20)<!-- /num --> 막혔다. 안전 쪽 실패는 아니라서(사전등록 R2) 설계 한계로 적는다: 큰 개선은 사람이 확인할 수 없어 단계적 승격(카나리)이 필요하다.
 - **교훈**: ① 비교 손실을 정할 때 오류의 *방향*을 정해야 한다 — 정확도는 안전을 재지 못한다. ② 이 결함은 사전등록한 '열화 후보를 막는가' 시험이 있었기 때문에 잡혔다. 게이트가 같은 후보를 통과시키는지만 봤다면 못 봤다.
+
+## 15. 라벨링 파이프라인과 사람 실험 키트
+
+### F-25. 사람 실험 책자가 연습 첫 건을 건너뛰었다 — 사람 앞이 아니라 브라우저 e2e 가 잡았다
+- **무슨 일**: 책자의 JS 가 `시작`을 누르면 `state.i = -연습 수` 로 놓고 곧바로 `next()` 를 불러 한 칸을 더 갔다. 연습이 2건이면 둘째 건부터 보였다(연습 건수가 0 이면 맞게 동작해서 눈에 안 띈다).
+- **발견**: 브라우저 e2e(`tests/e2e/test_booklet.py`)가 '연습 + 본 소재 수만큼 화면이 나온다'를 확인하다가 하나 모자란 것을 보고 실패했다. 사람이 쓰기 전이다.
+- **조치**: 시작을 `-연습 수 − 1` 로 고쳤다. 같은 시험이 외부 요청 0, 제안 패널이 assisted 시도에만 나타남, 응답 파일의 형식, 소재 글의 `</script>` 가 코드로 실행되지 않음도 지킨다.
+- **교훈**: 사람에게 나눠 줄 도구는 사람이 쓰기 전에 실제 브라우저로 끝까지 눌러 본다. 단위 시험(JSON 이 맞다)만으로는 화면 흐름의 오프바이원을 못 잡는다.
+
+### F-26. 정답 없는 신호로 만든 우선순위 큐가 무작위보다 못했다 — 사전등록한 휴리스틱을 버렸다
+- **무슨 일**: [EVAL_LABELING.md](EVAL_LABELING.md) L1 은 `engine+cues` 큐의 상위 20% 가 엔진 오류의 40% 이상을 잡을 것이라고 예상했다. 실제는 <!-- num:hist.catalog_first_contact.results.queue.independent.engine+cues.top20.errors_found|int -->8<!-- /num -->/<!-- num:hist.catalog_first_contact.results.queue.independent.engine+cues.top20.errors_total|int -->56<!-- /num --> 로 무작위 기대치(<!-- num:hist.catalog_first_contact.results.queue.independent.engine+cues.top20.random_error_recall|pct1 -->19.8%<!-- /num -->)보다 낮았고, AUC(오류)는 <!-- num:hist.catalog_first_contact.results.queue.independent.engine+cues.auc_error|f3 -->0.372<!-- /num --> 였다. 위험 승인은 상위 20% 에서 <!-- num:hist.catalog_first_contact.results.queue.independent.engine+cues.top20.unsafe_found|int -->0<!-- /num -->/<!-- num:hist.catalog_first_contact.results.queue.independent.engine+cues.top20.unsafe_total|int -->38<!-- /num --> 건(AUC <!-- num:hist.catalog_first_contact.results.queue.independent.engine+cues.auc_unsafe|f3 -->0.232<!-- /num -->).
+- **무엇이 틀렸나(가설, 확인하지 않았다)**: 엔진이 스스로 의심한 소재(REVIEW)는 대체로 *맞는* 보류라 오류 목록의 앞이 아니고, 위험 개념 어휘가 있는 소재는 엔진이 이미 처리한 것들이며, 엔진의 실수는 어휘가 안 보이는 돌려 쓴 말이다. 즉 엔진의 사각지대는 엔진 자신의 신호로 보이지 않는다.
+- **조치(사전등록 R1·R2)**: 휴리스틱을 쓰지 않는다. 가중치를 이 풀에 맞춰 고치지 않았다. 엔진의 위험 승인율은 **엔진이 APPROVE 한 소재의 업종별 무작위 표집**으로 추정한다(표본 크기 표: [STUDY_PROTOCOL.md](STUDY_PROTOCOL.md) 부록).
+  양의 신호는 judge 불일치뿐이었다(redteam AUC <!-- num:hist.catalog_first_contact.results.queue.redteam.engine+cues+judge.auc_unsafe|f3 -->0.684<!-- /num -->). 회색지대 judge 녹음이 끝나면 새 사전등록으로 gray 에서 다시 묻는다.
+- **교훈**: 'label-free 신호로 사람의 시간을 아낀다'는 직관은 신호가 *오류와 상관*이 있을 때만 맞다. 엔진의 오류는 엔진이 놓친 것이라 엔진의 신호가 가리키지 않는다. 사전등록 덕에 이 직관을 가정이 아니라 수치(AUC < 0.5)로 반증했다.
