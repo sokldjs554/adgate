@@ -3,7 +3,7 @@
     "suite": "creative",
     "variant": "sonnet",
     "model": "claude-sonnet-5-5",
-    "git_sha": "ab82f4c",
+    "git_sha": "dcab432",
     "dirty": false,
     "recording_sha256": "5a1c6c82468156a30c64403a6354c6b2bed21a09d7545293d6c9ce699a052c61",
     "prereg": "docs/EVAL_CREATIVE.md"
@@ -1350,6 +1350,35 @@
         "error": "unverified_advertiser"
       }
     ],
-    "failed_cases": []
+    "failed_cases": [],
+    "gate_audit": {
+      "full": {
+        "candidates": 134,
+        "verify_failures": 0,
+        "codes": {}
+      },
+      "nogate": {
+        "candidates": 138,
+        "verify_failures": 32,
+        "codes": {
+          "tone_mismatch": 12,
+          "echoes_hidden_text": 3,
+          "invented_number": 17,
+          "overlay_too_long": 1,
+          "badge_too_long": 1,
+          "headline_too_long": 1
+        }
+      },
+      "nosanitize": {
+        "candidates": 133,
+        "verify_failures": 0,
+        "codes": {}
+      },
+      "noscreen": {
+        "candidates": 131,
+        "verify_failures": 0,
+        "codes": {}
+      }
+    }
   }
 }

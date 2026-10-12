@@ -3,8 +3,8 @@
     "suite": "creative",
     "variant": "haiku",
     "model": "claude-haiku-5-5",
-    "git_sha": "678dc23",
-    "dirty": true,
+    "git_sha": "dcab432",
+    "dirty": false,
     "recording_sha256": "3f94c1c8346b887f40aff8aec704336b2ae2b5d4b4c0bd59faeaa73ba09f686e",
     "prereg": "docs/EVAL_CREATIVE.md"
   },
@@ -637,6 +637,13 @@
         "error": null
       }
     ],
-    "failed_cases": []
+    "failed_cases": [],
+    "gate_audit": {
+      "full": {
+        "candidates": 128,
+        "verify_failures": 0,
+        "codes": {}
+      }
+    }
   }
 }
