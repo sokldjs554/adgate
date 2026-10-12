@@ -72,7 +72,7 @@ def names() -> list[str]:
     return sorted(REGISTRY)
 
 
-SUITE_MODULES = ("adgate.campaign.suite", "adgate.insight.suite")
+SUITE_MODULES = ("adgate.campaign.suite", "adgate.insight.suite", "adgate.creative.suite")
 
 
 def _load_all() -> None:

@@ -202,6 +202,21 @@ def test_happy_path_generates_verifies_reviews_and_ranks():
     assert "국내 1위" not in " ".join(f.text for f in res.facts)
 
 
+def test_text_printed_in_the_product_image_counts_as_landing_text():
+    """상품 이미지에만 있는 사실('6개월분')을 쓴 후보가 '랜딩에 없는 주장'으로 반려되면 안 된다 — 사용자는 그 이미지를 랜딩에서 본다(dev P-A06 에서 찾은 설계 오류)."""
+    img = ImageSpec.model_validate({"items": [{"kind": "product", "box": [20, 10, 60, 80], "shape": "tube", "color": "#2c9ab7", "label": "무향 SPF50+ 6개월분"}]})
+    lp = product()
+    lp = LoadedProduct(lp.product.model_copy(update={"image": img}), lp.html)
+    facts = {"facts": [{"text": "SPF50+ PA++++ 자외선 차단", "source": "page", "kind": "spec", "importance": 1},
+                       {"text": "6개월분", "source": "image", "kind": "spec", "importance": 1}], "risky_claims": []}
+    c = cand(headline="가상코스 선크림, 6개월분이에요", body="SPF50+ PA++++ 자외선 차단, 6개월분이에요.", fact_ids=("f1", "f2"), overlay="6개월분")
+    res = run_product(lp, script([c], facts=facts), POLICY, CreativeConfig(read_image=False))
+    t = res.traces[0]
+    assert [f.source for f in res.facts] == ["page", "image"]
+    assert t.final_status == "approved" and len(t.attempts) == 1, [p.code for p in t.attempts[0].problems]
+    assert "6개월분" in (t.attempts[0].creative.landing_text if t.attempts[0].creative else "")
+
+
 def test_a_violating_candidate_is_repaired_with_the_review_reasons():
     bad = cand(body="무조건 100% 만족 보장해요. 19,900원이에요.")
     client = script([bad], repairs=[cand()])

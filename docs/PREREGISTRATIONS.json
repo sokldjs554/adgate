@@ -22,5 +22,13 @@
     "sha256": "d6499cb8e2b323b7c6da9e3369f2e4c2b4f67d9bb7856a0d475e31a2af0e4044",
     "registered": "2026-10-12",
     "note": "성과 인사이트 사전등록(1–6절). 독립 시나리오 60건 동결·측정 전."
+  },
+  {
+    "doc": "docs/EVAL_CREATIVE.md",
+    "start": "## 1.",
+    "end": "## 7.",
+    "sha256": "74c0f56154a9c760509f3b3b5f04f21d766b936ddcf5b38430ee2d6dd0a0d455",
+    "registered": "2026-10-12",
+    "note": ""
   }
 ]

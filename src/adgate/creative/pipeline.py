@@ -179,10 +179,12 @@ def run_product(
         page_plain = "\n".join(t for _, t in lines)
         page_lines = [f"[{k}] {t}" for k, t in lines]
         # 2) 상품 이미지 읽기
-        if cfg.read_image and image_path is not None:
+        if cfg.read_image:
             from ..llm import Image
 
-            image_lines = [t.text for t in read_image(counter, Image(image_path)).texts if t.text.strip()]
+            # 파일이 없으면 사양으로 그린 이미지를 쓴다 — 열쇠가 사양+렌더러 버전이라 Pillow/FreeType 이 달라도 녹음을 재생할 수 있다(실호출 때만 그린다)
+            part = Image(image_path) if image_path is not None else RenderedImage(spec_json(p.image), renderer=RENDERER_VERSION)
+            image_lines = [t.text for t in read_image(counter, part).texts if t.text.strip()]
         else:
             image_lines = spec_texts(p.image)
         res.image_texts = image_lines
@@ -210,7 +212,8 @@ def run_product(
         if not cands:
             res.status, res.error = "no_safe_candidate", "no_valid_candidates"
             return res
-        landing = (page_plain[:MAX_LANDING] if cfg.use_landing else None) or None
+        # 랜딩 = 사용자가 상품 페이지에서 보는 것: 본문 + 상품 이미지에 인쇄된 글자(이미지에만 있는 사실을 쓴 후보가 '랜딩에 없는 주장'으로 반려되지 않게)
+        landing = ("\n".join([page_plain, *image_lines])[:MAX_LANDING] if cfg.use_landing else None) or None
         review_cfg = ReviewConfig(judge=cfg.judge)
         repair = repair_task(policy, cons)
 
