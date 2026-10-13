@@ -25,3 +25,7 @@
 | 2026-10-12 08:44:07Z | gray | full | b0b4308 | 깨끗 | 120 | 68.3% (82/120) | 31.4% (22/70) | 6.0% (3/50) | 이미지 셋 수정(F-31) 뒤 — 원격 설치 조사·경고 문형, 조건절, 인증번호 회신, 요구 거절 예외 이후, holdout 아님. 직전 수치는 efa3292 줄 |
 | 2026-10-13 06:14:49Z | test | full | 1ac17eb | 깨끗 | 77 | 100.0% (77/77) | 0.0% (0/51) | 0.0% (0/26) | audit-before-20261013 |
 | 2026-10-13 06:14:49Z | redteam | full | 1ac17eb | 깨끗 | 72 | 77.8% (56/72) | 27.5% (14/51) | 0.0% (0/21) | audit-before-20261013 |
+| 2026-10-13 06:24:28Z | test | full | 9a9edf2 | 수정됨 | 77 | 100.0% (77/77) | 0.0% (0/51) | 0.0% (0/26) | audit-after-20261013 |
+| 2026-10-13 06:24:29Z | redteam | full | 9a9edf2 | 수정됨 | 72 | 77.8% (56/72) | 27.5% (14/51) | 0.0% (0/21) | audit-after-20261013 |
+
+Supplemental per-case replay (2026-10-13 audit): a383cf2 -> 9a9edf2 + working tree; dev/test/redteam 209 cases × full/v1 replay/v1 replay+cap = 627; changed 0 excluding stats.latency_ms. Output: artifacts/audit/per_case_comparison.json. Initial supplemental script run was logged here explicitly; subsequent runs require --measure and append to this ledger. Not independent holdout.

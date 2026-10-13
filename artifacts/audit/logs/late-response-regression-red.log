@@ -1,0 +1,81 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+___________ test_latest_history_selection_wins_over_delayed_response ___________
+
+page = <Page url='http://127.0.0.1:36407/#run=16f3f96265444d97a318fbb8b909791b'>
+
+    def test_latest_history_selection_wins_over_delayed_response(page):
+        submit_example(page, '승인: 일반 앱')
+        first = page.evaluate('state.run.run_id')
+        submit_example(page, '반려: 금융 필수 고지 누락')
+        second = page.evaluate('state.run.run_id')
+        page.evaluate('''([first, second]) => {
+          const realApi = api;
+          window.releaseEarlier = null;
+          api = async (path, opts) => {
+            const value = await realApi(path, opts);
+            if (path === `/v1/reviews/${first}`) await new Promise(resolve => { window.releaseEarlier = resolve; });
+            return value;
+          };
+          openRun(first);
+        }''', [first, second])
+>       page.wait_for_function('window.releaseEarlier !== null')
+
+tests/e2e/test_console.py:229: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/playwright/sync_api/_generated.py:11559: in wait_for_function
+    self._sync(
+.venv/lib/python3.12/site-packages/playwright/_impl/_page.py:1112: in wait_for_function
+    return await self._main_frame.wait_for_function(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:860: in wait_for_function
+    await self._channel.send("waitForFunction", self._timeout, params)
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <playwright._impl._connection.Connection object at 0x7f0529df5940>
+cb = <function Channel.send.<locals>.<lambda> at 0x7f0529e00900>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.Error: Page.wait_for_function: EvalError: Refused to evaluate a string as JavaScript because 'unsafe-eval' is not an allowed source of script in the following Content Security Policy directive: "default-src 'self'".
+E           
+E               at eval (<anonymous>)
+E               at predicate (eval at evaluate (:290:30), <anonymous>:4:56)
+E               at next (eval at evaluate (:290:30), <anonymous>:29:29)
+
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: Error
+_____________ test_idempotent_replay_is_labeled_as_saved_not_fresh _____________
+
+page = <Page url='http://127.0.0.1:36407/#run=4063c27104d545ca8c286fa69322c07e'>
+
+    def test_idempotent_replay_is_labeled_as_saved_not_fresh(page):
+        submit_example(page, '승인: 일반 앱')
+        page.click('#submit')
+        page.wait_for_timeout(200)
+>       assert '저장된 결과' in page.inner_text('#execution')
+E       AssertionError: assert '저장된 결과' in '방금 실행한 심사 · 현재 서버 설정 적용'
+E        +  where '방금 실행한 심사 · 현재 서버 설정 적용' = inner_text('#execution')
+E        +    where inner_text = <Page url='http://127.0.0.1:36407/#run=4063c27104d545ca8c286fa69322c07e'>.inner_text
+
+tests/e2e/test_console.py:240: AssertionError
+=========================== short test summary info ============================
+FAILED tests/e2e/test_console.py::test_latest_history_selection_wins_over_delayed_response
+FAILED tests/e2e/test_console.py::test_idempotent_replay_is_labeled_as_saved_not_fresh
+2 failed, 12 deselected in 2.00s

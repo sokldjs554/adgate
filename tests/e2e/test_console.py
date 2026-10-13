@@ -77,7 +77,10 @@ def page(browser, base_url):  # type: ignore[no-untyped-def]
 
 def submit_example(pg, name: str) -> None:  # type: ignore[no-untyped-def]
     pg.select_option("#example", name)
-    pg.click("#submit")
+    with pg.expect_response(lambda r: r.url.endswith('/v1/reviews') and r.request.method == 'POST') as response:
+        pg.click("#submit")
+    run_id = response.value.json()['run_id']
+    pg.wait_for_function('(id) => state.run?.run_id === id', arg=run_id)
     pg.wait_for_selector("#result:not([hidden])")
 
 
@@ -209,3 +212,32 @@ def test_unavailable_rewrite_does_not_crash(page):
     page.wait_for_selector('#rewriteBox:not([hidden])', timeout=2500)
     assert '자동 수정 불가' in page.inner_text('#rewriteBox')
     assert page.problems == []
+
+
+def test_latest_history_selection_wins_over_delayed_response(page):
+    submit_example(page, '승인: 일반 앱')
+    first = page.evaluate('state.run.run_id')
+    submit_example(page, '반려: 금융 필수 고지 누락')
+    second = page.evaluate('state.run.run_id')
+    page.evaluate('''([first, second]) => {
+      const realApi = api;
+      window.releaseEarlier = null;
+      api = async (path, opts) => {
+        const value = await realApi(path, opts);
+        if (path === `/v1/reviews/${first}`) await new Promise(resolve => { window.releaseEarlier = resolve; });
+        return value;
+      };
+      openRun(first);
+    }''', [first, second])
+    page.wait_for_function('() => window.releaseEarlier !== null')
+    page.evaluate('(id) => openRun(id)', second)
+    page.evaluate('window.releaseEarlier()')
+    page.wait_for_timeout(150)
+    assert page.evaluate('state.run.run_id') == second
+
+
+def test_idempotent_replay_is_labeled_as_saved_not_fresh(page):
+    submit_example(page, '승인: 일반 앱')
+    page.click('#submit')
+    page.wait_for_timeout(200)
+    assert '저장된 결과' in page.inner_text('#execution')

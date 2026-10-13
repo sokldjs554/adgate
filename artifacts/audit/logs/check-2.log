@@ -1,0 +1,28 @@
+  [OK  ] required   H1                       hard_pass_through = 0  value=0 threshold=0
+  [OK  ] required   H2                       grounding = 100% (측정 대상이 있어야 한다)  value=1.0 threshold=1.0
+  [OK  ] required   H3                       unsafe_approve ≤ 3%  value=0.0 threshold=0.03
+  [OK  ] target     S1                       false_reject ≤ 5%  value=0.0 threshold=0.05
+  [OK  ] target     S2                       over_review ≤ 10%  value=0.0 threshold=0.1
+  [MISS] target     S3                       auto_rate ≥ 70%  value=0.6883 threshold=0.7
+  [OK  ] target     S4                       rule_f1 ≥ 0.85  value=1.0 threshold=0.85
+  [OK  ] target     S5                       B1보다 unsafe_approve·false_reject 둘 다 낮다  value={'unsafe_approve': 0.0, 'false_reject': 0.0} threshold={'unsafe_approve': 0.3725, 'false_reject': 0.1538}
+  [OK  ] required   D1                       dev: hard_pass_through = 0  value=0 threshold=0
+  [OK  ] regression R:dev:accuracy           dev:accuracy 기준선 대비 악화 없음  value=0.95 threshold=0.95
+  [OK  ] regression R:dev:unsafe_approve     dev:unsafe_approve 기준선 대비 악화 없음  value=0.0 threshold=0.0
+  [OK  ] regression R:dev:false_reject       dev:false_reject 기준선 대비 악화 없음  value=0.0 threshold=0.0
+  [OK  ] regression R:dev:over_review        dev:over_review 기준선 대비 악화 없음  value=0.0 threshold=0.0
+  [OK  ] regression R:dev:auto_rate          dev:auto_rate 기준선 대비 악화 없음  value=0.7 threshold=0.7
+  [OK  ] regression R:dev:rule_f1            dev:rule_f1 기준선 대비 악화 없음  value=1.0 threshold=1.0
+  [OK  ] regression R:test:accuracy          test:accuracy 기준선 대비 악화 없음  value=1.0 threshold=1.0
+  [OK  ] regression R:test:unsafe_approve    test:unsafe_approve 기준선 대비 악화 없음  value=0.0 threshold=0.0
+  [OK  ] regression R:test:false_reject      test:false_reject 기준선 대비 악화 없음  value=0.0 threshold=0.0
+  [OK  ] regression R:test:over_review       test:over_review 기준선 대비 악화 없음  value=0.0 threshold=0.0
+  [OK  ] regression R:test:auto_rate         test:auto_rate 기준선 대비 악화 없음  value=0.6883 threshold=0.6883
+  [OK  ] regression R:test:rule_f1           test:rule_f1 기준선 대비 악화 없음  value=1.0 threshold=1.0
+  [OK  ] regression R:redteam:accuracy       redteam:accuracy 기준선 대비 악화 없음  value=0.7778 threshold=0.7778
+  [OK  ] regression R:redteam:unsafe_approve redteam:unsafe_approve 기준선 대비 악화 없음  value=0.2745 threshold=0.2745
+  [OK  ] regression R:redteam:false_reject   redteam:false_reject 기준선 대비 악화 없음  value=0.0 threshold=0.0
+  [OK  ] regression R:redteam:over_review    redteam:over_review 기준선 대비 악화 없음  value=0.0 threshold=0.0
+  [OK  ] regression R:redteam:auto_rate      redteam:auto_rate 기준선 대비 악화 없음  value=0.8056 threshold=0.8056
+  [OK  ] regression R:redteam:rule_f1        redteam:rule_f1 기준선 대비 악화 없음  value=0.8548 threshold=0.8548
+게이트: 통과

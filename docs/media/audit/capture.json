@@ -1,0 +1,19 @@
+{
+  "captured_at": "2026-10-13T06:47:26.966705+00:00",
+  "source": "http://127.0.0.1:8765",
+  "mode": "deterministic live local server",
+  "browser": "Chromium via Playwright 1.56.0",
+  "app_js_sha256": "5e83aa353a0fa4b2abcec67e3c666b912b7e3fce2281737b887347f3c970fbfc",
+  "page_errors": [],
+  "mobile_overflow": false,
+  "scenes": [
+    "approve",
+    "reject",
+    "rewrite",
+    "resubmit",
+    "original quote",
+    "queue",
+    "human decision",
+    "reload"
+  ]
+}

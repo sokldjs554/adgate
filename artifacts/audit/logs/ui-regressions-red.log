@@ -1,0 +1,98 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+________________ test_role_switch_clears_previous_owners_result ________________
+
+page = <Page url='http://127.0.0.1:42445/'>
+
+    def test_role_switch_clears_previous_owners_result(page):
+        submit_example(page, "반려: 띄어쓰기로 우회한 수익 보장")
+        page.select_option('#role', 'dev-advertiser-2')
+        page.wait_for_selector('#me:has-text("carol")')
+>       assert not page.is_visible('#result')
+E       AssertionError: assert not True
+E        +  where True = is_visible('#result')
+E        +    where is_visible = <Page url='http://127.0.0.1:42445/'>.is_visible
+
+tests/e2e/test_console.py:167: AssertionError
+________________ test_reload_restores_saved_result_and_rewrite _________________
+
+page = <Page url='http://127.0.0.1:42445/'>
+
+    def test_reload_restores_saved_result_and_rewrite(page):
+        submit_example(page, '반려: 금융 필수 고지 누락')
+        page.click('#rewrite')
+        page.wait_for_selector('#rewriteBox:not([hidden])')
+        page.reload()
+        page.wait_for_selector('#me:has-text("alice")')
+>       page.wait_for_selector('#result:not([hidden])', timeout=2500)
+
+tests/e2e/test_console.py:178: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/playwright/sync_api/_generated.py:8182: in wait_for_selector
+    self._sync(
+.venv/lib/python3.12/site-packages/playwright/_impl/_page.py:422: in wait_for_selector
+    return await self._main_frame.wait_for_selector(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/playwright/_impl/_frame.py:369: in wait_for_selector
+    await self._channel.send(
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <playwright._impl._connection.Connection object at 0x7ff192fe77a0>
+cb = <function Channel.send.<locals>.<lambda> at 0x7ff19260a480>
+is_internal = False, title = None
+
+    async def wrap_api_call(
+        self, cb: Callable[[], Any], is_internal: bool = False, title: str = None
+    ) -> Any:
+        if self._api_zone.get():
+            return await cb()
+        task = asyncio.current_task(self._loop)
+        st: List[inspect.FrameInfo] = getattr(
+            task, "__pw_stack__", None
+        ) or inspect.stack(0)
+    
+        parsed_st = _extract_stack_trace_information_from_stack(st, is_internal, title)
+        self._api_zone.set(parsed_st)
+        try:
+            return await cb()
+        except Exception as error:
+>           raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E           playwright._impl._errors.TimeoutError: Page.wait_for_selector: Timeout 2500ms exceeded.
+E           Call log:
+E             - waiting for locator("#result:not([hidden])") to be visible
+
+.venv/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: TimeoutError
+_______________ test_lost_response_retry_reuses_same_submission ________________
+
+page = <Page url='http://127.0.0.1:42445/'>
+
+    def test_lost_response_retry_reuses_same_submission(page):
+        requests = []
+        def lose_first(route):
+            req = route.request
+            requests.append((req.post_data, req.headers.get('idempotency-key')))
+            response = route.fetch()  # server has already stored the first submission
+            if len(requests) == 1:
+                route.abort('failed')
+            else:
+                route.fulfill(response=response)
+        page.route('**/v1/reviews', lose_first)
+        page.select_option('#example', '승인: 일반 앱')
+        page.click('#submit')
+        page.wait_for_selector('#error:not([hidden])')
+        page.click('#submit')
+        page.wait_for_selector('#result:not([hidden])')
+>       assert requests[0] == requests[1]
+E       assert ('{"ad_id":"c...44944416c6d4') == ('{"ad_id":"c...9bd3727735a5')
+E         
+E         At index 0 diff: '{"ad_id":"console-1791872336761","advertiser":{"name":"콘솔 광고주","category":"app","verified":true},"headline":"가계부 앱, 영수증은 사진 한 장으로","body":"영수증을 찍으면 항목이 자동으로 분류돼요.","cta":"앱 다운로드","disclosure":null,"image_text":null,"landing_text":null}' != '{"ad_id":"console-1791872336821","advertiser":{"name":"콘솔 광고주","category":"app","verified":true},"headline":"가계부 앱, 영수증은 사진 한 장으로","body":"영수증을 찍으면 항목이 자동으로 분류돼요.","cta":"앱 다운로드","disclosure":null,"image_text":null,"landing_text":null}'
+E         Use -v to get more diff
+
+tests/e2e/test_console.py:203: AssertionError
+=========================== short test summary info ============================
+FAILED tests/e2e/test_console.py::test_role_switch_clears_previous_owners_result
+FAILED tests/e2e/test_console.py::test_reload_restores_saved_result_and_rewrite
+FAILED tests/e2e/test_console.py::test_lost_response_retry_reuses_same_submission
+3 failed, 8 deselected in 4.80s

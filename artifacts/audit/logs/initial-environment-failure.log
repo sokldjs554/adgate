@@ -1,0 +1,414 @@
+ssssssssss.............................................................. [  5%]
+........................................................................ [ 10%]
+........................................................................ [ 15%]
+........................................................................ [ 20%]
+........................................................................ [ 25%]
+........................................................................ [ 31%]
+........................................................................ [ 36%]
+........................................................................ [ 41%]
+........................................................................ [ 46%]
+........................................................................ [ 51%]
+........................................................................ [ 56%]
+.........................FFF............................................ [ 62%]
+........................................................................ [ 67%]
+........................................................................ [ 72%]
+........................................................................ [ 77%]
+........................................................................ [ 82%]
+........................................................................ [ 87%]
+........................................................................ [ 93%]
+........................................................................ [ 98%]
+.......................                                                  [100%]
+=================================== FAILURES ===================================
+_____________ test_live_server_serves_a_small_load_with_no_errors ______________
+
+    def test_live_server_serves_a_small_load_with_no_errors() -> None:
+        from adgate.ops.load import ALICE, LiveServer, bodies, load_settings, run_clients, summarize
+    
+        with LiveServer(load_settings()) as srv:
+            st = run_clients(srv.url, ALICE, bodies(POOL, 30), 4)
+        s = summarize(st)
+>       assert s["requests"] == 30 and s["status"] == {"201": 30} and s["available"] == 1.0 and s["conn_errors"] == 0
+E       assert (0 == 30)
+
+tests/test_ops.py:213: AssertionError
+__________ test_flooder_is_rate_limited_and_the_steady_tenant_is_not ___________
+
+    def test_flooder_is_rate_limited_and_the_steady_tenant_is_not() -> None:
+        from adgate.ops.load import ALICE, CAROL, LiveServer, bodies, load_settings, run_clients, summarize
+    
+        with LiveServer(load_settings(rate_per_min=40)) as srv:
+            flood = summarize(run_clients(srv.url, ALICE, bodies(POOL, 120, "F"), 6))
+            calm = summarize(run_clients(srv.url, CAROL, bodies(POOL, 10, "C"), 1))
+>       assert flood["rate_limited"] >= 70 and flood["status"].get("201", 0) <= 45         # 상한을 넘는 요청은 429
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert (0 >= 70)
+
+tests/test_ops.py:222: AssertionError
+________ test_judge_outage_guard_bounds_latency_after_the_circuit_opens ________
+
+    def test_judge_outage_guard_bounds_latency_after_the_circuit_opens() -> None:
+        from adgate.ops.load import rehearse_judge_outage
+    
+        r = rehearse_judge_outage(POOL, delay_s=0.4, timeout_s=0.1, requests=14)
+>       assert r["guarded"]["after_first6_p95_ms"] < 100                                    # 회로가 열린 뒤에는 judge 를 기다리지 않는다
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: '<' not supported between instances of 'NoneType' and 'int'
+
+tests/test_ops.py:230: TypeError
+=============================== warnings summary ===============================
+tests/test_ops.py::test_live_server_serves_a_small_load_with_no_errors
+  /workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-47 (worker)
+  
+  Traceback (most recent call last):
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "/workspace/scratch/f67166ba3312/adgate/src/adgate/ops/load.py", line 113, in worker
+      with httpx.Client(base_url=url, headers=headers, timeout=30.0) as c:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 700, in __init__
+      else self._init_proxy_transport(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 750, in _init_proxy_transport
+      return HTTPTransport(
+             ^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 191, in __init__
+      raise ImportError(
+  ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_ops.py::test_live_server_serves_a_small_load_with_no_errors
+  /workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-49 (worker)
+  
+  Traceback (most recent call last):
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "/workspace/scratch/f67166ba3312/adgate/src/adgate/ops/load.py", line 113, in worker
+      with httpx.Client(base_url=url, headers=headers, timeout=30.0) as c:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 700, in __init__
+      else self._init_proxy_transport(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 750, in _init_proxy_transport
+      return HTTPTransport(
+             ^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 191, in __init__
+      raise ImportError(
+  ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_ops.py::test_live_server_serves_a_small_load_with_no_errors
+  /workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-48 (worker)
+  
+  Traceback (most recent call last):
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "/workspace/scratch/f67166ba3312/adgate/src/adgate/ops/load.py", line 113, in worker
+      with httpx.Client(base_url=url, headers=headers, timeout=30.0) as c:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 700, in __init__
+      else self._init_proxy_transport(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 750, in _init_proxy_transport
+      return HTTPTransport(
+             ^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 191, in __init__
+      raise ImportError(
+  ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_ops.py::test_live_server_serves_a_small_load_with_no_errors
+  /workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-50 (worker)
+  
+  Traceback (most recent call last):
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "/workspace/scratch/f67166ba3312/adgate/src/adgate/ops/load.py", line 113, in worker
+      with httpx.Client(base_url=url, headers=headers, timeout=30.0) as c:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 700, in __init__
+      else self._init_proxy_transport(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 750, in _init_proxy_transport
+      return HTTPTransport(
+             ^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 191, in __init__
+      raise ImportError(
+  ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_ops.py::test_flooder_is_rate_limited_and_the_steady_tenant_is_not
+  /workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-58 (worker)
+  
+  Traceback (most recent call last):
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "/workspace/scratch/f67166ba3312/adgate/src/adgate/ops/load.py", line 113, in worker
+      with httpx.Client(base_url=url, headers=headers, timeout=30.0) as c:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 700, in __init__
+      else self._init_proxy_transport(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 750, in _init_proxy_transport
+      return HTTPTransport(
+             ^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 191, in __init__
+      raise ImportError(
+  ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_ops.py::test_flooder_is_rate_limited_and_the_steady_tenant_is_not
+  /workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-56 (worker)
+  
+  Traceback (most recent call last):
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "/workspace/scratch/f67166ba3312/adgate/src/adgate/ops/load.py", line 113, in worker
+      with httpx.Client(base_url=url, headers=headers, timeout=30.0) as c:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 700, in __init__
+      else self._init_proxy_transport(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 750, in _init_proxy_transport
+      return HTTPTransport(
+             ^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 191, in __init__
+      raise ImportError(
+  ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_ops.py::test_flooder_is_rate_limited_and_the_steady_tenant_is_not
+  /workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-55 (worker)
+  
+  Traceback (most recent call last):
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "/workspace/scratch/f67166ba3312/adgate/src/adgate/ops/load.py", line 113, in worker
+      with httpx.Client(base_url=url, headers=headers, timeout=30.0) as c:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 700, in __init__
+      else self._init_proxy_transport(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 750, in _init_proxy_transport
+      return HTTPTransport(
+             ^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 191, in __init__
+      raise ImportError(
+  ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_ops.py::test_flooder_is_rate_limited_and_the_steady_tenant_is_not
+  /workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-54 (worker)
+  
+  Traceback (most recent call last):
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "/workspace/scratch/f67166ba3312/adgate/src/adgate/ops/load.py", line 113, in worker
+      with httpx.Client(base_url=url, headers=headers, timeout=30.0) as c:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 700, in __init__
+      else self._init_proxy_transport(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 750, in _init_proxy_transport
+      return HTTPTransport(
+             ^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 191, in __init__
+      raise ImportError(
+  ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_ops.py::test_flooder_is_rate_limited_and_the_steady_tenant_is_not
+  /workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-52 (worker)
+  
+  Traceback (most recent call last):
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "/workspace/scratch/f67166ba3312/adgate/src/adgate/ops/load.py", line 113, in worker
+      with httpx.Client(base_url=url, headers=headers, timeout=30.0) as c:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 700, in __init__
+      else self._init_proxy_transport(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 750, in _init_proxy_transport
+      return HTTPTransport(
+             ^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 191, in __init__
+      raise ImportError(
+  ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_ops.py::test_flooder_is_rate_limited_and_the_steady_tenant_is_not
+  /workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-57 (worker)
+  
+  Traceback (most recent call last):
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "/workspace/scratch/f67166ba3312/adgate/src/adgate/ops/load.py", line 113, in worker
+      with httpx.Client(base_url=url, headers=headers, timeout=30.0) as c:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 700, in __init__
+      else self._init_proxy_transport(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 750, in _init_proxy_transport
+      return HTTPTransport(
+             ^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 191, in __init__
+      raise ImportError(
+  ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_ops.py::test_flooder_is_rate_limited_and_the_steady_tenant_is_not
+  /workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-53 (worker)
+  
+  Traceback (most recent call last):
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "/workspace/scratch/f67166ba3312/adgate/src/adgate/ops/load.py", line 113, in worker
+      with httpx.Client(base_url=url, headers=headers, timeout=30.0) as c:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 700, in __init__
+      else self._init_proxy_transport(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 750, in _init_proxy_transport
+      return HTTPTransport(
+             ^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 191, in __init__
+      raise ImportError(
+  ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_ops.py::test_judge_outage_guard_bounds_latency_after_the_circuit_opens
+  /workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-64 (worker)
+  
+  Traceback (most recent call last):
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "/workspace/scratch/f67166ba3312/adgate/src/adgate/ops/load.py", line 113, in worker
+      with httpx.Client(base_url=url, headers=headers, timeout=30.0) as c:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 700, in __init__
+      else self._init_proxy_transport(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 750, in _init_proxy_transport
+      return HTTPTransport(
+             ^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 191, in __init__
+      raise ImportError(
+  ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_ops.py::test_judge_outage_guard_bounds_latency_after_the_circuit_opens
+  /workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-62 (worker)
+  
+  Traceback (most recent call last):
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "/workspace/scratch/f67166ba3312/adgate/src/adgate/ops/load.py", line 113, in worker
+      with httpx.Client(base_url=url, headers=headers, timeout=30.0) as c:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 700, in __init__
+      else self._init_proxy_transport(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 750, in _init_proxy_transport
+      return HTTPTransport(
+             ^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 191, in __init__
+      raise ImportError(
+  ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+tests/test_ops.py::test_judge_outage_guard_bounds_latency_after_the_circuit_opens
+  /workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/_pytest/threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-60 (worker)
+  
+  Traceback (most recent call last):
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1075, in _bootstrap_inner
+      self.run()
+    File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/threading.py", line 1012, in run
+      self._target(*self._args, **self._kwargs)
+    File "/workspace/scratch/f67166ba3312/adgate/src/adgate/ops/load.py", line 113, in worker
+      with httpx.Client(base_url=url, headers=headers, timeout=30.0) as c:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 700, in __init__
+      else self._init_proxy_transport(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_client.py", line 750, in _init_proxy_transport
+      return HTTPTransport(
+             ^^^^^^^^^^^^^^
+    File "/workspace/scratch/f67166ba3312/adgate/.venv/lib/python3.12/site-packages/httpx/_transports/default.py", line 191, in __init__
+      raise ImportError(
+  ImportError: Using SOCKS proxy, but the 'socksio' package is not installed. Make sure to install httpx using `pip install httpx[socks]`.
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_ops.py::test_live_server_serves_a_small_load_with_no_errors
+FAILED tests/test_ops.py::test_flooder_is_rate_limited_and_the_steady_tenant_is_not
+FAILED tests/test_ops.py::test_judge_outage_guard_bounds_latency_after_the_circuit_opens
+3 failed, 1378 passed, 10 skipped, 14 warnings in 89.73s (0:01:29)

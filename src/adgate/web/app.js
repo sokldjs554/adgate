@@ -26,7 +26,7 @@ const EXAMPLES = {
   "반려: 질병 치료 표방": { category: "supplement", headline: "먹기만 하면 관절염 완치", body: "천연 추출물로 무릎이 가벼워집니다.", cta: "구매하기" },
 };
 
-const state = { run: null, rewrite: null, epoch: 0, pending: null, revisionOf: null };
+const state = { run: null, rewrite: null, epoch: 0, navigation: 0, pending: null, revisionOf: null };
 
 // ---------------------------------------------------------------- DOM 도우미
 function h(tag, attrs, ...children) {
@@ -64,6 +64,7 @@ async function api(path, opts = {}) {
     e.problem = data; e.status = res.status;
     throw e;
   }
+  if (data && res.headers.get("Idempotent-Replayed") === "true") data._replayed = true;
   return data;
 }
 function showError(err) {
@@ -191,16 +192,19 @@ async function loadHistory() {
 
 async function openRun(id) {
   const epoch = state.epoch;
+  const navigation = ++state.navigation;
+  state.run = null;
+  for (const panel of ["result", "trace", "rewriteBox", "reviewBox"]) $("#" + panel).hidden = true;
   try {
     const run = await api(`/v1/reviews/${encodeURIComponent(id)}`);
-    if (epoch !== state.epoch) return;
+    if (epoch !== state.epoch || navigation !== state.navigation) return;
     renderRun(run, true);
     // A saved rewrite is read back, never regenerated on reload.
     const events = await api(`/v1/reviews/${run.run_id}/events`);
     if (epoch !== state.epoch || state.run?.run_id !== run.run_id) return;
     const saved = events.events.filter(e => e.type === "rewrite_requested" && e.payload.result).pop();
     if (saved) renderRewrite(saved.payload.result);
-  } catch (e) { if (epoch === state.epoch) showError(e); }
+  } catch (e) { if (epoch === state.epoch && navigation === state.navigation) showError(e); }
 }
 
 function updateReviewBox() {
@@ -256,6 +260,7 @@ function renderRewrite(r) {
 // ---------------------------------------------------------------- 이벤트
 async function refreshMe(restore = false) {
   const epoch = ++state.epoch;
+  ++state.navigation;
   const savedId = restore ? new URLSearchParams(location.hash.slice(1)).get("run") : null;
   state.run = null; state.pending = null; state.revisionOf = null; state.role = null;
   fillForm({}); showError(null); $("#reason").value = "";
@@ -280,6 +285,7 @@ async function onSubmit() {
   showError(null);
   const btn = $("#submit"); btn.disabled = true;
   const epoch = state.epoch;
+  const navigation = ++state.navigation;
   const body = readForm();
   const fingerprint = JSON.stringify({ ...body, ad_id: null, parent: state.revisionOf });
   if (!state.pending || state.pending.fingerprint !== fingerprint) {
@@ -291,8 +297,8 @@ async function onSubmit() {
       method: "POST", body: pending.body,
       headers: { "Idempotency-Key": pending.key, ...(pending.parent ? { "X-Parent-Run": pending.parent } : {}) },
     });
-    if (epoch !== state.epoch) return;
-    renderRun(run); loadHistory(); loadQueue();
+    if (epoch !== state.epoch || navigation !== state.navigation) return;
+    renderRun(run, !!run._replayed); loadHistory(); loadQueue();
   } catch (e) { if (epoch === state.epoch) showError(e); } finally { btn.disabled = false; }
 }
 
@@ -312,12 +318,13 @@ async function onResume() {
   showError(null);
   const verdict = document.querySelector("input[name=verdict]:checked").value;
   const epoch = state.epoch;
+  const navigation = state.navigation, id = state.run.run_id;
   $("#resume").disabled = true;
   try {
-    const run = await api(`/v1/reviews/${state.run.run_id}/resume`, {
+    const run = await api(`/v1/reviews/${id}/resume`, {
       method: "POST", body: JSON.stringify({ verdict, reason: $("#reason").value }),
     });
-    if (epoch !== state.epoch) return;
+    if (epoch !== state.epoch || navigation !== state.navigation || state.run?.run_id !== id) return;
     renderRun(run);
     loadQueue(); loadHistory();
   } catch (e) { if (epoch === state.epoch) showError(e); }
