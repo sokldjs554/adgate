@@ -158,3 +158,54 @@ def test_submit_works_when_crypto_random_uuid_is_missing(browser, base_url):  # 
     submit_example(pg, "반려: 띄어쓰기로 우회한 수익 보장")
     assert pg.inner_text("#badge") == "반려" and problems == []
     pg.close()
+
+
+def test_role_switch_clears_previous_owners_result(page):
+    submit_example(page, "반려: 띄어쓰기로 우회한 수익 보장")
+    page.select_option('#role', 'dev-advertiser-2')
+    page.wait_for_selector('#me:has-text("carol")')
+    assert not page.is_visible('#result')
+    assert not page.is_visible('#trace')
+    assert page.input_value('#headline') == ''
+
+
+def test_reload_restores_saved_result_and_rewrite(page):
+    submit_example(page, '반려: 금융 필수 고지 누락')
+    page.click('#rewrite')
+    page.wait_for_selector('#rewriteBox:not([hidden])')
+    page.reload()
+    page.wait_for_selector('#me:has-text("alice")')
+    page.wait_for_selector('#result:not([hidden])', timeout=2500)
+    page.wait_for_selector('#rewriteBox:not([hidden])', timeout=2500)
+    assert '검증됨' in page.inner_text('#rewriteBox')
+    page.click('#useRewrite')
+    page.click('#submit')
+    page.wait_for_selector('#badge:has-text("승인")')
+    assert '원본 심사' in page.inner_text('#lineage')
+
+
+def test_lost_response_retry_reuses_same_submission(page):
+    requests = []
+    def lose_first(route):
+        req = route.request
+        requests.append((req.post_data, req.headers.get('idempotency-key')))
+        response = route.fetch()  # server has already stored the first submission
+        if len(requests) == 1:
+            route.abort('failed')
+        else:
+            route.fulfill(response=response)
+    page.route('**/v1/reviews', lose_first)
+    page.select_option('#example', '승인: 일반 앱')
+    page.click('#submit')
+    page.wait_for_selector('#error:not([hidden])')
+    page.click('#submit')
+    page.wait_for_selector('#result:not([hidden])')
+    assert requests[0] == requests[1]
+
+
+def test_unavailable_rewrite_does_not_crash(page):
+    submit_example(page, '반려: 질병 치료 표방')
+    page.click('#rewrite')
+    page.wait_for_selector('#rewriteBox:not([hidden])', timeout=2500)
+    assert '자동 수정 불가' in page.inner_text('#rewriteBox')
+    assert page.problems == []

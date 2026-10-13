@@ -12,6 +12,8 @@
     <div class="wrap">
       <h1>adgate <span class="sub">광고 소재 심사</span></h1>
       <p class="notice">모든 소재는 <b>합성 데이터</b>이고 정책은 <b>가상(v1)</b>입니다. 실제 심사 기준이나 법률 자문이 아닙니다.</p>
+      <p class="intro">광고의 어떤 표현이 문제인지 확인하고, 수정 후 다시 심사하세요. 판단이 어려운 건은 심사자에게 넘깁니다.</p>
+      <p id="runtime" class="notice">실행 방식 확인 중…</p>
       <div class="who">
         <label>역할
           <select id="role">
@@ -33,6 +35,11 @@
       <label>예시 불러오기
         <select id="example"><option value="">직접 입력</option></select>
       </label>
+      <div class="actions examples">
+        <button type="button" data-example="승인: 일반 앱">승인 사례</button>
+        <button type="button" data-example="반려: 금융 필수 고지 누락">반려 → 수정</button>
+        <button type="button" data-example="사람 검토: 근거 없는 긴급성">사람 검토</button>
+      </div>
       <div class="row">
         <label>업종
           <select id="category">
@@ -64,7 +71,9 @@
       </div>
       <div id="empty" class="card muted">왼쪽에서 소재를 입력하고 <b>심사하기</b>를 누르세요. 예시를 불러오면 바로 눌러 볼 수 있습니다.</div>
       <div id="result" class="card" hidden>
+        <p id="execution" class="notice"></p>
         <div class="head"><span id="badge" class="badge"></span><span id="state" class="muted"></span></div>
+        <p id="lineage" class="notice"></p>
         <div id="fields"></div>
         <h3>사유</h3>
         <ul id="reasons" class="reasons"></ul>
@@ -84,6 +93,11 @@
       <div id="trace" class="card" hidden>
         <h3>처리 기록</h3>
         <ol id="events" class="events"></ol>
+      </div>
+      <div class="card">
+        <div class="head"><h3 class="flush">저장된 심사 기록</h3><button id="refreshHistory" type="button">새로고침</button></div>
+        <p class="notice">기록을 열면 저장된 결과를 표시합니다. 새 심사는 실행하지 않습니다.</p>
+        <ul id="history" class="queue"></ul>
       </div>
     </section>
   </main>

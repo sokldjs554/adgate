@@ -247,7 +247,8 @@ def rewrite(
 ) -> RewriteResult:
     cfg = cfg or ReviewConfig()
     policy = policy or load_policy()
-    actionable = [f for f in result.findings if f.severity in ("reject", "review") and f.source == "rule"]
+    active = [f for f in result.findings if f.severity in ("reject", "review")]
+    actionable = [f for f in active if f.source == "rule"]
     edits = [e for f in actionable if f.rule_id in AUTO_FIXABLE and (e := _edit_for(creative, f)) is not None]
     updates, applied = _apply(creative, edits)
 
@@ -258,7 +259,7 @@ def rewrite(
         applied.append(AppliedFix(rule_id="AD-FIN-01", field="disclosure", before=before, after=updates["disclosure"]))
 
     if not applied:
-        return RewriteResult(status="unavailable", candidate=None, applied=[], unresolved=[f"{f.rule_id}:{f.code}" for f in actionable], verification=None)
+        return RewriteResult(status="unavailable", candidate=None, applied=[], unresolved=[f"{f.rule_id}:{f.code}" for f in active], verification=None)
 
     headline = updates.get("headline", creative.headline)
     if not headline.strip():

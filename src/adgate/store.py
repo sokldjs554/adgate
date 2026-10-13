@@ -160,6 +160,12 @@ class Store:
             rows = self._db.execute("SELECT seq, ts, type, payload_json FROM events WHERE run_id=? ORDER BY seq", (run_id,)).fetchall()
         return [{"seq": r["seq"], "ts": r["ts"], "type": r["type"], "payload": json.loads(r["payload_json"])} for r in rows]
 
+    def parent_run_id(self, run_id: str) -> str | None:
+        # The link is inserted atomically with the child run; old databases need no migration.
+        with self._lock:
+            row = self._db.execute("SELECT payload_json FROM events WHERE run_id=? AND seq=1", (run_id,)).fetchone()
+        return json.loads(row["payload_json"]).get("parent_run_id") if row else None
+
     def list_runs(
         self, *, submitter: str | None = None, state: str | None = None, limit: int = 50, offset: int = 0, oldest_first: bool = False,
     ) -> list[Run]:

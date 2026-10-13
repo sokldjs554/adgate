@@ -161,6 +161,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         out: dict[str, Any] = {
             "run_id": run.id, "state": run.state, "created_at": run.created_at, "outcome": run.result["outcome"],
             "final_outcome": run.final_outcome, "decided_by": run.decided_by, "result": result, "creative": run.creative,
+            "parent_run_id": store.parent_run_id(run.id),
         }
         if me.role == "reviewer":
             out["submitter"] = run.submitter
@@ -174,6 +175,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/v1/me")
     def whoami(me: Me) -> dict[str, str]:
         return {"identity": me.identity, "role": me.role}
+
+    @app.get("/v1/runtime")
+    def runtime() -> dict[str, Any]:
+        name = getattr(settings.judge, "name", None)
+        return {"mode": "deterministic" if settings.judge is None else "recorded" if name == "recorded" else "configured",
+                "judge": name, "prompt_version": getattr(settings.judge, "version", None),
+                "judge_cap_review": True, "dev": settings.dev}
 
     @app.get("/metrics", response_class=PlainTextResponse)
     def metrics(me: Me) -> str:  # 규칙별 건수를 담으므로 인증된 호출자만(Prometheus 는 Authorization 헤더를 보낼 수 있다)
@@ -202,10 +210,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.post("/v1/reviews", status_code=201)
     def submit(
         creative: Creative, me: Me, response: Response, idempotency_key: Annotated[str | None, Header()] = None,
+        x_parent_run: Annotated[str | None, Header()] = None,
     ) -> dict[str, Any]:
         if idempotency_key is not None and not IDEM_KEY.match(idempotency_key):
             raise Problem(422, "Idempotency-Key 형식이 올바르지 않습니다", "영문·숫자·_.:- 128자 이하만 쓸 수 있습니다.")
         req_hash = _hash_creative(creative)  # 멱등성은 *제출된* 본문으로 본다
+        if x_parent_run is not None:
+            parent = store.get(x_parent_run)
+            if parent is None or parent.submitter != me.identity:
+                raise Problem(404, "찾을 수 없습니다", "본인이 제출한 원본 심사만 연결할 수 있습니다.")
+            req_hash = hashlib.sha256(f"{req_hash}:{parent.id}".encode()).hexdigest()
         if creative.advertiser.verified and not me.verified:
             # 소재가 스스로 '인증 완료' 라고 적어도 플랫폼이 인증하지 않은 계정이면 인증되지 않은 광고주로 심사한다(독립 리뷰 H6)
             creative = creative.model_copy(update={"advertiser": creative.advertiser.model_copy(update={"verified": False})})
@@ -228,6 +242,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if waiting and store.count(submitter=me.identity, state="waiting_input") >= settings.max_waiting_per_submitter:
             raise Problem(429, "검토 대기 건이 너무 많습니다", "대기 중인 건이 처리된 뒤 다시 제출해 주세요.", {"Retry-After": "300"})
         events: list[tuple[str, dict[str, Any]]] = [("submitted", {"ad_id": creative.ad_id, "category": creative.advertiser.category})]
+        if x_parent_run is not None:
+            events[0][1]["parent_run_id"] = x_parent_run
         events += [("stage", t) for t in trace]
         events.append(("waiting_input" if waiting else "decided", {"outcome": result.outcome, "rules": sorted({f.rule_id for f in result.findings if f.severity != "info"})}))
         try:
@@ -286,8 +302,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         creative = Creative.model_validate(run.creative)
         result = ReviewResult.model_validate(run.result)
         out = rewrite(creative, result, cfg, policy)
-        store.add_event(run.id, "rewrite_requested", {"status": out.status, "by": me.identity, "applied": len(out.applied)})
+        store.add_event(run.id, "rewrite_requested", {"status": out.status, "by": me.identity,
+                                                     "applied": len(out.applied), "result": out.model_dump(mode="json")})
         return out
+
+    @app.get("/v1/reviews/{run_id}/rewrite")
+    def get_rewrite(run_id: str, me: Me) -> RewriteResult:
+        run = visible(store.get(run_id), me)
+        for event in reversed(store.events(run.id)):
+            if event["type"] == "rewrite_requested" and "result" in event["payload"]:
+                return RewriteResult.model_validate(event["payload"]["result"])
+        raise Problem(404, "저장된 수정안이 없습니다")
 
     @app.post("/v1/reviews/{run_id}/resume")
     def resume(run_id: str, body: ResumeRequest, me: Me) -> dict[str, Any]:

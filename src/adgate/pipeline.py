@@ -95,10 +95,16 @@ def review(
     if cfg.judge is not None:
         stats.judge_called = True
         try:
-            already = [
+            already: list[dict[str, Any]] = [
                 {"rule_id": f.rule_id, "field": f.field, "quote": f.quote}
                 for f in (*strict, *extra) if f.severity != "info" and f.quote
             ]
+            if getattr(cfg.judge, "include_absence_context", False):
+                already = [
+                    {"rule_id": f.rule_id, "code": f.code, "field": f.field, "quote": f.quote,
+                     "missing": f.missing, "severity": f.severity}
+                    for f in (*strict, *extra) if f.severity != "info"
+                ]
             proposals = cfg.judge.propose(creative, policy, already)
             grounded, dropped = ground(proposals, creative, policy)
             if cfg.judge_cap_review:  # LLM 의 말만으로 자동 반려하지 않는다: 사람이 본다

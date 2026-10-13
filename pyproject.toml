@@ -37,7 +37,7 @@ adgate = "adgate.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-adgate = ["data/*.yaml", "data/fonts/*", "web/*"]
+adgate = ["data/*.yaml", "data/*.md", "data/fonts/*", "web/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

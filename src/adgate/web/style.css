@@ -29,6 +29,10 @@ input, select, textarea { width: 100%; margin-top: 4px; padding: 8px 10px; borde
 input[type=checkbox], input[type=radio] { width: auto; margin: 0; }
 .row { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; } .row > label:first-child { flex: 1; min-width: 150px; }
 .actions { display: flex; gap: 8px; margin-top: 14px; }
+.actions { flex-wrap: wrap; }
+.intro { margin: 10px 0 4px; }
+#lineage { overflow-wrap: anywhere; }
+.queue li button { overflow-wrap: anywhere; }
 button { padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--text); cursor: pointer; font: inherit; }
 button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 button:disabled { opacity: .55; cursor: wait; }

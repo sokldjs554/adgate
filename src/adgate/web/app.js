@@ -26,7 +26,7 @@ const EXAMPLES = {
   "반려: 질병 치료 표방": { category: "supplement", headline: "먹기만 하면 관절염 완치", body: "천연 추출물로 무릎이 가벼워집니다.", cta: "구매하기" },
 };
 
-const state = { run: null, rewrite: null };
+const state = { run: null, rewrite: null, epoch: 0, pending: null, revisionOf: null };
 
 // ---------------------------------------------------------------- DOM 도우미
 function h(tag, attrs, ...children) {
@@ -114,8 +114,16 @@ function highlighted(text, findings) {
 // ---------------------------------------------------------------- 렌더
 const LABEL = { APPROVE: ["승인", "approve"], REJECT: ["반려", "reject"], REVIEW: ["사람 검토 필요", "review"] };
 
-function renderRun(run) {
+function renderRun(run, saved = false) {
   state.run = run;
+  history.replaceState(null, "", "#run=" + encodeURIComponent(run.run_id));
+  $("#execution").textContent = saved ? "저장된 결과 보기 · 새 심사 호출 없음" : "방금 실행한 심사 · 현재 서버 설정 적용";
+  const lineage = $("#lineage"); clear(lineage);
+  if (run.parent_run_id) {
+    const button = h("button", { type: "button" }, "원본 심사 보기");
+    button.addEventListener("click", () => openRun(run.parent_run_id));
+    lineage.append(button);
+  }
   $("#empty").hidden = true; $("#result").hidden = false;
   const final = run.final_outcome;
   const [label, cls] = LABEL[final];
@@ -147,21 +155,52 @@ function renderRun(run) {
 }
 
 async function loadQueue() {
+  const epoch = state.epoch;
   const box = $("#queueBox");
   if (state.role !== "reviewer") { box.hidden = true; return; }
   try {
     const { items } = await api("/v1/reviews?state=waiting_input&limit=200");
+    if (epoch !== state.epoch) return;
     const ul = $("#queue"); clear(ul);
     if (items.length === 0) ul.append(h("li", { class: "muted" }, "대기 중인 건이 없습니다."));
     for (const it of items) {
       const btn = h("button", { type: "button" },
         h("span", {}, it.creative.headline || "(제목 없음)"),
         h("span", { class: "meta" }, `${it.submitter} · ${it.created_at.slice(11, 19)}`));
-      btn.addEventListener("click", () => renderRun(it));
+      btn.addEventListener("click", () => openRun(it.run_id));
       ul.append(h("li", {}, btn));
     }
     box.hidden = false;
-  } catch (e) { box.hidden = true; }
+  } catch (e) { if (epoch === state.epoch) box.hidden = true; }
+}
+
+async function loadHistory() {
+  const epoch = state.epoch;
+  try {
+    const { items } = await api("/v1/reviews?limit=50");
+    if (epoch !== state.epoch) return;
+    const ul = $("#history"); clear(ul);
+    for (const it of items) {
+      const btn = h("button", { type: "button" }, `${LABEL[it.final_outcome][0]} · ${it.creative.headline || "(제목 없음)"}`);
+      btn.addEventListener("click", () => openRun(it.run_id));
+      ul.append(h("li", {}, btn));
+    }
+    if (!items.length) ul.append(h("li", { class: "muted" }, "저장된 기록이 없습니다."));
+  } catch (e) { if (epoch === state.epoch) showError(e); }
+}
+
+async function openRun(id) {
+  const epoch = state.epoch;
+  try {
+    const run = await api(`/v1/reviews/${encodeURIComponent(id)}`);
+    if (epoch !== state.epoch) return;
+    renderRun(run, true);
+    // A saved rewrite is read back, never regenerated on reload.
+    const events = await api(`/v1/reviews/${run.run_id}/events`);
+    if (epoch !== state.epoch || state.run?.run_id !== run.run_id) return;
+    const saved = events.events.filter(e => e.type === "rewrite_requested" && e.payload.result).pop();
+    if (saved) renderRewrite(saved.payload.result);
+  } catch (e) { if (epoch === state.epoch) showError(e); }
 }
 
 function updateReviewBox() {
@@ -170,18 +209,20 @@ function updateReviewBox() {
 }
 
 async function loadEvents(id) {
+  const epoch = state.epoch;
   try {
     const { events } = await api(`/v1/reviews/${id}/events`);
+    if (epoch !== state.epoch || state.run?.run_id !== id) return;
     const ol = $("#events"); clear(ol);
     for (const e of events) {
       let detail = "";
       if (e.type === "stage") detail = ` ${e.payload.stage}` + (e.payload.count != null ? ` (${e.payload.count})` : "");
-      else if (e.type === "resumed") detail = ` ${e.payload.reviewer}: ${e.payload.verdict}`;
+      else if (e.type === "resumed") detail = ` ${e.payload.reviewer || "심사자"}: ${e.payload.verdict}`;
       else if (e.payload.outcome) detail = ` ${e.payload.outcome}`;
       ol.append(h("li", {}, `${e.type}${detail}`));
     }
     $("#trace").hidden = false;
-  } catch (_) { $("#trace").hidden = true; }
+  } catch (_) { if (epoch === state.epoch) $("#trace").hidden = true; }
 }
 
 function renderRewrite(r) {
@@ -197,69 +238,110 @@ function renderRewrite(r) {
     for (const a of r.applied) diff.append(h("div", {}, `${a.field}: `, h("del", {}, a.before || "(없음)"), " → ", h("ins", {}, a.after || "(삭제)")));
     box.append(diff);
     const v = r.verification;
+    if (v.problems.length) box.append(h("p", { class: "error" }, "보존 검사 실패: " + v.problems.join(", ")));
+    box.append(h("p", { class: "notice" }, "검증됨은 현재 검사 통과를 뜻합니다. 숫자와 의미의 완전한 보존이나 실제 광고 승인을 보증하지 않습니다."));
     box.append(h("p", { class: "muted" },
       `재심사 결과 ${v.outcome_after} · 단어 보존 ${(v.retention * 100).toFixed(0)}% · 사라진 수치 ${v.lost_claims.length} · 새 수치 ${v.new_claims.length}`
       + (v.thin_headline ? " · 제목이 너무 짧아짐" : "")));
     if (r.unresolved.length) box.append(h("p", {}, "남은 위반: " + r.unresolved.join(", ")));
     box.append(h("div", { class: "actions" }, h("button", { id: "useRewrite", type: "button" }, "수정안을 폼에 채우기")));
-    $("#useRewrite").addEventListener("click", () => fillForm(r.candidate));
+    $("#useRewrite").addEventListener("click", () => {
+      fillForm(r.candidate); state.revisionOf = state.run.run_id; state.pending = null;
+      $("#submit").textContent = "수정안 재심사";
+    });
   }
   box.hidden = false;
 }
 
 // ---------------------------------------------------------------- 이벤트
-async function refreshMe() {
+async function refreshMe(restore = false) {
+  const epoch = ++state.epoch;
+  const savedId = restore ? new URLSearchParams(location.hash.slice(1)).get("run") : null;
+  state.run = null; state.pending = null; state.revisionOf = null; state.role = null;
+  fillForm({}); showError(null); $("#reason").value = "";
+  for (const id of ["result", "trace", "rewriteBox", "reviewBox", "queueBox"]) { $("#"+id).hidden = true; }
+  for (const id of ["fields", "reasons", "events", "queue", "history", "rewriteBox"]) clear($("#"+id));
+  $("#empty").hidden = false;
+  $("#submit").textContent = "심사하기";
+  if (!restore) history.replaceState(null, "", location.pathname);
   try {
     const me = await api("/v1/me");
+    if (epoch !== state.epoch) return;
     state.role = me.role;
     $("#me").textContent = `${me.identity} (${me.role === "reviewer" ? "심사자" : "광고주"})`;
-  } catch (e) { state.role = null; $("#me").textContent = "인증 실패: " + e.message; }
+  } catch (e) { if (epoch !== state.epoch) return; state.role = null; $("#me").textContent = "인증 실패: " + e.message; return; }
   updateReviewBox();
   loadQueue();
+  loadHistory();
+  if (savedId) openRun(savedId);
 }
 
 async function onSubmit() {
   showError(null);
   const btn = $("#submit"); btn.disabled = true;
+  const epoch = state.epoch;
+  const body = readForm();
+  const fingerprint = JSON.stringify({ ...body, ad_id: null, parent: state.revisionOf });
+  if (!state.pending || state.pending.fingerprint !== fingerprint) {
+    state.pending = { fingerprint, body: JSON.stringify(body), key: newKey(), parent: state.revisionOf };
+  }
+  const pending = state.pending;
   try {
     const run = await api("/v1/reviews", {
-      method: "POST", body: JSON.stringify(readForm()),
-      headers: { "Idempotency-Key": newKey() },
+      method: "POST", body: pending.body,
+      headers: { "Idempotency-Key": pending.key, ...(pending.parent ? { "X-Parent-Run": pending.parent } : {}) },
     });
-    renderRun(run);
-  } catch (e) { showError(e); } finally { btn.disabled = false; }
+    if (epoch !== state.epoch) return;
+    renderRun(run); loadHistory(); loadQueue();
+  } catch (e) { if (epoch === state.epoch) showError(e); } finally { btn.disabled = false; }
 }
 
 async function onRewrite() {
   if (!state.run) return;
   const btn = $("#rewrite"); btn.disabled = true;
-  try { renderRewrite(await api(`/v1/reviews/${state.run.run_id}/rewrite`, { method: "POST" })); loadEvents(state.run.run_id); }
-  catch (e) { showError(e); } finally { btn.disabled = false; }
+  const epoch = state.epoch, id = state.run.run_id;
+  try {
+    const r = await api(`/v1/reviews/${id}/rewrite`, { method: "POST" });
+    if (epoch !== state.epoch || state.run?.run_id !== id) return;
+    renderRewrite(r); loadEvents(id);
+  } catch (e) { if (epoch === state.epoch) showError(e); } finally { btn.disabled = false; }
 }
 
 async function onResume() {
   if (!state.run) return;
   showError(null);
   const verdict = document.querySelector("input[name=verdict]:checked").value;
+  const epoch = state.epoch;
+  $("#resume").disabled = true;
   try {
     const run = await api(`/v1/reviews/${state.run.run_id}/resume`, {
       method: "POST", body: JSON.stringify({ verdict, reason: $("#reason").value }),
     });
+    if (epoch !== state.epoch) return;
     renderRun(run);
-    loadQueue();
-  } catch (e) { showError(e); }
+    loadQueue(); loadHistory();
+  } catch (e) { if (epoch === state.epoch) showError(e); }
+  finally { $("#resume").disabled = false; }
 }
 
 function init() {
+  const remembered = sessionStorage.getItem("adgate-role");
+  if (["dev-advertiser", "dev-advertiser-2", "dev-reviewer"].includes(remembered)) $("#role").value = remembered;
   for (const name of Object.keys(EXAMPLES)) $("#example").append(h("option", { value: name }, name));
-  $("#example").addEventListener("change", (e) => { if (e.target.value) fillForm(EXAMPLES[e.target.value]); });
-  $("#role").addEventListener("change", () => { $("#token").hidden = $("#role").value !== "custom"; refreshMe(); });
-  $("#token").addEventListener("change", refreshMe);
+  const example = (name) => { fillForm(EXAMPLES[name]); state.revisionOf = null; state.pending = null; $("#submit").textContent = "심사하기"; };
+  $("#example").addEventListener("change", (e) => { if (e.target.value) example(e.target.value); });
+  document.querySelectorAll("[data-example]").forEach(b => b.addEventListener("click", () => { $("#example").value = b.dataset.example; example(b.dataset.example); }));
+  $("#role").addEventListener("change", () => { $("#token").hidden = $("#role").value !== "custom"; sessionStorage.setItem("adgate-role", $("#role").value); refreshMe(); });
+  $("#token").addEventListener("change", () => refreshMe());
   $("#submit").addEventListener("click", onSubmit);
   $("#rewrite").addEventListener("click", onRewrite);
   $("#resume").addEventListener("click", onResume);
   $("#refreshQueue").addEventListener("click", loadQueue);
-  $("#clear").addEventListener("click", () => { fillForm({}); $("#example").value = ""; showError(null); });
-  refreshMe();
+  $("#refreshHistory").addEventListener("click", loadHistory);
+  $("#clear").addEventListener("click", () => { fillForm({}); state.revisionOf = null; state.pending = null; $("#example").value = ""; $("#submit").textContent = "심사하기"; showError(null); });
+  api("/v1/runtime").then(r => {
+    $("#runtime").textContent = r.mode === "deterministic" ? "현재: 실시간 규칙 검사 · LLM 호출 없음 · 사유/수정안은 정책 템플릿" : r.mode === "recorded" ? "현재: 저장된 LLM 응답 재생 + 규칙 검사 · 새 API 호출 없음" : "현재: 설정된 Judge 사용 · 모델은 후보만 제안, 원문 검증과 판정은 코드, 추가 후보는 사람 검토";
+  }).catch(() => { $("#runtime").textContent = "실행 방식 확인 실패"; });
+  refreshMe(true);
 }
 document.addEventListener("DOMContentLoaded", init);

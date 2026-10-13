@@ -23,6 +23,7 @@ from .normalize import build
 from .policy import Policy
 
 MAX_PROPOSALS = 20
+LANDING_REVIEW_RULES = frozenset({"AD-GUA-01", "AD-HLT-01", "AD-BRD-01"})
 
 
 class ProposedFinding(BaseModel):
@@ -73,7 +74,7 @@ def ground(proposals: Sequence[ProposedFinding], creative: Creative, policy: Pol
             or p.code not in rule.codes
             or policy.spec(p.rule_id, p.code).severity == "info"
             or not policy.applies(p.rule_id, category)
-            or p.field not in AD_FIELDS
+            or (p.field not in AD_FIELDS and not (p.field == "landing_text" and p.rule_id in LANDING_REVIEW_RULES))
         ):
             dropped += 1
             continue
@@ -85,7 +86,8 @@ def ground(proposals: Sequence[ProposedFinding], creative: Creative, policy: Pol
         s, e = span
         kept.append(
             Finding(
-                rule_id=p.rule_id, code=p.code, severity=policy.spec(p.rule_id, p.code).severity,
+                rule_id=p.rule_id, code=p.code,
+                severity="review" if p.field == "landing_text" else policy.spec(p.rule_id, p.code).severity,
                 field=p.field, quote=text[s:e], start=s, end=e, source="llm",
                 note=p.rationale, confidence=p.confidence,
             )

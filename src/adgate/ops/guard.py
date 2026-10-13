@@ -46,6 +46,7 @@ class GuardedJudge:
         self.inner, self.timeout_s, self.max_concurrent = inner, timeout_s, max_concurrent
         self.failure_threshold, self.reset_s, self.clock = failure_threshold, reset_s, clock
         self.name = f"guarded:{getattr(inner, 'name', 'judge')}"
+        self.include_absence_context = getattr(inner, "include_absence_context", False)
         self._pool = concurrent.futures.ThreadPoolExecutor(max_workers=max_concurrent, thread_name_prefix="judge-guard")
         self._slots = threading.BoundedSemaphore(max_concurrent)
         self._lock = threading.Lock()
