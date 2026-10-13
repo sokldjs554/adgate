@@ -15,7 +15,7 @@
 {"id": "NEW-015", "creative": {"ad_id": "NEW-015", "advertiser": {"name": "가상상점", "category": "supplement", "verified": true}, "headline": "당뇨 완치에 도움을 주는 영양제", "body": "", "cta": "자세히 보기"}, "gold": "REJECT"}
 {"id": "NEW-016", "creative": {"ad_id": "NEW-016", "advertiser": {"name": "가상상점", "category": "ecommerce", "verified": true}, "headline": "국내 최고의 청소 도구", "body": "", "cta": "자세히 보기"}, "gold": "REJECT"}
 {"id": "NEW-017", "creative": {"ad_id": "NEW-017", "advertiser": {"name": "가상상점", "category": "ecommerce", "verified": true}, "headline": "오늘만 이 가격에 판매합니다", "body": "", "cta": "자세히 보기"}, "gold": "REVIEW"}
-{"id": "NEW-018", "creative": {"ad_id": "NEW-018", "advertiser": {"name": "가상상점", "category": "ecommerce", "verified": true}, "headline": "가방 12,000원", "body": "", "cta": "자세히 보기", "landing_text": "가방 판매가 32,000원"}, "gold": "REVIEW"}
+{"id": "NEW-018", "creative": {"ad_id": "NEW-018", "advertiser": {"name": "가상상점", "category": "ecommerce", "verified": true}, "headline": "가방 12,000원", "body": "", "cta": "자세히 보기", "landing_text": "가방 판매가 32,000원"}, "gold": "REJECT"}
 {"id": "NEW-019", "creative": {"ad_id": "NEW-019", "advertiser": {"name": "가상상점", "category": "loan", "verified": true}, "headline": "생활자금 대출 상담 안내", "body": "", "cta": "자세히 보기"}, "gold": "REJECT"}
 {"id": "NEW-020", "creative": {"ad_id": "NEW-020", "advertiser": {"name": "가상상점", "category": "general", "verified": true}, "headline": "로그인을 위해 비밀번호를 알려주세요", "body": "", "cta": "자세히 보기"}, "gold": "REJECT"}
 {"id": "NEW-021", "creative": {"ad_id": "NEW-021", "advertiser": {"name": "가상상점", "category": "invest", "verified": true}, "headline": "내일의 잔고가 오늘보다 작아질 일은 없습니다", "body": "", "cta": "자세히 보기", "disclosure": "원금 손실이 발생할 수 있습니다."}, "gold": "REJECT"}
