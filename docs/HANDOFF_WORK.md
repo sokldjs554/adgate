@@ -60,6 +60,7 @@
 ## 실패한 시도와 남은 한계
 
 - 최신 프롬프트를 입력 계약까지 구현했지만 실제 모델 비교는 못 했다. 사용 가능한 키·모델·예산을 현재 환경에서 찾지 못했다. [이전 실호출 CI](https://github.com/sokldjs554/adgate/actions/runs/38322660519)에는 Anthropic credit 부족 오류가 있었다. 현재 잔액은 재확인하지 않았다.
+- 생성된 수정안 직접 대조에서 NEW-013의 부자연스러운 문장, NEW-014에 남은 “조건 없이”와 “심사 후 결정”의 충돌 가능성을 확인했다. 둘 다 자동 verified였으므로 사람 품질 확인은 여전히 필요하다. NEW-018의 가격 불일치는 임의 수정하지 않았다. 새 셋을 겨냥한 튜닝은 하지 않았다.
 - 새 셋의 우회적 수익/건강 보장·랜딩 표현을 결정론이 놓쳤다. NEW-022 정답도 독립 사람 검수가 필요하다.
 - 첫 전체 테스트는 실행 환경 SOCKS 프록시 의존성 때문에 로컬 HTTP 부하 3개가 실패. 테스트 프로세스에서만 proxy 환경변수를 제거해 통과했다. 최신 Chromium 다운로드 실패 후 Playwright 1.56.0/Chromium 141로 검증했다.
 - UI 보완 중 자동 수정 불가 응답에서 잘못된 변수 참조를 브라우저 시험으로 발견해 수정했다. 검토 과정에서 지연 응답 역전과 재생 라벨 오류를 추가로 재현했다. 실패 로그도 보존한다.
@@ -104,6 +105,7 @@ adgate docs --check
 
 - 기준 main CI: [38271379938, success](https://github.com/sokldjs554/adgate/actions/runs/38271379938).
 - 핵심 수정 커밋 29a8eb5 CI: [38357728417, success](https://github.com/sokldjs554/adgate/actions/runs/38357728417).
-- [수정 브랜치의 최신 CI 목록](https://github.com/sokldjs554/adgate/actions?query=branch%3Afeat%2Fads-review-audit-20261013). 최종 문서·영상 커밋의 상태는 업로드 후 확인한다.
+- 최종 코드·평가·영상 커밋 [1e16405](https://github.com/sokldjs554/adgate/commit/1e16405b5025e7d04d5acee260e757c1659606c3) (로컬 ad5eb9f) CI: [38358991239, success](https://github.com/sokldjs554/adgate/actions/runs/38358991239). Python 3.11/3.12/3.13 시험·게이트·문서 검증, e2e, Docker 빌드/기동 모두 통과. [조회 결과](../artifacts/audit/remote_ci.json). 이후 커밋은 이 결과와 문장 품질 관찰을 기록한 문서/메타데이터 보충이다.
+- [수정 브랜치의 최신 CI 목록](https://github.com/sokldjs554/adgate/actions?query=branch%3Afeat%2Fads-review-audit-20261013).
 
 추가 실측에 필요한 것: 유효한 API 키가 실행 환경에 안전하게 설정되어 있어야 하고, 사용할 수 있는 정확한 모델 ID와 최대 지출 예산이 정해져야 한다. 그 전까지 v3 채택은 보류한다. 실호출 시 v1/v3를 같은 새 입력으로 각각 기록하고 실패·비용·지연·검토부담을 함께 비교해야 한다.
